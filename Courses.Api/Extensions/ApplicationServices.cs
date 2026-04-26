@@ -1,4 +1,5 @@
 using Courses.Api.Helper.EmailSend;
+using Courses.Api.Helper.Mapping;
 using Courses.Core.Options;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
@@ -22,6 +23,7 @@ namespace Courses.Api.Extensions
         {
             services.AddScoped<ICreateToken, CreateToken>();
             services.AddScoped<IDbInitialize, DbInitialization>();
+            services.AddAutoMapper(typeof(ProfileMapping));
             services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailSender, EmailSender>();

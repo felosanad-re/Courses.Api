@@ -1,4 +1,5 @@
-﻿using Courses.Core.ModelsDTO;
+﻿using Courses.Api.ErrorHandler;
+using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO;
 using Courses.Core.ModelsDTO.ResponseDTO;
 using Courses.Core.Services.Contract.AccountServices;
@@ -45,6 +46,20 @@ namespace Courses.Api.Controllers.Account
             var result = await _accountService.ConfirmAccount(request);
             if (!result.Succeed)
                 return BadRequest(result.Message);
+
+            return Ok(result);
+        }
+        #endregion
+
+        #region Login
+        [HttpPost("Login")] // POST: /api/Account/Login
+        public async Task<ActionResult<ApplicationServiceResult<LoginResponse>>> Login(LoginRequest req)
+        {
+            var result = await _accountService.LoginAsync(req);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400)
+            {
+                Message = [result.Message]
+            });
 
             return Ok(result);
         }
