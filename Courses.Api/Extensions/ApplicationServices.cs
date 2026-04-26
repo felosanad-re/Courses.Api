@@ -1,4 +1,5 @@
-﻿using Courses.Core.Services.Contract;
+using Courses.Core.Options;
+using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.UnitOfWorks;
@@ -13,7 +14,7 @@ namespace Courses.Api.Extensions
 {
     public static class ApplicationServices
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration _configuration)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<ICreateToken, CreateToken>();
             services.AddScoped<IDbInitialize, DbInitialization>();
@@ -21,7 +22,11 @@ namespace Courses.Api.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
-            #region Add JWT Token
+            var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+            services.Configure<JwtOptions>(jwtSection);
+            services.Configure<SeedAdminOptions>(configuration.GetSection(SeedAdminOptions.SectionName));
+
+            var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -32,16 +37,16 @@ namespace Courses.Api.Extensions
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateAudience = true,
-                    ValidAudience = _configuration["JWT:audience"],
+                    ValidAudience = jwtOptions.Audience,
                     ValidateIssuer = true,
-                    ValidIssuer = _configuration["JWT:issuer"],
+                    ValidIssuer = jwtOptions.Issuer,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.FromDays(double.Parse(_configuration["JWT:expires"])),
+                    ClockSkew = TimeSpan.FromMinutes(jwtOptions.ClockSkewMinutes),
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key))
                 };
             });
-            #endregion
+
             return services;
         }
     }

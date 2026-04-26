@@ -1,4 +1,4 @@
-﻿using Courses.Core.GenericRepository;
+using Courses.Core.GenericRepository;
 using Courses.Core.Models;
 using Courses.Core.Specifications;
 using Courses.Repo.Data;
@@ -17,11 +17,10 @@ namespace Courses.Repo.GenericRepositories
         }
 
         public async Task<IReadOnlyList<T>> GetAllAsync()
-            => await _dbContext.Set<T>().AsNoTracking().ToListAsync();
+            => await BaseQuery().AsNoTracking().ToListAsync();
 
         public async Task<T?> GetAsync(int id)
-            => await _dbContext.Set<T>().FindAsync(id);
-
+            => await BaseQuery().FirstOrDefaultAsync(entity => entity.Id == id);
 
         public async Task<IReadOnlyList<T>> GetAllAsyncSpec(ISpecifications<T> spec)
             => await AddSpecifications(spec).ToListAsync();
@@ -47,9 +46,10 @@ namespace Courses.Repo.GenericRepositories
             _dbContext.Set<T>().Update(entity);
         }
 
+        private IQueryable<T> BaseQuery()
+            => _dbContext.Set<T>().Where(entity => !entity.IsDeleted); // To Get Data not deleted
+
         private IQueryable<T> AddSpecifications(ISpecifications<T> spec)
-        {
-            return EvaluateSpec<T>.GetQuery(_dbContext.Set<T>(), spec);
-        }
+            => EvaluateSpec<T>.GetQuery(BaseQuery(), spec);
     }
 }

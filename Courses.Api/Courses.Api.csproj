@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Courses.Services\Courses.Services.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Files\" />
+  </ItemGroup>
+
 </Project>

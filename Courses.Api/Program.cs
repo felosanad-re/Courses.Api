@@ -54,6 +54,8 @@ namespace Courses.Api
 
                 app.UseHttpsRedirection();
 
+                app.UseStaticFiles();
+                app.UseAuthentication();
                 app.UseAuthorization();
 
 
@@ -223,7 +225,7 @@ namespace Courses.Api
             {
                 Path.Combine(AppContext.BaseDirectory, "startup-error.log"),
                 Path.Combine(AppContext.BaseDirectory, "logs", "startup-error.log"),
-                Path.Combine(Path.GetTempPath(), "AdminPanel.Apis", "startup-error.log")
+                Path.Combine(Path.GetTempPath(), "Courses.Api", "startup-error.log")
             };
 
             return paths.Distinct(StringComparer.OrdinalIgnoreCase);
@@ -250,3 +252,4 @@ namespace Courses.Api
         #endregion
     }
 }
+

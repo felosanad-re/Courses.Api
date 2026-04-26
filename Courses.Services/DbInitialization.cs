@@ -1,13 +1,9 @@
-﻿using Courses.Core;
+using Courses.Core;
 using Courses.Core.Models.ApplicationUsers;
+using Courses.Core.Options;
 using Courses.Core.Services.Contract;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace Courses.Services
 {
@@ -15,11 +11,16 @@ namespace Courses.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly SeedAdminOptions _seedAdminOptions;
 
-        public DbInitialization(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public DbInitialization(
+            UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IOptions<SeedAdminOptions> seedAdminOptions)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _seedAdminOptions = seedAdminOptions.Value;
         }
 
         public async Task CreateInitializationAsync()
@@ -33,28 +34,42 @@ namespace Courses.Services
                     await _roleManager.CreateAsync(new IdentityRole(role));
                 }
             }
-            // Create Admin
-            var user = new ApplicationUser()
+
+            if (!_seedAdminOptions.Enabled)
             {
-                FirstName = "Admin",
-                LastName = "Admin",
-                UserName = "Super_Admin",
-                Email = "Admin@Domain.com",
-                Address = "Giza"
-            };
-            var userEmail = await _userManager.FindByEmailAsync(user.Email);
-            if (userEmail is null)
-            {
-                var result = await _userManager.CreateAsync(user, "Admin1234$");
-                if (!result.Succeeded)
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        throw new Exception(error.Description);
-                    }
-                }
-                await _userManager.AddToRoleAsync(user, Roles.Admin);
+                return;
             }
+
+            if (string.IsNullOrWhiteSpace(_seedAdminOptions.Email) ||
+                string.IsNullOrWhiteSpace(_seedAdminOptions.UserName) ||
+                string.IsNullOrWhiteSpace(_seedAdminOptions.Password))
+            {
+                throw new InvalidOperationException("Seed admin is enabled, but the required settings are missing.");
+            }
+
+            var existingUser = await _userManager.FindByEmailAsync(_seedAdminOptions.Email);
+            if (existingUser is not null)
+            {
+                return;
+            }
+
+            var user = new ApplicationUser
+            {
+                FirstName = _seedAdminOptions.FirstName,
+                LastName = _seedAdminOptions.LastName,
+                UserName = _seedAdminOptions.UserName,
+                Email = _seedAdminOptions.Email,
+                Address = _seedAdminOptions.Address
+            };
+
+            var result = await _userManager.CreateAsync(user, _seedAdminOptions.Password);
+            if (!result.Succeeded)
+            {
+                var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(error => error.Description));
+                throw new InvalidOperationException(errorMessage);
+            }
+
+            await _userManager.AddToRoleAsync(user, Roles.Admin);
         }
     }
 }
