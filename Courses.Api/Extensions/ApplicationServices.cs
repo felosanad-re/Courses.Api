@@ -1,12 +1,16 @@
+using Courses.Api.Helper.EmailSend;
 using Courses.Core.Options;
 using Courses.Core.Services.Contract;
+using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.UnitOfWorks;
 using Courses.Services;
+using Courses.Services.AccountServices;
 using Courses.Services.AttachmentServices;
 using Courses.Services.CreateToken;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -20,7 +24,8 @@ namespace Courses.Api.Extensions
             services.AddScoped<IDbInitialize, DbInitialization>();
             services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddScoped<IAccountService, AccountService>();
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
             services.Configure<JwtOptions>(jwtSection);
