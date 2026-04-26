@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Courses.Core;
 using Courses.Core.Models.ApplicationUsers;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO;
@@ -62,7 +63,8 @@ namespace Courses.Services.AccountServices
                 // If Account Not Created
                 if (!result.Succeeded)
                     return ApplicationServiceResult<CreateAccountResponse>.Fail(string.Join(", ", result.Errors.Select(e => e.Description)));
-
+                // Add Account Role
+                await _userManager.AddToRoleAsync(user, Roles.Student);
                 // Create Token
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 token = WebUtility.UrlEncode(token);
@@ -111,9 +113,43 @@ namespace Courses.Services.AccountServices
         #endregion
 
         #region Login Async
-        public Task<ApplicationServiceResult<LoginResponse>> LoginAsync(LoginRequest req)
+        public async Task<ApplicationServiceResult<LoginResponse>> LoginAsync(LoginRequest req)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var user = req.UserNameOrEmail.Contains('@') ?
+                await _userManager.FindByEmailAsync(req.UserNameOrEmail):
+                await _userManager.FindByNameAsync(req.UserNameOrEmail);
+
+                if (user == null) return ApplicationServiceResult<LoginResponse>.Fail("User Not Found");
+
+                var result = await _signInManager.PasswordSignInAsync(
+                    user,
+                    req.Password,
+                    req.RememberMe,
+                    true
+                    );
+                if (result.IsLockedOut) return ApplicationServiceResult<LoginResponse>.Fail("Email Is Lockout");
+                if (result.IsNotAllowed) return ApplicationServiceResult<LoginResponse>.Fail("Email Not Confirm");
+                if (!result.Succeeded) return ApplicationServiceResult<LoginResponse>.Fail("Invalid email or password");
+
+                var token = await _createToken.CreateTokenAsync(user);
+                var roles = await _userManager.GetRolesAsync(user);
+                var data = new LoginResponse()
+                {
+                    Email = user.Email!,
+                    UserName = user.UserName!,
+                    IsAuthenticated = true,
+                    Roles = roles,
+                    Token = token
+                };
+                return ApplicationServiceResult<LoginResponse>.Success(data, "Login Succeeded");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Login failed for user {UserName}. Error: {Error}", req.UserNameOrEmail, ex.Message);
+                return ApplicationServiceResult<LoginResponse>.Fail("There is error in database");
+            }
         }
         #endregion
 
