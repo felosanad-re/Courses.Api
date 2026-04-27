@@ -4,18 +4,16 @@ using Courses.Core.Models.ApplicationUsers;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO;
 using Courses.Core.ModelsDTO.ResponseDTO;
+using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
+using static System.Net.WebRequestMethods;
 
 namespace Courses.Services.AccountServices
 {
@@ -24,6 +22,7 @@ namespace Courses.Services.AccountServices
         #region Inject Services
 
         protected readonly ICreateToken _createToken;
+        protected readonly IRedisRepo<OTPUser> _redisRepo;
         protected readonly UserManager<ApplicationUser> _userManager;
         protected readonly SignInManager<ApplicationUser> _signInManager;
         protected readonly IEmailSender _emailSender;
@@ -31,7 +30,7 @@ namespace Courses.Services.AccountServices
         protected readonly IConfiguration _configuration;
         protected readonly IMapper _mapper;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ICreateToken createToken, SignInManager<ApplicationUser> signInManager, ILogger<AccountService> logger, IMapper mapper)
+        public AccountService(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ICreateToken createToken, SignInManager<ApplicationUser> signInManager, ILogger<AccountService> logger, IMapper mapper, IRedisRepo<OTPUser> redisRepo)
         {
             _userManager = userManager;
             _emailSender = emailSender;
@@ -39,6 +38,7 @@ namespace Courses.Services.AccountServices
             _signInManager = signInManager;
             _logger = logger;
             _mapper = mapper;
+            _redisRepo = redisRepo;
         }
 
         #endregion
@@ -154,9 +154,36 @@ namespace Courses.Services.AccountServices
         #endregion
 
         #region CheckAccountAsync
-        public Task<ApplicationServiceResult<CheckAccountResponse>> CheckAccountAsync(CheckAccountRequest req)
+        public async Task<ApplicationServiceResult<CheckAccountResponse>> CheckAccountAsync(CheckAccountRequest req)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (string.IsNullOrWhiteSpace(req.UserNameOrEmail))
+                    return ApplicationServiceResult<CheckAccountResponse>.Fail("UserNameOrEmail is required");
+
+                var user = req.UserNameOrEmail.Contains('@') ?
+                await _userManager.FindByEmailAsync(req.UserNameOrEmail) :
+                await _userManager.FindByNameAsync(req.UserNameOrEmail);
+
+                if (user == null) return ApplicationServiceResult<CheckAccountResponse>.Fail("User Not Found");
+
+                // method to generate OTP and token and send email
+                var token = await GenerateAndStoreOTPAsync(user.Id, user.Email!);
+
+                var result = new CheckAccountResponse()
+                {
+                    Exists = true,
+                    CanResetPassword = user.EmailConfirmed,
+                    RequiresOTP = true,
+                    Token = token
+                };
+                return ApplicationServiceResult<CheckAccountResponse>.Success(result, "Email Is Exist You Received OTP");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CheckAccount failed for {UserNameOrEmail}. Error: {Error}", req.UserNameOrEmail, ex.Message);
+                return ApplicationServiceResult<CheckAccountResponse>.Fail("There is error in database");
+            }
         }
         #endregion
 
@@ -173,6 +200,34 @@ namespace Courses.Services.AccountServices
             throw new NotImplementedException();
         }
 
+        #endregion
+
+        #region Private Helper Methods
+        private async Task<string> GenerateAndStoreOTPAsync(string userId, string email)
+        {
+            var OTP = RandomNumberGenerator.GetInt32(100000, 999999); // 6 Digits
+            var token = Guid.NewGuid().ToString("N");
+            var userOTP = new OTPUser
+            {
+                OTP = OTP,
+                Token = token,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            // Set OTP In Redis using Token as key (so CheckOTP can look it up)
+            var key = $"OTP:{token}";
+            await _redisRepo.SetKeyAsync(key, userOTP, TimeSpan.FromMinutes(5));
+
+            var htmlMessage = $@"
+                <h2>Password Reset Request</h2>
+                <p>Your OTP Code: <strong>{OTP}</strong></p>
+                <p><small>This code expires in 5 minutes.</small></p>";
+
+            await _emailSender.SendEmailAsync(email, "Forget Password", htmlMessage);
+
+            return token;
+        }
         #endregion
     }
 }
