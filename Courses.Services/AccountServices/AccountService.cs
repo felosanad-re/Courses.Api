@@ -186,16 +186,83 @@ namespace Courses.Services.AccountServices
         #endregion
 
         #region CheckOTP
-        public Task<ApplicationServiceResult<CheckOTPResponse>> CheckOTP(CheckOTPRequest req)
+        public async Task<ApplicationServiceResult<CheckOTPResponse>> CheckOTP(CheckOTPRequest req)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var key = $"OTP:{req.Token}";
+                var userOTP = await _redisRepo.GetKeyAsync(key);
+
+                if (userOTP == null)
+                    return ApplicationServiceResult<CheckOTPResponse>.Fail("Invalid or expired token, please request a new OTP");
+
+                if (userOTP.IsExpired(TimeSpan.FromMinutes(5)))
+                {
+                    await _redisRepo.DeleteKeyAsync(key);
+                    return ApplicationServiceResult<CheckOTPResponse>.Fail("OTP has expired, please request a new one");
+                }
+
+                if (userOTP.OTP != req.OTP)
+                    return ApplicationServiceResult<CheckOTPResponse>.Fail("Invalid OTP code");
+
+                // Mark as verified and update in Redis
+                userOTP.IsVerified = true;
+                await _redisRepo.SetKeyAsync(key, userOTP, TimeSpan.FromMinutes(10));
+
+                var result = new CheckOTPResponse
+                {
+                    IsValid = true,
+                    Token = userOTP.Token
+                };
+                return ApplicationServiceResult<CheckOTPResponse>.Success(result, "OTP verified successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CheckOTP failed. Error: {Error}", ex.Message);
+                return ApplicationServiceResult<CheckOTPResponse>.Fail("There is error in database");
+            }
         }
         #endregion
 
         #region ResetPasswordAsync
-        public Task<ApplicationServiceResult<ResetPasswordResponse>> ResetPasswordAsync(ResetPasswordRequest req)
+        public async Task<ApplicationServiceResult<ResetPasswordResponse>> ResetPasswordAsync(ResetPasswordRequest req)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var key = $"OTP:{req.Token}";
+                var userOTP = await _redisRepo.GetKeyAsync(key);
+
+                if (userOTP == null)
+                    return ApplicationServiceResult<ResetPasswordResponse>.Fail("Invalid or expired token, please start over");
+
+                if (!userOTP.IsVerified)
+                    return ApplicationServiceResult<ResetPasswordResponse>.Fail("OTP not verified, please verify your OTP first");
+
+                var user = await _userManager.FindByIdAsync(userOTP.UserId);
+                if (user == null)
+                    return ApplicationServiceResult<ResetPasswordResponse>.Fail("User not found");
+
+                var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, resetToken, req.Password);
+
+                if (!result.Succeeded)
+                    return ApplicationServiceResult<ResetPasswordResponse>.Fail(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+                // Clean up OTP from Redis after successful reset
+                await _redisRepo.DeleteKeyAsync(key);
+
+                var response = new ResetPasswordResponse
+                {
+                    UserId = user.Id,
+                    Email = user.Email!
+                };
+                return ApplicationServiceResult<ResetPasswordResponse>.Success(response, "Password reset successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "ResetPassword failed. Error: {Error}", ex.Message);
+                return ApplicationServiceResult<ResetPasswordResponse>.Fail("There is error in database");
+            }
         }
 
         #endregion

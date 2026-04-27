@@ -75,5 +75,27 @@ namespace Courses.Api.Controllers.Account
             return Ok(result);
         }
         #endregion
+
+        #region Check OTP
+        [HttpPost("CheckOTP")] // POST: /api/Account/CheckOTP
+        public async Task<ActionResult<ApplicationServiceResult<CheckOTPResponse>>> CheckOTP(CheckOTPRequest req)
+        {
+            var result = await _accountService.CheckOTP(req);
+            if (!result.Succeed) return BadRequest(new { message = result.Message });
+
+            return Ok(result);
+        }
+        #endregion
+
+        #region Reset Password
+        [HttpPost("ResetPassword")] // POST: /api/Account/ResetPassword
+        public async Task<ActionResult<ApplicationServiceResult<ResetPasswordResponse>>> ResetPassword(ResetPasswordRequest req)
+        {
+            var result = await _accountService.ResetPasswordAsync(req);
+            if (!result.Succeed) return BadRequest(new { message = result.Message });
+
+            return Ok(result);
+        }
+        #endregion
     }
 }
