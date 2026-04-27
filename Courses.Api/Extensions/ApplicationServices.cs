@@ -1,9 +1,11 @@
 using Courses.Api.Helper.EmailSend;
 using Courses.Core.Options;
+using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.UnitOfWork;
+using Courses.Repo.RedisRepository;
 using Courses.Repo.UnitOfWorks;
 using Courses.Services;
 using Courses.Services.AccountServices;
@@ -26,6 +28,8 @@ namespace Courses.Api.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped(typeof(IRedisRepo<>), typeof(RedisRepo<>));
+
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
             services.Configure<JwtOptions>(jwtSection);

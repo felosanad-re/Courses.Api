@@ -5,6 +5,7 @@ using Courses.Repo.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 
 namespace Courses.Api
 {
@@ -36,11 +37,15 @@ namespace Courses.Api
                     options.Password.RequiredLength = 5;
                 }).AddEntityFrameworkStores<CoursesDbContext>().AddDefaultTokenProviders();
 
+                // Add Redis
+                var redisConncetion = builder.Configuration.GetSection("RedisSettings:ConnectionString").Value;
+                builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConncetion));
                 #endregion
 
 
                 var app = builder.Build();
 
+                #region Middleware
                 await app.InitializeDatabaseAsync();
                 app.UseMiddleware<ExceptionMiddleware>();
 
@@ -62,6 +67,7 @@ namespace Courses.Api
                 app.MapControllers();
 
                 app.Run();
+                #endregion
             }
             catch (Exception ex)
             {

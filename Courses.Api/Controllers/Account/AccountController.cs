@@ -49,5 +49,19 @@ namespace Courses.Api.Controllers.Account
             return Ok(result);
         }
         #endregion
+
+        #region Login
+        [HttpPost("Login")] // POST: /api/Account/Login
+        public async Task<ActionResult<ApplicationServiceResult<LoginResponse>>> Login(LoginRequest req)
+        {
+            var result = await _accountService.LoginAsync(req);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400)
+            {
+                Message = [result.Message]
+            });
+
+            return Ok(result);
+        }
+        #endregion
     }
 }
