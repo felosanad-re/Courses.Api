@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography;
+using static System.Net.WebRequestMethods;
 
 namespace Courses.Services.AccountServices
 {
@@ -153,35 +154,9 @@ namespace Courses.Services.AccountServices
         #endregion
 
         #region CheckAccountAsync
-        public async Task<ApplicationServiceResult<CheckAccountResponse>> CheckAccountAsync(CheckAccountRequest req)
+        public Task<ApplicationServiceResult<CheckAccountResponse>> CheckAccountAsync(CheckAccountRequest req)
         {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(req.UserNameOrEmail))
-                    return ApplicationServiceResult<CheckAccountResponse>.Fail("UserNameOrEmail is required");
-
-                var user = req.UserNameOrEmail.Contains('@') ?
-                await _userManager.FindByEmailAsync(req.UserNameOrEmail) :
-                await _userManager.FindByNameAsync(req.UserNameOrEmail);
-
-                if (user == null) return ApplicationServiceResult<CheckAccountResponse>.Fail("User Not Found");
-
-                var token = await GenerateAndStoreOTPAsync(user.Id, user.Email!);
-
-                var result = new CheckAccountResponse()
-                {
-                    Exists = true,
-                    CanResetPassword = user.EmailConfirmed,
-                    RequiresOTP = true,
-                    Token = token
-                };
-                return ApplicationServiceResult<CheckAccountResponse>.Success(result, "Email Is Exist You Received OTP");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "CheckAccount failed for {UserNameOrEmail}. Error: {Error}", req.UserNameOrEmail, ex.Message);
-                return ApplicationServiceResult<CheckAccountResponse>.Fail("There is error in database");
-            }
+            throw new NotImplementedException();
         }
         #endregion
 
