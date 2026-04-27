@@ -6,5 +6,7 @@ namespace Courses.Core.ModelsDTO.RequestDTO
     {
         [Required]
         public int OTP { get; set; }
+        [Required]
+        public string Token { get; set; }
     }
 }
