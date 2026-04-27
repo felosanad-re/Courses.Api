@@ -64,5 +64,16 @@ namespace Courses.Api.Controllers.Account
             return Ok(result);
         }
         #endregion
+
+        #region Check Account
+        [HttpPost("CheckAccount")] // POST: /api/Account/CheckAccount
+        public async Task<ActionResult<ApplicationServiceResult<CheckAccountResponse>>> Check(CheckAccountRequest req)
+        {
+            var result = await _accountService.CheckAccountAsync(req);
+            if (!result.Succeed) return BadRequest(new { message = result.Message });
+
+            return Ok(result);
+        }
+        #endregion
     }
 }

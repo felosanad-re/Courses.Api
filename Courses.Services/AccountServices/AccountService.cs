@@ -13,7 +13,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography;
-using static System.Net.WebRequestMethods;
 
 namespace Courses.Services.AccountServices
 {
@@ -167,7 +166,6 @@ namespace Courses.Services.AccountServices
 
                 if (user == null) return ApplicationServiceResult<CheckAccountResponse>.Fail("User Not Found");
 
-                // method to generate OTP and token and send email
                 var token = await GenerateAndStoreOTPAsync(user.Id, user.Email!);
 
                 var result = new CheckAccountResponse()
