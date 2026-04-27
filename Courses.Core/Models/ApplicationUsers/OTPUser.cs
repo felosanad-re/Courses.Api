@@ -6,6 +6,7 @@
         public string Token { get; set; }
         public string UserId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsVerified { get; set; }
 
         // Check OTP Is Valid or no
         public bool IsExpired(TimeSpan validateOTP)
