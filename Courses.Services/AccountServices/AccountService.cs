@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using Courses.Core;
 using Courses.Core.Models.ApplicationUsers;
+using Courses.Core.Models.Students;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO;
 using Courses.Core.ModelsDTO.ResponseDTO;
 using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
+using Courses.Core.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Configuration;
@@ -28,8 +30,9 @@ namespace Courses.Services.AccountServices
         protected readonly ILogger<AccountService> _logger;
         protected readonly IConfiguration _configuration;
         protected readonly IMapper _mapper;
+        protected readonly IUnitOfWork _unitOfWork;
 
-        public AccountService(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ICreateToken createToken, SignInManager<ApplicationUser> signInManager, ILogger<AccountService> logger, IMapper mapper, IRedisRepo<OTPUser> redisRepo)
+        public AccountService(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ICreateToken createToken, SignInManager<ApplicationUser> signInManager, ILogger<AccountService> logger, IMapper mapper, IRedisRepo<OTPUser> redisRepo, IConfiguration configuration, IUnitOfWork unitOfWork)
         {
             _userManager = userManager;
             _emailSender = emailSender;
@@ -38,6 +41,8 @@ namespace Courses.Services.AccountServices
             _logger = logger;
             _mapper = mapper;
             _redisRepo = redisRepo;
+            _configuration = configuration;
+            _unitOfWork = unitOfWork;
         }
 
         #endregion
@@ -64,6 +69,19 @@ namespace Courses.Services.AccountServices
                     return ApplicationServiceResult<CreateAccountResponse>.Fail(string.Join(", ", result.Errors.Select(e => e.Description)));
                 // Add Account Role
                 await _userManager.AddToRoleAsync(user, Roles.Student);
+
+                // Create Student record in database
+                var studentRepo = _unitOfWork.CreateRepository<Student>();
+                var student = new Student
+                {
+                    Name = $"{req.FirstName} {req.LastName}",
+                    UserId = user.Id,
+                    CreatedBy = user.Id,
+                    Birthday = new DateTime(1800, 1, 1) //user will update later in profile
+                };
+                await studentRepo.AddAsync(student);
+                await _unitOfWork.CompleteAsync();
+
                 // Create Token
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 token = WebUtility.UrlEncode(token);

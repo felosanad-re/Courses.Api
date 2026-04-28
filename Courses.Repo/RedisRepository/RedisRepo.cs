@@ -11,10 +11,10 @@ namespace Courses.Repo.RedisRepository
         protected readonly string _keyPrefix;
         protected readonly ILogger<RedisRepo<T>> _logger;
 
-        public RedisRepo(IConnectionMultiplexer redis, string keyPrefix, ILogger<RedisRepo<T>> logger)
+        public RedisRepo(IConnectionMultiplexer redis, ILogger<RedisRepo<T>> logger)
         {
             _redisDb = redis.GetDatabase();
-            _keyPrefix = keyPrefix;
+            _keyPrefix = typeof(T).Name;
             _logger = logger;
         }
 

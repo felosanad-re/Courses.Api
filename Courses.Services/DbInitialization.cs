@@ -59,7 +59,8 @@ namespace Courses.Services
                 LastName = _seedAdminOptions.LastName,
                 UserName = _seedAdminOptions.UserName,
                 Email = _seedAdminOptions.Email,
-                Address = _seedAdminOptions.Address
+                Address = _seedAdminOptions.Address,
+                EmailConfirmed = true
             };
 
             var result = await _userManager.CreateAsync(user, _seedAdminOptions.Password);
