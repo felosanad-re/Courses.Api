@@ -5,6 +5,7 @@ using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.Services.Contract.AttachmentServices;
+using Courses.Core.Services.Contract.ProfileServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.RedisRepository;
 using Courses.Repo.UnitOfWorks;
@@ -12,6 +13,7 @@ using Courses.Services;
 using Courses.Services.AccountServices;
 using Courses.Services.AttachmentServices;
 using Courses.Services.CreateToken;
+using Courses.Services.ProfileServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -23,6 +25,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ICreateToken, CreateToken>();
             services.AddScoped<IDbInitialize, DbInitialization>();
             services.AddAutoMapper(typeof(ProfileMapping));

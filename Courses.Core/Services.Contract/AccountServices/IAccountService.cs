@@ -1,6 +1,6 @@
 ﻿using Courses.Core.ModelsDTO;
-using Courses.Core.ModelsDTO.RequestDTO;
-using Courses.Core.ModelsDTO.ResponseDTO;
+using Courses.Core.ModelsDTO.RequestDTO.Account;
+using Courses.Core.ModelsDTO.ResponseDTO.Account;
 
 namespace Courses.Core.Services.Contract.AccountServices
 {

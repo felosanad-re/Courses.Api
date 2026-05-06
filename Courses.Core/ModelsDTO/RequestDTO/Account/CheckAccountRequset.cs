@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Courses.Core.ModelsDTO.RequestDTO
+namespace Courses.Core.ModelsDTO.RequestDTO.Account
 {
     public class CheckAccountRequest
     {

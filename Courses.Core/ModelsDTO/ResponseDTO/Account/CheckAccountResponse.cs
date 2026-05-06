@@ -1,4 +1,4 @@
-﻿namespace Courses.Core.ModelsDTO.ResponseDTO
+﻿namespace Courses.Core.ModelsDTO.ResponseDTO.Account
 {
     public class CheckAccountResponse
     {

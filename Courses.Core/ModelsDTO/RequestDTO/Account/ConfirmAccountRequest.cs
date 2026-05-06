@@ -1,4 +1,4 @@
-﻿namespace Courses.Core.ModelsDTO.RequestDTO
+﻿namespace Courses.Core.ModelsDTO.RequestDTO.Account
 {
     public class ConfirmAccountRequest
     {

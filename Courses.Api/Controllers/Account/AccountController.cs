@@ -1,7 +1,7 @@
 ﻿using Courses.Api.ErrorHandler;
 using Courses.Core.ModelsDTO;
-using Courses.Core.ModelsDTO.RequestDTO;
-using Courses.Core.ModelsDTO.ResponseDTO;
+using Courses.Core.ModelsDTO.RequestDTO.Account;
+using Courses.Core.ModelsDTO.ResponseDTO.Account;
 using Courses.Core.Services.Contract.AccountServices;
 using Microsoft.AspNetCore.Mvc;
 
