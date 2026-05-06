@@ -17,8 +17,10 @@ namespace Courses.Api.Helper.Mapping
 
             #region Edit Profile Request
             CreateMap<EditProfileRequest, ApplicationUser>();
-            CreateMap<EditProfileRequest, Instructor>();
-            CreateMap<EditProfileRequest, Student>();
+            CreateMap<EditProfileRequest, Instructor>()
+                .ForMember(d => d.Name, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"));
+            CreateMap<EditProfileRequest, Student>()
+                .ForMember(d => d.Name, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"));
             #endregion
         }
     }
