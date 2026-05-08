@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace Courses.Api.Controllers
+namespace Courses.Api.Controllers.Instructors
 {
     [Authorize(Roles = Roles.Instructor)]
     public class InstructorController : BaseController
