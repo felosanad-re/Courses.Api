@@ -8,8 +8,8 @@ namespace Courses.Core
 {
     public static class Roles
     {
-        public static string Student = "Student";
-        public static string Admin = "Admin";
-        public static string Instructor = "Instructor";
+        public const string Student = "Student";
+        public const string Admin = "Admin";
+        public const string Instructor = "Instructor";
     }
 }
