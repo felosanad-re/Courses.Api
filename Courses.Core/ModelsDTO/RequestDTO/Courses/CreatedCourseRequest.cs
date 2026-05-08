@@ -12,6 +12,5 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
         public string Image { get; set; }
         public bool IsPaid { get; set; }
         public decimal Price { get; set; }
-        public int InstructorId { get; set; }
     }
 }

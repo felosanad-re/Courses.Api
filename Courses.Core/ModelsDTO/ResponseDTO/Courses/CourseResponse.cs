@@ -1,6 +1,6 @@
-﻿using Courses.Core.Models.Courses;
-using Courses.Core.Models.Enrollments;
-using Courses.Core.Models.Instructors;
+﻿using Courses.Core.Models.Enrollments;
+using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 
 namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
 {
@@ -13,17 +13,16 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
         public decimal Price { get; set; }
 
 
-        public string InstructorName { get; set; }
+        public string InstructorName { get; set; } // NFP
         public int InstructorId { get; set; }
 
 
-        // The category/type of this course (many-to-one)
-        public string CourseType { get; set; }
+        public string CourseType { get; set; } // NFP
         public int CourseTypeId { get; set; }
 
 
-        public List<Enrollment> Enrollments { get; set; }
+        public List<EnrollmentResponse> Enrollments { get; set; }
 
-        public List<Section> Sections { get; set; }
+        public List<SectionResponse> Sections { get; set; }
     }
 }
