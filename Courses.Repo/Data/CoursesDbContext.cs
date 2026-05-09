@@ -38,5 +38,7 @@ namespace Courses.Repo.Data
         public DbSet<Section> Sections { get; set; }
         public DbSet<Lecture> Lectures { get; set; }
         public DbSet<StudentLectureProgress> StudentLectureProgresses { get; set; }
+
+        public DbSet<InstructorRequest> InstructorRequests { get; set; }
     }
 }
