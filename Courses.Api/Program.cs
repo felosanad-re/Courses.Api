@@ -40,6 +40,17 @@ namespace Courses.Api
                 // Add Redis
                 var redisConncetion = builder.Configuration.GetSection("RedisSettings:ConnectionString").Value;
                 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConncetion));
+
+                var allowedOringin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
+                builder.Services.AddCors(action =>
+                {
+                    action.AddPolicy("Angular", options =>
+                    {
+                        options.WithOrigins(allowedOringin)
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    });
+                });
                 #endregion
 
 
@@ -47,6 +58,7 @@ namespace Courses.Api
 
                 #region Middleware
                 await app.InitializeDatabaseAsync();
+
                 app.UseMiddleware<ExceptionMiddleware>();
 
                 // Configure the HTTP request pipeline.
@@ -57,6 +69,7 @@ namespace Courses.Api
                     app.UseSwaggerUI();
                 }
 
+                app.UseCors("Angular");
                 app.UseHttpsRedirection();
 
                 app.UseStaticFiles();
