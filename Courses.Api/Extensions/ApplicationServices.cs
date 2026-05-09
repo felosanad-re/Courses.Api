@@ -30,6 +30,7 @@ namespace Courses.Api.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IInstructorService, InstructorService>();
+            services.AddScoped<IInstructorRequestService, InstructorRequestService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<ICreateToken, CreateToken>();
