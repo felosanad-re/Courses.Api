@@ -16,7 +16,7 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Account
         [Required]
         public string Address { get; set; }
         [Required]
-        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$",
+        [RegularExpression(@"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,}$",
                 ErrorMessage = "Password must contain letters and numbers")]
         public string Password { get; set; }
         [Required]

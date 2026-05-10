@@ -97,5 +97,16 @@ namespace Courses.Api.Controllers.Account
             return Ok(result);
         }
         #endregion
+
+        #region Check Email Confirmation
+        [HttpPost("CheckEmailConfirmation")] // POST: /api/Account/CheckEmailConfirmation
+        public async Task<ActionResult<ApplicationServiceResult<CheckEmailConfirmationResponse>>> CheckEmailConfirmation(CheckEmailConfirmationRequest req)
+        {
+            var result = await _accountService.CheckEmailConfirmationAsync(req);
+            if (!result.Succeed) return BadRequest(new { message = result.Message });
+
+            return Ok(result);
+        }
+        #endregion
     }
 }

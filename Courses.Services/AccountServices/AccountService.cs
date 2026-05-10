@@ -9,12 +9,15 @@ using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.UnitOfWork;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace Courses.Services.AccountServices
 {
@@ -84,11 +87,11 @@ namespace Courses.Services.AccountServices
 
                 // Create Token
                 var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                token = WebUtility.UrlEncode(token);
+                var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
                 var frontUrl = _configuration["FrontEndUrl"];
                 var routeUrl = _configuration["FrontEndRoute:ConfirmAccount"];
-                // Create Link
-                var link = $"{frontUrl}/{routeUrl}?userId={user.Id}&token={token}";
+                // Create Link with path parameters
+                var link = $"{frontUrl}/{routeUrl}/{user.Id}/{encodedToken}";
                 await _emailSender.SendEmailAsync(
                     user.Email,
                     "Confirm Your Account",
@@ -110,8 +113,9 @@ namespace Courses.Services.AccountServices
             {
                 var user = await _userManager.FindByIdAsync(req.UserId);
                 if (user == null) return ApplicationServiceResult<ConfirmAccountResponse>.Fail("Invalid Account");
-                
-                var decodedToken = WebUtility.UrlDecode(req.Token);
+
+                // Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(req.Token));
+                var decodedToken = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(req.Token));
                 var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
                 if (!result.Succeeded) return ApplicationServiceResult<ConfirmAccountResponse>.Fail("Invalid or expired token");
                 var response = new ConfirmAccountResponse
@@ -283,6 +287,54 @@ namespace Courses.Services.AccountServices
             }
         }
 
+        #endregion
+
+        #region Check Email Confirmation
+        public async Task<ApplicationServiceResult<CheckEmailConfirmationResponse>> CheckEmailConfirmationAsync(CheckEmailConfirmationRequest req)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(req.UserNameOrEmail))
+                    return ApplicationServiceResult<CheckEmailConfirmationResponse>.Fail("Email is required");
+
+                var user = await _userManager.FindByEmailAsync(req.UserNameOrEmail.Trim().ToLower());
+                if (user == null)
+                    return ApplicationServiceResult<CheckEmailConfirmationResponse>.Fail("Account not found");
+
+                // If email is not confirmed, send confirmation email
+                if (!user.EmailConfirmed)
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+                    var frontUrl = _configuration["FrontEndUrl"];
+                    var routeUrl = _configuration["FrontEndRoute:ConfirmAccount"];
+                    var link = $"{frontUrl}/{routeUrl}/{user.Id}/{encodedToken}";
+
+                    await _emailSender.SendEmailAsync(
+                        user.Email,
+                        "Confirm Your Account",
+                        $"<p>To Confirm your account click <a href='{link}'>Here</a></p>"
+                    );
+                }
+
+                var response = new CheckEmailConfirmationResponse
+                {
+                    Exists = true,
+                    IsConfirmed = user.EmailConfirmed
+                };
+
+                var message = user.EmailConfirmed
+                    ? "Email is confirmed"
+                    : "Confirmation email has been sent";
+
+                return ApplicationServiceResult<CheckEmailConfirmationResponse>.Success(response, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "CheckEmailConfirmation failed. Error: {Error}", ex.Message);
+                return ApplicationServiceResult<CheckEmailConfirmationResponse>.Fail("There is error in database");
+            }
+        }
         #endregion
 
         #region Private Helper Methods
