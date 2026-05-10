@@ -12,5 +12,6 @@ namespace Courses.Core.Services.Contract.AccountServices
         Task<ApplicationServiceResult<CheckAccountResponse>> CheckAccountAsync(CheckAccountRequest req);
         Task<ApplicationServiceResult<CheckOTPResponse>> CheckOTP(CheckOTPRequest req);
         Task<ApplicationServiceResult<ResetPasswordResponse>> ResetPasswordAsync(ResetPasswordRequest req);
+        Task<ApplicationServiceResult<CheckEmailConfirmationResponse>> CheckEmailConfirmationAsync(CheckEmailConfirmationRequest req);
     }
 }

@@ -34,7 +34,12 @@ namespace Courses.Api
                 // Add Identity
                 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
-                    options.Password.RequiredLength = 5;
+                    // Password requirements - allow all characters including special chars
+                    options.Password.RequiredLength = 6;
+                    options.Password.RequireDigit = false;
+                    options.Password.RequireLowercase = false;
+                    options.Password.RequireUppercase = false;
+                    options.Password.RequireNonAlphanumeric = false;
                 }).AddEntityFrameworkStores<CoursesDbContext>().AddDefaultTokenProviders();
 
                 // Add Redis
