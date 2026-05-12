@@ -36,7 +36,7 @@ namespace Courses.Api.Helper.Mapping
 
             #region Courses With Instructors
             CreateMap<Course, CourseResponseForInstructor>()
-                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponseForInstructor>, string>(s => $"Files/CoursesImages/{s.Image}"));
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponseForInstructor>, string>(s => s.Image));
             CreateMap<CreatedCourseRequest, Course>();
             CreateMap<UpdatedCourseRequest, Course>();
             #endregion
@@ -46,14 +46,17 @@ namespace Courses.Api.Helper.Mapping
             #region Courses
             CreateMap<Course, CourseResponse>()
                 .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
-                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name));
+                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponse>, string>(s => s.Image));
 
             CreateMap<Course, CoursesToReturnDTO>()
-                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name));
+                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CoursesToReturnDTO>, string>(s => s.Image));
 
             CreateMap<Course, CourseDetailsToReturnDTO>()
                 .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
-                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name));
+                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseDetailsToReturnDTO>, string>(s => s.Image));
             #endregion
 
             CreateMap<CourseType, CourseTypeToReturnDTO>();

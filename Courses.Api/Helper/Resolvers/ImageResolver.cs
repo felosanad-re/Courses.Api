@@ -14,7 +14,7 @@ namespace Courses.Api.Helper.Resolvers
         public string Resolve(TSource source, TDestination destination, string sourceMember, string destMember, ResolutionContext context)
         {
             if (!string.IsNullOrEmpty(sourceMember))
-                return $"{_config["BasePictureUrl"]}/{sourceMember}";
+                return $"{_config["BasePictureUrl"]}/Files/Images/{sourceMember}";
             return string.Empty;
         }
     }
