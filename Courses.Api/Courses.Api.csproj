@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Files\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Update="Helper\DataSeeding\Courses.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
