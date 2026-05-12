@@ -46,6 +46,13 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Course, CourseResponse>()
                 .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
                 .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name));
+
+            CreateMap<Course, CoursesToReturnDTO>()
+                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name));
+
+            CreateMap<Course, CourseDetailsToReturnDTO>()
+                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
+                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name));
             #endregion
 
             #region Enrollment
@@ -57,10 +64,16 @@ namespace Courses.Api.Helper.Mapping
             #region Lecture
             CreateMap<Lecture, LectureResponse>()
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
+
+            CreateMap<Lecture, LectureToReturnDTO>()
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title)); ;
             #endregion
 
             #region Sections
             CreateMap<Section, SectionResponse>()
+                .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));
+
+            CreateMap<Section, SectionToReturnDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));
             #endregion
 

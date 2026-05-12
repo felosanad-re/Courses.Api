@@ -1,0 +1,436 @@
+[
+  {
+    "name": "C# Basics",
+    "description": "Learn C# from scratch",
+    "image": "csharp.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 1,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Introduction",
+        "lectures": [
+          {
+            "title": "What is C#",
+            "videoUrl": "v1.mp4"
+          },
+          {
+            "title": "Install Tools",
+            "videoUrl": "v2.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Advanced C#",
+    "description": "Deep dive into C#",
+    "image": "adv_csharp.png",
+    "isPaid": true,
+    "price": 50,
+    "instructorId": 1,
+    "courseTypeId": 1,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Advanced Topics",
+        "lectures": [
+          {
+            "title": "Delegates",
+            "videoUrl": "v1.mp4"
+          },
+          {
+            "title": "Events",
+            "videoUrl": "v2.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ASP.NET Core Basics",
+    "description": "Build web apps",
+    "image": "asp.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 2,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Start",
+        "lectures": [
+          {
+            "title": "Intro",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ASP.NET Advanced",
+    "description": "Advanced web dev",
+    "image": "asp2.png",
+    "isPaid": true,
+    "price": 70,
+    "instructorId": 1,
+    "courseTypeId": 2,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Security",
+        "lectures": [
+          {
+            "title": "Auth",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Entity Framework Core",
+    "description": "ORM in .NET",
+    "image": "ef.png",
+    "isPaid": true,
+    "price": 40,
+    "instructorId": 1,
+    "courseTypeId": 2,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "EF Basics",
+        "lectures": [
+          {
+            "title": "DbContext",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "LINQ Mastery",
+    "description": "Query like a pro",
+    "image": "linq.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 1,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Queries",
+        "lectures": [
+          {
+            "title": "Select",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "SQL Server Basics",
+    "description": "Learn SQL",
+    "image": "sql.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 3,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Intro SQL",
+        "lectures": [
+          {
+            "title": "Tables",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "JavaScript Basics",
+    "description": "Frontend basics",
+    "image": "js.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 4,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "JS Intro",
+        "lectures": [
+          {
+            "title": "Variables",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "React JS",
+    "description": "Modern frontend",
+    "image": "react.png",
+    "isPaid": true,
+    "price": 60,
+    "instructorId": 1,
+    "courseTypeId": 4,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "React Basics",
+        "lectures": [
+          {
+            "title": "Components",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Angular",
+    "description": "Frontend framework",
+    "image": "angular.png",
+    "isPaid": true,
+    "price": 65,
+    "instructorId": 1,
+    "courseTypeId": 4,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Angular Intro",
+        "lectures": [
+          {
+            "title": "Modules",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Python Basics",
+    "description": "Learn Python",
+    "image": "python.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 5,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Python Start",
+        "lectures": [
+          {
+            "title": "Syntax",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Django",
+    "description": "Python web",
+    "image": "django.png",
+    "isPaid": true,
+    "price": 55,
+    "instructorId": 1,
+    "courseTypeId": 5,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Django Intro",
+        "lectures": [
+          {
+            "title": "Models",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Docker Basics",
+    "description": "Containers",
+    "image": "docker.png",
+    "isPaid": true,
+    "price": 45,
+    "instructorId": 1,
+    "courseTypeId": 6,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Docker Intro",
+        "lectures": [
+          {
+            "title": "Images",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Kubernetes",
+    "description": "Orchestration",
+    "image": "k8s.png",
+    "isPaid": true,
+    "price": 80,
+    "instructorId": 1,
+    "courseTypeId": 6,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "K8s Intro",
+        "lectures": [
+          {
+            "title": "Pods",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Data Structures",
+    "description": "Core concepts",
+    "image": "ds.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 7,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Arrays",
+        "lectures": [
+          {
+            "title": "Intro",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Algorithms",
+    "description": "Problem solving",
+    "image": "algo.png",
+    "isPaid": true,
+    "price": 75,
+    "instructorId": 1,
+    "courseTypeId": 7,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Sorting",
+        "lectures": [
+          {
+            "title": "Bubble Sort",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "Git & GitHub",
+    "description": "Version control",
+    "image": "git.png",
+    "isPaid": false,
+    "price": 0,
+    "instructorId": 1,
+    "courseTypeId": 8,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Git Basics",
+        "lectures": [
+          {
+            "title": "Commit",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Clean Code",
+    "description": "Write better code",
+    "image": "clean.png",
+    "isPaid": true,
+    "price": 30,
+    "instructorId": 1,
+    "courseTypeId": 8,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Principles",
+        "lectures": [
+          {
+            "title": "SOLID",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "name": "System Design",
+    "description": "Scalable systems",
+    "image": "design.png",
+    "isPaid": true,
+    "price": 90,
+    "instructorId": 1,
+    "courseTypeId": 9,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Basics",
+        "lectures": [
+          {
+            "title": "Scalability",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Microservices",
+    "description": "Architecture",
+    "image": "micro.png",
+    "isPaid": true,
+    "price": 85,
+    "instructorId": 1,
+    "courseTypeId": 9,
+    "createdBy": "Felo Sanad",
+    "sections": [
+      {
+        "title": "Intro",
+        "lectures": [
+          {
+            "title": "Services",
+            "videoUrl": "v1.mp4"
+          }
+        ]
+      }
+    ]
+  }
+]

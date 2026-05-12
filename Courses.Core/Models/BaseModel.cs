@@ -9,7 +9,7 @@
         public int Id { get; set; }
 
         // The user who created this record (audit trail)
-        public string CreatedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
         // Timestamp of creation, defaults to UTC now
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

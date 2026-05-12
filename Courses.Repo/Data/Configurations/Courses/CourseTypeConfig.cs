@@ -19,6 +19,8 @@ namespace Courses.Repo.Data.Configurations.Courses
                 .IsRequired()
                 .HasMaxLength(100);
 
+            builder.Property(ct => ct.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
             // One-to-many relationship: CourseType -> Courses
             builder.HasMany(ct => ct.Courses)
                 .WithOne(c => c.CourseType)
