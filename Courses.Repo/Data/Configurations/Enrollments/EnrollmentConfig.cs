@@ -15,7 +15,7 @@ namespace Courses.Repo.Data.Configurations.Enrollments
             builder.HasKey(e => e.Id);
 
             // Properties
-            builder.Property(e => e.EnrolledAt)
+            builder.Property(e => e.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("GETUTCDATE()");
 

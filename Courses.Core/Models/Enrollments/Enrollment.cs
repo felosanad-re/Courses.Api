@@ -7,9 +7,8 @@ namespace Courses.Core.Models.Enrollments
     /// Join entity representing a student's enrollment in a course.
     /// Tracks enrollment date, completion status, and overall progress percentage.
     /// </summary>
-    public class Enrollment
+    public class Enrollment : BaseModel
     {
-        public int Id { get; set; }
 
         // The student who enrolled (many-to-one)
         public int StudentId { get; set; }
@@ -18,9 +17,6 @@ namespace Courses.Core.Models.Enrollments
         // The course the student enrolled in (many-to-one)
         public int CourseId { get; set; }
         public Course Course { get; set; }
-
-        // When the student enrolled
-        public DateTime EnrolledAt { get; set; }
 
         // Whether the student has completed all course requirements
         public bool IsCompleted { get; set; }
