@@ -10,6 +10,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Profile;
 using Courses.Core.ModelsDTO.ResponseDTO.Account;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
+using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
@@ -54,6 +55,8 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
                 .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name));
             #endregion
+
+            CreateMap<CourseType, CourseTypeToReturnDTO>();
 
             #region Enrollment
             CreateMap<Enrollment, EnrollmentResponse>()
