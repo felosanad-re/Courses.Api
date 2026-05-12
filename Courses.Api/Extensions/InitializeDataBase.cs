@@ -1,5 +1,6 @@
 ﻿using Courses.Core.Services.Contract;
 using Courses.Repo.Data;
+using Courses.Repo.Data.DataSeeding;
 using Microsoft.EntityFrameworkCore;
 
 namespace Courses.Api.Extensions
@@ -22,7 +23,7 @@ namespace Courses.Api.Extensions
             {
                 await _context.Database.MigrateAsync();
                 await _dbInitialization.CreateInitializationAsync();
-                //await AdminDbContextSeeder.SeederAsync(_context);
+                await CoursesDbContextSeeder.SeederAsync(_context);
             }
             catch (Exception ex)
             {

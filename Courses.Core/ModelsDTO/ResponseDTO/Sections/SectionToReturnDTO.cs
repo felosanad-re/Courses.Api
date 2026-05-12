@@ -2,7 +2,7 @@
 
 namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
 {
-    public class SectionResponse
+    public class SectionToReturnDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }
@@ -11,6 +11,6 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
         public string CourseName { get; set; } // NFP
         public int CourseId { get; set; }
 
-        public IReadOnlyList<LectureResponse> Lectures { get; set; }
+        public IReadOnlyList<LectureToReturnDTO> Lectures { get; set; } // NFP
     }
 }

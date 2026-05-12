@@ -5,6 +5,7 @@ using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.Services.Contract.AttachmentServices;
+using Courses.Core.Services.Contract.CoursesServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ProfileServices;
 using Courses.Core.Services.Contract.UserServices;
@@ -14,6 +15,7 @@ using Courses.Repo.UnitOfWorks;
 using Courses.Services;
 using Courses.Services.AccountServices;
 using Courses.Services.AttachmentServices;
+using Courses.Services.CoursesServices;
 using Courses.Services.CreateToken;
 using Courses.Services.InstructorServices;
 using Courses.Services.ProfileServices;
@@ -29,6 +31,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IInstructorService, InstructorService>();
             services.AddScoped<IInstructorRequestService, InstructorRequestService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
