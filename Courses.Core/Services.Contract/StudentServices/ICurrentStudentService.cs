@@ -3,7 +3,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Students;
 
 namespace Courses.Core.Services.Contract.StudentServices
 {
-    public interface IStudentService
+    public interface ICurrentStudentService
     {
         Task<ApplicationServiceResult<StudentWithApplicationUserToReturnDTO>> GetStudentWithApplicationUser();
     }

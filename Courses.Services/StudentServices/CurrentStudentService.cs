@@ -10,15 +10,15 @@ using Microsoft.Extensions.Logging;
 
 namespace Courses.Services.StudentServices
 {
-    public class StudentService : IStudentService
+    public class CurrentStudentService : ICurrentStudentService
     {
         #region DI Service
         protected readonly ICurrentUserService _currentUserService;
         protected readonly IUnitOfWork _unitOfWork;
-        protected readonly ILogger<StudentService> _logger;
+        protected readonly ILogger<CurrentStudentService> _logger;
         protected readonly IMapper _mapper;
 
-        public StudentService(ICurrentUserService currentUserService, ILogger<StudentService> logger, IMapper mapper, IUnitOfWork unitOfWork)
+        public CurrentStudentService(ICurrentUserService currentUserService, ILogger<CurrentStudentService> logger, IMapper mapper, IUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _logger = logger;
