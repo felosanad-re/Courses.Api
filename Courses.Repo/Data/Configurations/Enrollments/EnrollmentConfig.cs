@@ -15,7 +15,7 @@ namespace Courses.Repo.Data.Configurations.Enrollments
             builder.HasKey(e => e.Id);
 
             // Properties
-            builder.Property(e => e.EnrolledAt)
+            builder.Property(e => e.CreatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("GETUTCDATE()");
 
@@ -27,6 +27,8 @@ namespace Courses.Repo.Data.Configurations.Enrollments
                 .IsRequired()
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(5,2)");
+
+            builder.Property(e => e.Status).HasConversion<string>();
 
             // Many-to-one relationship: Enrollment -> Student
             builder.HasOne(e => e.Student)
