@@ -16,6 +16,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.StudentLectureProgress;
+using Courses.Core.ModelsDTO.ResponseDTO.Students;
 
 namespace Courses.Api.Helper.Mapping
 {
@@ -87,6 +88,8 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<StudentLectureProgress, StudentLectureProgressResponse>()
                 .ForMember(d => d.LectureName, o => o.MapFrom(s => s.Lecture.Title));
             #endregion
+
+            CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
         }
     }
 }

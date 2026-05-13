@@ -7,7 +7,7 @@ namespace Courses.Core.Specifications.StudentSpecifications
         public StudentSpec(string id)
             :base(S => S.UserId == id)
         {
-            
+            Includes.Add(s => s.ApplicationUser);
         }
     }
 }

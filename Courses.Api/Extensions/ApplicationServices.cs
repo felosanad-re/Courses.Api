@@ -10,6 +10,7 @@ using Courses.Core.Services.Contract.CourseTypeServices;
 using Courses.Core.Services.Contract.EnrollmentServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ProfileServices;
+using Courses.Core.Services.Contract.StudentServices;
 using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.RedisRepository;
@@ -23,6 +24,7 @@ using Courses.Services.CreateToken;
 using Courses.Services.EnrollmentServices;
 using Courses.Services.InstructorServices;
 using Courses.Services.ProfileServices;
+using Courses.Services.StudentServices;
 using Courses.Services.UserServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -35,6 +37,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             services.AddScoped<ICourseTypeService, CourseTypeService>();
             services.AddScoped<ICourseService, CourseService>();
