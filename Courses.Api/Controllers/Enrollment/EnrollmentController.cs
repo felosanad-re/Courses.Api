@@ -1,13 +1,15 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Enrollments;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Services.Contract.EnrollmentServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Enrollment
 {
+    [Authorize(Roles = Roles.Student)]
     public class EnrollmentController : BaseController
     {
         #region
