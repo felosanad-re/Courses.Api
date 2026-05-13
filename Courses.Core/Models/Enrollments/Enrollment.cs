@@ -1,5 +1,6 @@
 ﻿using Courses.Core.Models.Courses;
 using Courses.Core.Models.Students;
+using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 
 namespace Courses.Core.Models.Enrollments
 {
@@ -23,6 +24,10 @@ namespace Courses.Core.Models.Enrollments
 
         // Overall progress percentage (0-100), can be calculated from StudentLectureProgress
         public decimal Progress { get; set; }
+
+        public EnrollStatus Status { get; set; }
+
+        public string? PaymentIntentId { get; set; }
 
         // Tracks which individual lectures this student has completed within the course
         public ICollection<StudentLectureProgress> LectureProgresses { get; set; } = new HashSet<StudentLectureProgress>();

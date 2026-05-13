@@ -28,6 +28,8 @@ namespace Courses.Repo.Data.Configurations.Enrollments
                 .HasDefaultValue(0m)
                 .HasColumnType("decimal(5,2)");
 
+            builder.Property(e => e.Status).HasConversion<string>();
+
             // Many-to-one relationship: Enrollment -> Student
             builder.HasOne(e => e.Student)
                 .WithMany(s => s.Enrollments)

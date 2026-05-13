@@ -7,5 +7,8 @@ namespace Courses.Core.Services.Contract.EnrollmentServices
     public interface IEnrollmentService
     {
         Task<ApplicationServiceResult<EnrollmentWithCourseResponse>> CreateEnrollmentAsync(EnrollmentRequest req);
+
+
+        // Update Enrollment Status After Payment
     }
 }
