@@ -24,14 +24,7 @@ namespace Courses.Api
                 builder.Services.AddOpenApi();
                 builder.Services.AddSwaggerGen();
 
-                // Add Application Services
-                builder.Services.AddApplicationServices(builder.Configuration);
-                // Add DbContext
-                builder.Services.AddDbContext<CoursesDbContext>(options =>
-                {
-                    options.UseSqlServer(BuildConnectionString(builder.Configuration));
-                });
-                // Add Identity
+                // Add Identity (MUST be registered BEFORE AddApplicationServices)
                 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
                 {
                     // Password requirements - allow all characters including special chars
@@ -42,9 +35,18 @@ namespace Courses.Api
                     options.Password.RequireNonAlphanumeric = false;
                 }).AddEntityFrameworkStores<CoursesDbContext>().AddDefaultTokenProviders();
 
+                // Add DbContext
+                builder.Services.AddDbContext<CoursesDbContext>(options =>
+                {
+                    options.UseSqlServer(BuildConnectionString(builder.Configuration));
+                });
+
                 // Add Redis
                 var redisConncetion = builder.Configuration.GetSection("RedisSettings:ConnectionString").Value;
                 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConncetion));
+
+                // Add Application Services (JWT auth configured here overrides Identity cookies)
+                builder.Services.AddApplicationServices(builder.Configuration);
 
                 var allowedOringin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
                 builder.Services.AddCors(action =>
