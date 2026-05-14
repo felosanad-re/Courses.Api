@@ -26,6 +26,7 @@ using Courses.Services.InstructorServices;
 using Courses.Services.ProfileServices;
 using Courses.Services.StudentServices;
 using Courses.Services.UserServices;
+using Courses.Services.VideoCourseServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +38,8 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IVideoCourseService, VideoCourseService>();
+            services.AddScoped<ICourseSectionService, CourseSectionService>();
             services.AddScoped<ICurrentStudentService, CurrentStudentService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             services.AddScoped<ICourseTypeService, CourseTypeService>();

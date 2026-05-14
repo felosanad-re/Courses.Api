@@ -23,6 +23,6 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
 
         public List<EnrollmentResponse> Enrollments { get; set; }
 
-        public List<SectionResponse> Sections { get; set; }
+        public List<SectionToReturnDTO> Sections { get; set; }
     }
 }
