@@ -76,6 +76,8 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
 
             CreateMap<Lecture, LectureWithSectionResponse>();
+
+            CreateMap<Lecture, CourseWithLectureVideoResponse>();
             #endregion
 
             #region Sections
