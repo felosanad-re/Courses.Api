@@ -73,12 +73,13 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
 
             CreateMap<Lecture, LectureToReturnDTO>()
-                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title)); ;
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
+
+            CreateMap<Lecture, LectureWithSectionResponse>();
             #endregion
 
             #region Sections
-            CreateMap<Section, SectionResponse>()
-                .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));
+            CreateMap<Section, SectionWithCourseResponse>();
 
             CreateMap<Section, SectionToReturnDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));

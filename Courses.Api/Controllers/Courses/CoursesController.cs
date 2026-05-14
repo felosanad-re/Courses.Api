@@ -2,6 +2,7 @@
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.CoursesServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,10 +12,12 @@ namespace Courses.Api.Controllers.Courses
     {
         #region
         protected readonly ICourseService _courseService;
+        protected readonly ICourseSectionService _courseSectionService;
 
-        public CoursesController(ICourseService courseService)
+        public CoursesController(ICourseService courseService, ICourseSectionService courseSectionService)
         {
             _courseService = courseService;
+            _courseSectionService = courseSectionService;
         }
         #endregion
 
@@ -36,6 +39,17 @@ namespace Courses.Api.Controllers.Courses
             var result = await _courseService.GetCourseDetailsAsync(courseId);
             if(result is null) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
             return Ok(result);
+        }
+        #endregion
+
+        #region Get Course Sections
+        [HttpGet("Sections")] // GET: /api/Courses/Sections
+        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<SectionWithCourseResponse>>>> GetSections(int courseId)
+        {
+            var result = await _courseSectionService.GetAllSections(courseId);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+
+            return BadRequest(result);
         }
         #endregion
     }

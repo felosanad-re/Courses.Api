@@ -37,6 +37,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<CourseSectionService, CourseSectionService>();
             services.AddScoped<ICurrentStudentService, CurrentStudentService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
             services.AddScoped<ICourseTypeService, CourseTypeService>();
