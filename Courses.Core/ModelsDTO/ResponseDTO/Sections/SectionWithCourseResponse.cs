@@ -8,6 +8,8 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
         public string Title { get; set; }
         public int Order { get; set; }
 
+        public int CourseId { get; set; }
+
         public List<LectureWithSectionResponse> Lectures { get; set; } = new();
     }
 }

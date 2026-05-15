@@ -38,6 +38,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IVideoCourseService, VideoCourseService>();
             services.AddScoped<ICourseSectionService, CourseSectionService>();
             services.AddScoped<ICurrentStudentService, CurrentStudentService>();

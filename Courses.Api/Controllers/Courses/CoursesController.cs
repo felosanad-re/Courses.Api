@@ -49,13 +49,13 @@ namespace Courses.Api.Controllers.Courses
         #endregion
 
         #region Get Course Sections
-        [HttpGet("Sections")] // GET: /api/Courses/Sections
+        [HttpGet("Sections/{courseId}")] // GET: /api/Courses/Sections
         public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<SectionWithCourseResponse>>>> GetSections(int courseId)
         {
             var result = await _courseSectionService.GetAllSections(courseId);
             if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
 
-            return BadRequest(result);
+            return Ok(result);
         }
         #endregion
 
