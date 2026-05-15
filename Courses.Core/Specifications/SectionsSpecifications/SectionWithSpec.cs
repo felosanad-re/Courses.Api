@@ -12,7 +12,7 @@ namespace Courses.Core.Specifications.SectionsSpecifications
         public SectionWithSpec(int courseId)
             : base(x => x.CourseId == courseId)
         {
-
+            Includes.Add(x => x.Lectures);
         }
     }
 }
