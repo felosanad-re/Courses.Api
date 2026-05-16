@@ -1,20 +1,20 @@
 ﻿using Courses.Api.ErrorHandler;
-using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Progress;
 using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.Services.Contract.ProgressServices;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Progresses
 {
-    public class Progress : BaseController
+    public class ProgressController : BaseController
     {
         #region DI Services
         protected readonly IProgressService _progressService;
 
-        public Progress(IProgressService progressService)
+        public ProgressController(IProgressService progressService)
         {
             _progressService = progressService;
         }

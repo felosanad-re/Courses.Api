@@ -19,14 +19,14 @@ namespace Courses.Services.ProgressServices
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ICurrentStudentService _currentStudentService;
         protected readonly IMapper _mapper;
-        protected readonly Logger<ProgressService> _logger;
+        protected readonly ILogger<ProgressService> _logger;
 
-        public ProgressService(IUnitOfWork unitOfWork, IMapper mapper, Logger<ProgressService> logger, ICurrentStudentService currentStudentService)
+        public ProgressService(IUnitOfWork unitOfWork, IMapper mapper, ICurrentStudentService currentStudentService, ILogger<ProgressService> logger)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _logger = logger;
             _currentStudentService = currentStudentService;
+            _logger = logger;
         }
         #endregion
 
