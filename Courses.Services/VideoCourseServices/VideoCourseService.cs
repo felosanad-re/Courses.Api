@@ -2,7 +2,10 @@
 using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
+using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.Services.Contract.CoursesServices;
+using Courses.Core.Services.Contract.StudentServices;
+using Courses.Core.Specifications;
 using Courses.Core.Specifications.LectureSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
@@ -13,14 +16,16 @@ namespace Courses.Services.VideoCourseServices
     {
         #region DI Service
         protected readonly IUnitOfWork _unitOfWork;
+        protected readonly ICurrentStudentService _currentStudentService;
         protected readonly IMapper _mapper;
         protected readonly ILogger<VideoCourseService> _logger;
 
-        public VideoCourseService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<VideoCourseService> logger)
+        public VideoCourseService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<VideoCourseService> logger, ICurrentStudentService currentStudentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
+            _currentStudentService = currentStudentService;
         }
         #endregion
 
@@ -31,12 +36,22 @@ namespace Courses.Services.VideoCourseServices
             var succeeddedMessage = "Starting your lecture video";
             var logError = "there is a problem in database";
 
+            var studentInfo = await _currentStudentService.GetStudentWithApplicationUser();
+            if(studentInfo == null) return ApplicationServiceResult<CourseWithLectureVideoResponse>.Fail("Student Not Found With this id");
+
+            var studentId = studentInfo.Data!.Id;
             try
             {
-                var lecture = await _unitOfWork.CreateRepository<Lecture>().GetAsync(lectureId);
+                var lectureSpec = new BaseSpecifications<Lecture>(x => x.Id == lectureId);
+                lectureSpec.Includes.Add(x => x.StudentProgresses);
+                var lecture = await _unitOfWork.CreateRepository<Lecture>().GetAsyncSpec(lectureSpec);
                 if (lecture is null) return ApplicationServiceResult<CourseWithLectureVideoResponse>.Fail(errorMessage);
 
+                var progressSpec = new BaseSpecifications<StudentLectureProgress>(x => x.LectureId == lectureId);
+                var progress = await _unitOfWork.CreateRepository<StudentLectureProgress>().GetAsyncSpec(progressSpec);
+                if (progress is null) return ApplicationServiceResult<CourseWithLectureVideoResponse>.Fail("there is no progress for this Lecture yet");
                 var data = _mapper.Map<CourseWithLectureVideoResponse>(lecture);
+                data.LastWatchedSeconds = progress.LastWatchedSeconds;
 
                 return ApplicationServiceResult<CourseWithLectureVideoResponse>.Success(data, succeeddedMessage);
             }
