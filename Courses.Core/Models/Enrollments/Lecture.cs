@@ -12,7 +12,7 @@
 
         // To Get Lecture newt or Previous
         public int Order { get; set; }
-        // Duration for vide
+        // Duration for video
         public int DurationInSeconds { get; set; }
 
         // For Paid lecture --> can't Preview
