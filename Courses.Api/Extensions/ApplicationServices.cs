@@ -9,6 +9,7 @@ using Courses.Core.Services.Contract.CoursesServices;
 using Courses.Core.Services.Contract.CourseTypeServices;
 using Courses.Core.Services.Contract.EnrollmentServices;
 using Courses.Core.Services.Contract.InstructorServices;
+using Courses.Core.Services.Contract.PaymentsServices;
 using Courses.Core.Services.Contract.ProfileServices;
 using Courses.Core.Services.Contract.ProgressServices;
 using Courses.Core.Services.Contract.StudentServices;
@@ -24,6 +25,7 @@ using Courses.Services.CourseTypeServices;
 using Courses.Services.CreateToken;
 using Courses.Services.EnrollmentServices;
 using Courses.Services.InstructorServices;
+using Courses.Services.PaymentsServices;
 using Courses.Services.ProfileServices;
 using Courses.Services.ProgressServices;
 using Courses.Services.StudentServices;
@@ -40,6 +42,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IProgressService, ProgressService>();
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IVideoCourseService, VideoCourseService>();
