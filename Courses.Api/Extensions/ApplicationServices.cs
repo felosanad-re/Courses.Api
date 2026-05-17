@@ -13,6 +13,7 @@ using Courses.Core.Services.Contract.PaymentsServices;
 using Courses.Core.Services.Contract.ProfileServices;
 using Courses.Core.Services.Contract.ProgressServices;
 using Courses.Core.Services.Contract.StudentServices;
+using Courses.Core.Services.Contract.StripeWebHookServices;
 using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.RedisRepository;
@@ -29,6 +30,7 @@ using Courses.Services.PaymentsServices;
 using Courses.Services.ProfileServices;
 using Courses.Services.ProgressServices;
 using Courses.Services.StudentServices;
+using Courses.Services.StripeWebHookServices;
 using Courses.Services.UserServices;
 using Courses.Services.VideoCourseServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -43,6 +45,7 @@ namespace Courses.Api.Extensions
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IStripeWebHookService, StripeWebHookService>();
             services.AddScoped<IProgressService, ProgressService>();
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IVideoCourseService, VideoCourseService>();

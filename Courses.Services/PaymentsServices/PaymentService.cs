@@ -81,7 +81,7 @@ namespace Courses.Services.PaymentsServices
                 }
 
                 // Create Stripe PaymentIntent
-                var options = BuildStripePaymentIntentOptions(course.Price, course.Name, course.Id);
+                var options = BuildStripePaymentIntentOptions(course.Price, course.Name, course.Id, req.EnrollmentId);
                 var paymentIntent = await service.CreateAsync(options);
 
                 // Update enrollment with PaymentIntentId and status
@@ -194,7 +194,7 @@ namespace Courses.Services.PaymentsServices
         /// <summary>
         /// Creates a Stripe PaymentIntent for the given course price.
         /// </summary>
-        private PaymentIntentCreateOptions BuildStripePaymentIntentOptions(decimal coursePrice, string courseName, int courseId)
+        private PaymentIntentCreateOptions BuildStripePaymentIntentOptions(decimal coursePrice, string courseName, int courseId, int enrollmentId)
         {
             return new PaymentIntentCreateOptions
             {
@@ -207,7 +207,8 @@ namespace Courses.Services.PaymentsServices
                 Metadata = new Dictionary<string, string>
                 {
                     { "courseId", courseId.ToString() },
-                    { "courseName", courseName }
+                    { "courseName", courseName },
+                    { "enrollmentId", enrollmentId.ToString() }
                 }
             };
         }
