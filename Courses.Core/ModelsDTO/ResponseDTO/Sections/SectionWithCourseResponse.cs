@@ -2,15 +2,14 @@
 
 namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
 {
-    public class SectionResponse
+    public class SectionWithCourseResponse
     {
         public int Id { get; set; }
         public string Title { get; set; }
+        public int Order { get; set; }
 
-
-        public string CourseName { get; set; } // NFP
         public int CourseId { get; set; }
 
-        public IReadOnlyList<LectureResponse> Lectures { get; set; }
+        public List<LectureWithSectionResponse> Lectures { get; set; } = new();
     }
 }

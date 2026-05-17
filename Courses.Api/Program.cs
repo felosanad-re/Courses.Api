@@ -52,6 +52,7 @@ namespace Courses.Api
                 builder.Services.AddStripeConfig(builder.Configuration);
 
                 var allowedOrigin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
+                var allowedOringin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
                 builder.Services.AddCors(action =>
                 {
                     action.AddPolicy("Angular", options =>
