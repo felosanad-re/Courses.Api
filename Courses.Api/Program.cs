@@ -48,12 +48,16 @@ namespace Courses.Api
                 // Add Application Services (JWT auth configured here overrides Identity cookies)
                 builder.Services.AddApplicationServices(builder.Configuration);
 
+                // Add Stripe Configuration (reads from UserSecrets)
+                builder.Services.AddStripeConfig(builder.Configuration);
+
+                var allowedOrigin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
                 var allowedOringin = builder.Configuration.GetSection("AllowCORS").Get<string[]>();
                 builder.Services.AddCors(action =>
                 {
                     action.AddPolicy("Angular", options =>
                     {
-                        options.WithOrigins(allowedOringin)
+                        options.WithOrigins(allowedOrigin)
                         .AllowAnyHeader()
                         .AllowAnyMethod();
                     });

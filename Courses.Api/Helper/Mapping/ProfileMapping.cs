@@ -14,6 +14,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
+using Courses.Core.ModelsDTO.ResponseDTO.Payments;
 using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.StudentLectureProgress;
@@ -70,6 +71,8 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Enrollment, EnrollmentResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+
+            CreateMap<Enrollment, PaymentResponse>();
             #endregion
 
             #region Lecture
