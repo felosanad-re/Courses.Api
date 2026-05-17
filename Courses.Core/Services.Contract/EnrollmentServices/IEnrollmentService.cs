@@ -10,5 +10,6 @@ namespace Courses.Core.Services.Contract.EnrollmentServices
 
 
         // Update Enrollment Status After Payment
+        Task<ApplicationServiceResult<UpdateEnrollmentResponse>> UpdateEnrollmentStatusAsync(string paymentIntentId, EnrollStatus status);
     }
 }

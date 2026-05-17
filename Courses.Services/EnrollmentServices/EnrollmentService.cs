@@ -37,7 +37,7 @@ namespace Courses.Services.EnrollmentServices
         }
         #endregion
 
-        #region
+        #region Create Enrollment Async
         public async Task<ApplicationServiceResult<EnrollmentWithCourseResponse>> CreateEnrollmentAsync(EnrollmentRequest req)
         {
             var userNotFoundError = "Student Not Found With this id";
@@ -137,6 +137,40 @@ namespace Courses.Services.EnrollmentServices
             {
                 _logger.LogError(ex, "Field To create enrollment for courseId: {courseId}", req.CourseId);
                 return ApplicationServiceResult<EnrollmentWithCourseResponse>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Update Enrollment Status
+        public async Task<ApplicationServiceResult<UpdateEnrollmentResponse>> UpdateEnrollmentStatusAsync(string paymentIntentId, EnrollStatus status)
+        {
+            if (string.IsNullOrWhiteSpace(paymentIntentId))
+                return ApplicationServiceResult<UpdateEnrollmentResponse>.Fail("Payment intent id is required");
+
+            try
+            {
+                var enrollmentRepo = _unitOfWork.CreateRepository<Enrollment>();
+                var enrollment = await enrollmentRepo.GetAsyncSpec(new EnrollmentWithSpec(paymentIntentId));
+
+                if (enrollment is null)
+                    return ApplicationServiceResult<UpdateEnrollmentResponse>.Fail("No enrollment found with this payment intent id");
+
+                enrollment.Status = status;
+                await _unitOfWork.CompleteAsync();
+
+                var response = new UpdateEnrollmentResponse
+                {
+                    EnrollmentId = enrollment.Id,
+                    Status = enrollment.Status,
+                    PaymentIntentId = enrollment.PaymentIntentId
+                };
+
+                return ApplicationServiceResult<UpdateEnrollmentResponse>.Success(response, "Enrollment status updated successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to update enrollment status for paymentIntentId: {paymentIntentId}", paymentIntentId);
+                return ApplicationServiceResult<UpdateEnrollmentResponse>.Fail("There is a problem in database");
             }
         }
         #endregion
