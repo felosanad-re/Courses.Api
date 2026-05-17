@@ -5,10 +5,8 @@ namespace Courses.Core.Models.Enrollments
     /// This is the granular progress tracking that feeds into Enrollment.Progress.
     /// Without this, you can't know which lectures a student has watched.
     /// </summary>
-    public class StudentLectureProgress
+    public class StudentLectureProgress : BaseModel
     {
-        public int Id { get; set; }
-
         // The enrollment this progress belongs to (many-to-one)
         public int EnrollmentId { get; set; }
         public Enrollment Enrollment { get; set; }
@@ -17,10 +15,16 @@ namespace Courses.Core.Models.Enrollments
         public int LectureId { get; set; }
         public Lecture Lecture { get; set; }
 
+        // Progress tracking
+        public double LastWatchedSeconds { get; set; } = 0;
+
         // Whether the student has completed this lecture
         public bool IsCompleted { get; set; }
 
         // When the student completed this lecture (null if not yet completed)
         public DateTime? CompletedAt { get; set; }
+
+        // Tracking usage
+        public DateTime LastAccessedAt { get; set; } = DateTime.UtcNow;
     }
 }

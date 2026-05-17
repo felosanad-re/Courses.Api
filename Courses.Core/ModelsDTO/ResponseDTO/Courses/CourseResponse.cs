@@ -6,6 +6,7 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
 {
     public class CourseResponse
     {
+        public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Image { get; set; }
@@ -23,6 +24,6 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
 
         public List<EnrollmentResponse> Enrollments { get; set; }
 
-        public List<SectionResponse> Sections { get; set; }
+        public List<SectionToReturnDTO> Sections { get; set; }
     }
 }
