@@ -3,8 +3,10 @@ using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Enrollments;
+using Courses.Core.ModelsDTO.RequestDTO.Payments;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Services.Contract.EnrollmentServices;
+using Courses.Core.Services.Contract.PaymentsServices;
 using Courses.Core.Services.Contract.StudentServices;
 using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.Specifications.CoursesSpecifications;
@@ -20,16 +22,18 @@ namespace Courses.Services.EnrollmentServices
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ICurrentUserService _currentUserService;
         protected readonly ICurrentStudentService _currentStudentService;
+        protected readonly IPaymentService _paymentService;
         protected readonly IMapper _mapper;
         protected readonly ILogger<EnrollmentService> _logger;
 
-        public EnrollmentService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<EnrollmentService> logger, ICurrentUserService currentUserService, ICurrentStudentService currentStudentService)
+        public EnrollmentService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<EnrollmentService> logger, ICurrentUserService currentUserService, ICurrentStudentService currentStudentService, IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _currentUserService = currentUserService;
             _currentStudentService = currentStudentService;
+            _paymentService = paymentService;
         }
         #endregion
 
@@ -86,13 +90,15 @@ namespace Courses.Services.EnrollmentServices
 
                     var data = new EnrollmentWithCourseResponse()
                     {
+                        EnrollmentId = freeEnrollment.Id,
                         CourseId = course.Id,
                         Status = EnrollStatus.Active,
-                        UserId = userId,
+                        UserId = userId ?? string.Empty,
                     };
                     return ApplicationServiceResult<EnrollmentWithCourseResponse>.Success(data, succeededMessageFree);
                 }
 
+                // Paid Course
                 var paidEnrollment = new Enrollment()
                 {
                     CourseId = req.CourseId,
@@ -102,16 +108,27 @@ namespace Courses.Services.EnrollmentServices
                     CreatedBy = student.Data.Name,
                     Status = EnrollStatus.PendingPayment
                 };
+
                 await enrollmentRepo.AddAsync(paidEnrollment);
                 await _unitOfWork.CompleteAsync();
 
-                // Paid Course --> Strip To Payment
+                // Paid Course --> Create paymentIntent [Stripe]
+                var paymentIntent = await _paymentService.CreatePaymentIntent(new PaymentRequest
+                {
+                    EnrollmentId = paidEnrollment.Id
+                });
+
+                if (!paymentIntent.Succeed || paymentIntent.Data is null)
+                    return ApplicationServiceResult<EnrollmentWithCourseResponse>.Fail(paymentIntent.Message ?? "Failed to create payment intent");
+
                 var paidEnrollmentResponse = new EnrollmentWithCourseResponse()
                 {
+                    EnrollmentId = paidEnrollment.Id,
                     CourseId = course.Id,
-                    Status = EnrollStatus.PendingPayment,
-                    UserId = userId,
-                    CheckOutURL = "Go To Stripe"
+                    Status = paidEnrollment.Status,
+                    UserId = userId ?? string.Empty,
+                    PaymentIntentId = paymentIntent.Data.PaymentIntentId,
+                    ClientSecret = paymentIntent.Data.ClientSecret
                 };
 
                 return ApplicationServiceResult<EnrollmentWithCourseResponse>.Success(paidEnrollmentResponse, succeededMessagePaid);

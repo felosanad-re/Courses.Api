@@ -10,5 +10,7 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Enrollment
         public int? CourseId { get; set; }
         public string UserId { get; set; }
         public string? CheckOutURL { get; set; }
+        public string? PaymentIntentId { get; set; }
+        public string? ClientSecret { get; set; }
     }
 }
