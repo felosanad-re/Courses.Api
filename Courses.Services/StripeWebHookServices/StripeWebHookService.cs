@@ -1,9 +1,7 @@
-using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Options;
+using Courses.Core.Services.Contract.EnrollmentServices;
 using Courses.Core.Services.Contract.StripeWebHookServices;
-using Courses.Core.Specifications.EnrollmentSpecifications;
-using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Stripe;
@@ -12,20 +10,23 @@ namespace Courses.Services.StripeWebHookServices
 {
     public class StripeWebHookService : IStripeWebHookService
     {
-        private readonly IUnitOfWork _unitOfWork;
+        #region DI Service
+        private readonly IEnrollmentService _enrollmentService;
         private readonly ILogger<StripeWebHookService> _logger;
         private readonly StripeOptions _stripeOptions;
 
         public StripeWebHookService(
-            IUnitOfWork unitOfWork,
+            IEnrollmentService enrollmentService,
             ILogger<StripeWebHookService> logger,
             IOptions<StripeOptions> stripeOptions)
         {
-            _unitOfWork = unitOfWork;
+            _enrollmentService = enrollmentService;
             _logger = logger;
             _stripeOptions = stripeOptions.Value;
         }
+        #endregion
 
+        #region WebHook
         public async Task<bool> WebHook(string json, string stripeSignature)
         {
             if (string.IsNullOrWhiteSpace(_stripeOptions.WebHookSecret))
@@ -69,25 +70,27 @@ namespace Courses.Services.StripeWebHookServices
                 return true;
             }
 
-            var enrollmentRepo = _unitOfWork.CreateRepository<Enrollment>();
-            var enrollment = await enrollmentRepo.GetAsyncSpec(new EnrollmentWithSpec(paymentIntent.Id));
+            var updateResult = await _enrollmentService.UpdateEnrollmentStatusAsync(paymentIntent.Id, status.Value);
 
-            if (enrollment is null)
+            if (!updateResult.Succeed)
             {
-                _logger.LogWarning("No enrollment found for Stripe payment intent {PaymentIntentId}.", paymentIntent.Id);
+                _logger.LogWarning(
+                    "Stripe webhook event {EventType} could not update enrollment for payment intent {PaymentIntentId}: {Message}",
+                    stripeEvent.Type,
+                    paymentIntent.Id,
+                    updateResult.Message);
+
                 return true;
             }
 
-            enrollment.Status = status.Value;
-            await _unitOfWork.CompleteAsync();
-
             _logger.LogInformation(
                 "Enrollment {EnrollmentId} status updated to {EnrollmentStatus} from Stripe event {EventType}.",
-                enrollment.Id,
-                enrollment.Status,
+                updateResult.Data?.EnrollmentId,
+                updateResult.Data?.Status,
                 stripeEvent.Type);
 
             return true;
         }
+        #endregion
     }
 }
