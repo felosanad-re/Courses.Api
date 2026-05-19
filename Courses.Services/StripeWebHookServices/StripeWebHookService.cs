@@ -13,7 +13,7 @@ namespace Courses.Services.StripeWebHookServices
         private static readonly IReadOnlyDictionary<string, EnrollStatus> PaymentIntentFinalStatuses =
             new Dictionary<string, EnrollStatus>
             {
-                { "payment_intent.succeeded", EnrollStatus.PaymentSucceeded },
+                { "payment_intent.succeeded", EnrollStatus.Active },
                 { "payment_intent.payment_failed", EnrollStatus.PaymentFailed },
                 { "payment_intent.canceled", EnrollStatus.PaymentCancelled }
             };
