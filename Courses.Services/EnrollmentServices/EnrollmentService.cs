@@ -79,7 +79,9 @@ namespace Courses.Services.EnrollmentServices
                         Progress = 0m,
                         IsCompleted = false,
                         CreatedBy = student.Data.Name,
-                        Status = EnrollStatus.Active
+                        Status = EnrollStatus.Active,
+                        IsPaid = false,
+                        Amount = 0m
                     };
                     await enrollmentRepo.AddAsync(freeEnrollment);
                     await _unitOfWork.CompleteAsync();
@@ -90,6 +92,8 @@ namespace Courses.Services.EnrollmentServices
                         CourseId = course.Id,
                         Status = EnrollStatus.Active,
                         UserId = userId ?? string.Empty,
+                        IsPaid = false,
+                        Amount = 0m
                     };
                     return ApplicationServiceResult<EnrollmentWithCourseResponse>.Success(data, succeededMessageFree);
                 }
@@ -102,7 +106,9 @@ namespace Courses.Services.EnrollmentServices
                     Progress = 0m,
                     IsCompleted = false,
                     CreatedBy = student.Data.Name,
-                    Status = EnrollStatus.PendingPayment
+                    Status = EnrollStatus.PendingPayment,
+                    IsPaid = true,
+                    Amount = 0m
                 };
 
                 await enrollmentRepo.AddAsync(paidEnrollment);
@@ -113,7 +119,9 @@ namespace Courses.Services.EnrollmentServices
                     EnrollmentId = paidEnrollment.Id,
                     CourseId = course.Id,
                     Status = paidEnrollment.Status,
-                    UserId = userId ?? string.Empty
+                    UserId = userId ?? string.Empty,
+                    IsPaid = true,
+                    Amount = 0m
                 };
 
                 return ApplicationServiceResult<EnrollmentWithCourseResponse>.Success(paidEnrollmentResponse, succeededMessagePaid);

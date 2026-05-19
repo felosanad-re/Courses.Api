@@ -22,6 +22,13 @@ namespace Courses.Core.Models.Enrollments
         // Whether the student has completed all course requirements
         public bool IsCompleted { get; set; }
 
+        // For Paid Courses
+        public bool IsPaid { get; set; }
+        public decimal Amount { get; set; }
+
+        // For Refused Course
+        public string? CancellationReason { get; set; }
+
         // Overall progress percentage (0-100), can be calculated from StudentLectureProgress
         public decimal Progress { get; set; }
 
