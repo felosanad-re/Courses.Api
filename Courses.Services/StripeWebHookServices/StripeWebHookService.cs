@@ -10,6 +10,14 @@ namespace Courses.Services.StripeWebHookServices
 {
     public class StripeWebHookService : IStripeWebHookService
     {
+        private static readonly IReadOnlyDictionary<string, EnrollStatus> PaymentIntentFinalStatuses =
+            new Dictionary<string, EnrollStatus>
+            {
+                { "payment_intent.succeeded", EnrollStatus.PaymentSucceeded },
+                { "payment_intent.payment_failed", EnrollStatus.PaymentFailed },
+                { "payment_intent.canceled", EnrollStatus.PaymentCancelled }
+            };
+
         #region DI Service
         private readonly IEnrollmentService _enrollmentService;
         private readonly ILogger<StripeWebHookService> _logger;
@@ -50,27 +58,19 @@ namespace Courses.Services.StripeWebHookServices
                 return false;
             }
 
+            if (!PaymentIntentFinalStatuses.TryGetValue(stripeEvent.Type, out var status))
+            {
+                _logger.LogInformation("Stripe webhook event {EventType} ignored before payment final status.", stripeEvent.Type);
+                return true;
+            }
+
             if (stripeEvent.Data.Object is not PaymentIntent paymentIntent)
             {
                 _logger.LogInformation("Stripe webhook event {EventType} ignored because object is not a payment intent.", stripeEvent.Type);
                 return true;
             }
 
-            var status = stripeEvent.Type switch
-            {
-                "payment_intent.succeeded" => EnrollStatus.PaymentSucceeded,
-                "payment_intent.payment_failed" => EnrollStatus.PaymentFailed,
-                "payment_intent.canceled" => EnrollStatus.PaymentCancelled,
-                _ => (EnrollStatus?)null
-            };
-
-            if (status is null)
-            {
-                _logger.LogInformation("Stripe webhook event {EventType} ignored.", stripeEvent.Type);
-                return true;
-            }
-
-            var updateResult = await _enrollmentService.UpdateEnrollmentStatusAsync(paymentIntent.Id, status.Value);
+            var updateResult = await _enrollmentService.UpdateEnrollmentStatusAsync(paymentIntent.Id, status);
 
             if (!updateResult.Succeed)
             {
