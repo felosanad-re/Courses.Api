@@ -37,6 +37,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Courses.Core.Services.Contract.RefundsServices;
+using Courses.Services.StripeRefundsServices;
 
 namespace Courses.Api.Extensions
 {
@@ -44,6 +46,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IRefundService, StripeRefundService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IStripeWebHookService, StripeWebHookService>();
             services.AddScoped<IProgressService, ProgressService>();

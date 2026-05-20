@@ -17,6 +17,12 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Enrollment
         PaymentFailed = 3,
 
         [EnumMember(Value = "Payment Cancelled")]
-        PaymentCancelled = 4
+        PaymentCancelled = 4,
+
+        [EnumMember(Value = "Refund Pending")]
+        RefundedPending = 5,
+
+        [EnumMember(Value = "Refunded")]
+        Refunded = 6
     }
 }
