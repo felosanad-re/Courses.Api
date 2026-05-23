@@ -108,7 +108,7 @@ namespace Courses.Services.EnrollmentServices
                     CreatedBy = student.Data.Name,
                     Status = EnrollStatus.PendingPayment,
                     IsPaid = true,
-                    Amount = 0m
+                    Amount = course.Price
                 };
 
                 await enrollmentRepo.AddAsync(paidEnrollment);
@@ -121,7 +121,7 @@ namespace Courses.Services.EnrollmentServices
                     Status = paidEnrollment.Status,
                     UserId = userId ?? string.Empty,
                     IsPaid = true,
-                    Amount = 0m
+                    Amount = course.Price
                 };
 
                 return ApplicationServiceResult<EnrollmentWithCourseResponse>.Success(paidEnrollmentResponse, succeededMessagePaid);
