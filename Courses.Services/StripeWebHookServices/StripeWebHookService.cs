@@ -64,7 +64,9 @@ namespace Courses.Services.StripeWebHookServices
                 stripeEvent = EventUtility.ConstructEvent(
                     json,
                     stripeSignature,
-                    _stripeOptions.WebHookSecret);
+                    _stripeOptions.WebHookSecret,
+                    throwOnApiVersionMismatch: false // Ignore API Version in development
+                    );
             }
             catch (Exception ex)
             {
