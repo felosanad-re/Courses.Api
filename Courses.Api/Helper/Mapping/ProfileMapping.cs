@@ -73,6 +73,16 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
 
+            CreateMap<Enrollment, EnrollmentWithCoursesResponse>()
+                .ForMember(d => d.CourseId, o => o.MapFrom(s => s.CourseId))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.Course.Name))
+                .ForMember(d => d.Description, o => o.MapFrom(s => s.Course.Description))
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Enrollment, EnrollmentWithCoursesResponse>, string>(s => s.Course.Image))
+                .ForMember(d => d.InstructorId, o => o.MapFrom(s => s.Course.InstructorId))
+                .ForMember(d => d.IsPaid, o => o.MapFrom(s => s.Course.IsPaid))
+                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.Course.CourseType.Name))
+                .ForMember(d => d.Price, o => o.MapFrom(s => s.Course.Price));
+
             CreateMap<Enrollment, PaymentResponse>();
 
             CreateMap<Enrollment, RefundResponse>();

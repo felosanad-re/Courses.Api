@@ -1,11 +1,11 @@
 ﻿using Courses.Core.ModelsDTO;
-using Courses.Core.ModelsDTO.ResponseDTO.Courses;
+using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 
 namespace Courses.Core.Services.Contract.StudentServices
 {
     public interface IStudentService
     {
         // Get All Courses
-        Task<ApplicationServiceResult<IReadOnlyList<CoursesToReturnDTO>>> GetAllStudentCoursesAsync();
+        Task<ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>> GetAllStudentCoursesAsync();
     }
 }
