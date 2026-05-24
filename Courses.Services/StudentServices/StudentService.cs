@@ -1,7 +1,6 @@
 using AutoMapper;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
-using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Services.Contract.StudentServices;
 using Courses.Core.Specifications;
@@ -25,15 +24,15 @@ namespace Courses.Services.StudentServices
             _logger = logger;
         }
 
-        public async Task<ApplicationServiceResult<IReadOnlyList<CoursesToReturnDTO>>> GetAllStudentCoursesAsync()
+        public async Task<ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>> GetAllStudentCoursesAsync()
         {
             var userNotFoundError = "Student Not Found With this id";
-            var succeededMessage = "Revived Student Courses Succeeded";
+            var succeededMessage = "Revived Student Courses Enrollmented Succeeded";
             var loggerError = "there is a problem in database";
 
             var student = await _currentStudentService.GetStudentWithApplicationUser();
             if (student == null || !student.Succeed || student.Data is null)
-                return ApplicationServiceResult<IReadOnlyList<CoursesToReturnDTO>>.Fail(userNotFoundError);
+                return ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>.Fail(userNotFoundError);
 
             try
             {
@@ -46,15 +45,19 @@ namespace Courses.Services.StudentServices
                 spec.IncludesString.Add("Course.CourseType");
 
                 var enrollments = await _unitOfWork.CreateRepository<Enrollment>().GetAllAsyncSpec(spec);
-                var courses = enrollments.Select(x => x.Course).ToList();
-                var data = _mapper.Map<IReadOnlyList<CoursesToReturnDTO>>(courses);
 
-                return ApplicationServiceResult<IReadOnlyList<CoursesToReturnDTO>>.Success(data, succeededMessage);
+                // if no active courses for this student yet
+                if (enrollments.Count == 0) return ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>
+                        .Success(new List<EnrollmentWithCoursesResponse>(), "No active courses found");
+
+                var data = _mapper.Map<IReadOnlyList<EnrollmentWithCoursesResponse>>(enrollments);
+
+                return ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>.Success(data, succeededMessage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to retrieve active courses for studentId: {studentId}", student.Data.Id);
-                return ApplicationServiceResult<IReadOnlyList<CoursesToReturnDTO>>.Fail(loggerError);
+                return ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>.Fail(loggerError);
             }
         }
     }
