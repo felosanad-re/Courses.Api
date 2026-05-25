@@ -48,6 +48,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ICurrentInstructorServices, CurrentInstructorServices>();
             services.AddScoped<IManagementCourse, ManagementCourse>();
             services.AddScoped<IRefundService, StripeRefundService>();
             services.AddScoped<IPaymentService, PaymentService>();

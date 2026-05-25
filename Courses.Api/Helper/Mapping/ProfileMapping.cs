@@ -117,6 +117,8 @@ namespace Courses.Api.Helper.Mapping
             #endregion
 
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
+
+            CreateMap<Instructor, InstructorWithApplicationUserResponse>();
         }
     }
 }
