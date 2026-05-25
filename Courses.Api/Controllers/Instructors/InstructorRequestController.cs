@@ -1,14 +1,15 @@
 using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.Services.Contract.InstructorServices;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Instructors
 {
+    [Authorize(Roles = Roles.Admin)]
     public class InstructorRequestController : BaseController
     {
         #region Inject Services

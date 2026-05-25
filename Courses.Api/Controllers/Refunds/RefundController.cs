@@ -1,13 +1,15 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Refunds;
 using Courses.Core.ModelsDTO.ResponseDTO.Refunds;
 using Courses.Core.Services.Contract.RefundsServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Refunds
 {
+    [Authorize(Roles = Roles.Student)]
     public class RefundController : BaseController
     {
         protected readonly IRefundService _refundService;

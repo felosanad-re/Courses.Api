@@ -1,13 +1,15 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Payments;
 using Courses.Core.ModelsDTO.ResponseDTO.Payments;
 using Courses.Core.Services.Contract.PaymentsServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Payment
 {
+    [Authorize(Roles = Roles.Student)]
     public class PaymentController : BaseController
     {
         protected readonly IPaymentService _paymentService;

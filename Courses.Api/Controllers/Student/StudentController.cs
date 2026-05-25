@@ -1,12 +1,14 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Services.Contract.StudentServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Student
 {
+    [Authorize(Roles = Roles.Student)]
     public class StudentController : BaseController
     {
         protected readonly IStudentService _studentService;
