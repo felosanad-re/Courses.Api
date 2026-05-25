@@ -39,6 +39,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Courses.Core.Services.Contract.RefundsServices;
 using Courses.Services.StripeRefundsServices;
+using Courses.Core.Services.Contract.ManagementCourses;
+using Courses.Services.ManagementCourses;
 
 namespace Courses.Api.Extensions
 {
@@ -46,6 +48,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IManagementCourse, ManagementCourse>();
             services.AddScoped<IRefundService, StripeRefundService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IStripeWebHookService, StripeWebHookService>();

@@ -52,56 +52,5 @@ namespace Courses.Api.Controllers.Instructors
             return Ok(result);
         }
         #endregion
-
-        #region Get Courses Details
-        [HttpGet("Course/{id}")] // GET: /api/Instructor/Course/id
-        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> GetCourses(int id)
-        {
-            var result = await _instructorService.GetCourseDetailsAsync(id);
-            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
-            return Ok(result);
-        }
-        #endregion
-
-        #region CreateCourse
-        [HttpPost("CreateCourse")] // POST: /api/Instructor/CreateCourse
-        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> CreateCourseAsync(CreatedCourseRequest req)
-        {
-            var result = await _instructorService.CreateCourseAsync(req);
-            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
-            return Ok(result);
-        }
-        #endregion
-
-        #region Update Course
-        [HttpPut("UpdateCourse/{id}")] // PUT: /api/Instructor/UpdateCourse/id
-        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> UpdateCourseAsync([FromRoute]int id, [FromBody] UpdatedCourseRequest req)
-        {
-            var result = await _instructorService.UpdateCourseAsync(id, req);
-            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
-            return Ok(result);
-        }
-        #endregion
-
-        #region Delete Course
-        [HttpDelete("Delete/{id}")] // DELETE: /api/Instructor/Delete
-        public async Task<ActionResult<ApplicationServiceResult<bool>>> DeleteCourse(int id)
-        {
-            var result = await _instructorService.DeleteCourseAsync(id);
-            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
-            return Ok(result);
-        }
-        #endregion
-
-        #region Delete-Courses
-        [HttpPost("Delete-Courses")] // POST: /api/Instructors/Delete-Courses
-        public async Task<ActionResult<ApplicationServiceResult<DeleteCoursesResult>>> DeleteCourses([FromBody]IEnumerable<int> ids)
-        {
-            var result = await _instructorService.DeleteCoursesAsync(ids);
-            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
-
-            return Ok(result);
-        }
-        #endregion
     }
 }
