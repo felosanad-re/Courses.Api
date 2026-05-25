@@ -1,14 +1,16 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Progress;
 using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.Services.Contract.ProgressServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Progresses
 {
+    [Authorize(Roles = Roles.Student)]
     public class ProgressController : BaseController
     {
         #region DI Services

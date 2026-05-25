@@ -2,7 +2,6 @@
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
 using Courses.Core.Services.Contract.CourseTypeServices;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.CourseTypes
