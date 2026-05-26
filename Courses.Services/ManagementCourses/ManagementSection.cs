@@ -7,10 +7,10 @@ using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Core.Specifications;
+using Courses.Core.Specifications.CoursesSpecifications;
+using Courses.Core.Specifications.SectionsSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography.X509Certificates;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Courses.Services.ManagementCourses
 {
@@ -37,22 +37,20 @@ namespace Courses.Services.ManagementCourses
             var loggerMessage = "there is a problem in database";
             try
             {
-                var errorMessage = "you don't have access for this course";
+                var errorMessage = "Course not found or you don't have access";
                 var succeededMessage = "Section Created Succeedded In database";
 
                 // Get Current Instructor
                 var instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null) return ApplicationServiceResult<SectionWithCourseResponse>.Fail("there    is no instructor with this id");
 
-                    // Get Course for this section
-                    var sectionWithCourseSpec = new BaseSpecifications<Course>(
-                        x => (x.Id == req.CourseId) &&
-                             (x.InstructorId == instructorId)
-                        );
+                // Get Course for this section
+                var sectionWithCourseSpec = new CoursesWithSectionsSpec(req.CourseId, instructorId);
 
                 var course = await _unitOfWork.CreateRepository<Course>().GetAsyncSpec(sectionWithCourseSpec);
+
                 if (course is null)
-                    return ApplicationServiceResult<SectionWithCourseResponse>.Fail("Course not found or you don't have access");
+                    return ApplicationServiceResult<SectionWithCourseResponse>.Fail(errorMessage);
 
                 // Create new Section
                 var section = _mapper.Map<Section>(req); // Create New Section
@@ -86,13 +84,7 @@ namespace Courses.Services.ManagementCourses
                 if (instructorId is null) return ApplicationServiceResult<SectionWithCourseResponse>.Fail("there is no instructor with this id");
 
                 // Get Section With has Own Course
-                var sectionWithCourseSpec = new BaseSpecifications<Section>
-                    (
-                        x => (x.Id == req.Id) &&
-                             (x.Course.InstructorId == instructorId)
-                    );
-
-                sectionWithCourseSpec.Includes.Add(x => x.Course);
+                var sectionWithCourseSpec = new SectionWithCourseSpec(req.Id, instructorId);
 
                 section = await _unitOfWork.CreateRepository<Section>()
                     .GetAsyncSpec(sectionWithCourseSpec);
@@ -126,12 +118,8 @@ namespace Courses.Services.ManagementCourses
                 if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
 
                 // Get Section
-                var spec = new BaseSpecifications<Section>(x =>
-                        (x.Id == id) &&
-                        (x.Course.InstructorId == instructorId)
-                    );
+                var spec = new SectionWithCourseSpec(id, instructorId);
 
-                spec.Includes.Add(x => x.Lectures); // For Delete Lectures
                 var section = await _unitOfWork.CreateRepository<Section>().GetAsyncSpec(spec);
                 if (section is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail(errorMessage);
 
@@ -171,12 +159,7 @@ namespace Courses.Services.ManagementCourses
                 var instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
 
-                var spec = new BaseSpecifications<Section>(x =>
-                    (ids.Contains(x.Id)) &&
-                    (x.Course.Instructor.Id == instructorId)
-                );
-
-                spec.Includes.Add(x => x.Lectures);
+                var spec = new SectionWithCourseSpec(ids, instructorId);
 
                 var sections = await _unitOfWork.CreateRepository<Section>().GetAllAsyncSpec(spec);
                 if (!sections.Any()) return ApplicationServiceResult<DeleteSectionResponse>.Fail(errorMessage);

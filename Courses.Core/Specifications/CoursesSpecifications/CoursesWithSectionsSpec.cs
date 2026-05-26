@@ -9,5 +9,14 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         {
             Includes.Add(x => x.Sections);
         }
+
+        public CoursesWithSectionsSpec(int courseId, int? instructorId)
+            : base(x => 
+                (x.Id == courseId) &&
+                (x.InstructorId == instructorId)
+            )
+        {
+            Includes.Add(x => x.Sections);
+        }
     }
 }
