@@ -9,6 +9,8 @@ using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Core.Specifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Courses.Services.ManagementCourses
 {
@@ -112,16 +114,101 @@ namespace Courses.Services.ManagementCourses
         #endregion
 
         #region Delete Section Async
-        public Task<ApplicationServiceResult<DeleteSectionResponse>> DeleteSectionAsync(int id)
+        public async Task<ApplicationServiceResult<DeleteSectionResponse>> DeleteSectionAsync(int id)
         {
-            throw new NotImplementedException();
+            var loggerMessage = "there is a problem in database";
+            try
+            {
+                var errorMessage = "Section not found or access denied";
+                var succeededMessage = "Section Deleted Succeeded From database";
+
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
+
+                // Get Section
+                var spec = new BaseSpecifications<Section>(x =>
+                        (x.Id == id) &&
+                        (x.Course.InstructorId == instructorId)
+                    );
+
+                spec.Includes.Add(x => x.Lectures); // For Delete Lectures
+                var section = await _unitOfWork.CreateRepository<Section>().GetAsyncSpec(spec);
+                if (section is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail(errorMessage);
+
+                // Get Lectures Count Before Delete Section 
+                var lecturesCount = section.Lectures.Count;
+
+                _unitOfWork.CreateRepository<Section>().Delete(section);
+                await _unitOfWork.CompleteAsync();
+
+                var data = new DeleteSectionResponse()
+                {
+                    Message = "you delete one section",
+                    LecturesCount = lecturesCount,
+                    SectionsCount = 1
+                };
+
+                return ApplicationServiceResult<DeleteSectionResponse>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to delete sectionId: {id}", id);
+                return ApplicationServiceResult<DeleteSectionResponse>.Fail(loggerMessage);
+            }
+
         }
         #endregion
 
-        #region
-        public Task<ApplicationServiceResult<DeleteSectionResponse>> DeleteMultiSections(IEnumerable<int> ids)
+        #region Delete Multi Sections
+        public async Task<ApplicationServiceResult<DeleteSectionResponse>> DeleteMultiSections(IEnumerable<int> ids)
         {
-            throw new NotImplementedException();
+            var loggerMessage = "there is a problem in database";
+            try
+            {
+                var errorMessage = "Section not found or access denied";
+                var succeededMessage = "Sections Deleted Succeeded From database";
+
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
+
+                var spec = new BaseSpecifications<Section>(x =>
+                    (ids.Contains(x.Id)) &&
+                    (x.Course.Instructor.Id == instructorId)
+                );
+
+                spec.Includes.Add(x => x.Lectures);
+
+                var sections = await _unitOfWork.CreateRepository<Section>().GetAllAsyncSpec(spec);
+                if (!sections.Any()) return ApplicationServiceResult<DeleteSectionResponse>.Fail(errorMessage);
+                // Get Num Of Sections
+                var sectionsCount = sections.Count;
+                // Get Num Of Lecturers
+                var lecturesCount = sections.Sum(x => x.Lectures.Count);
+
+                // Delete Sections And Lectures
+                foreach (var section in sections)
+                {
+                    section.IsDeleted = true;
+                    foreach (var lecture in section.Lectures)
+                    {
+                        lecture.IsDeleted = true;
+                    }
+                }
+
+                await _unitOfWork.CompleteAsync();
+                var result = new DeleteSectionResponse()
+                {
+                    Message = "Deleted Section Succeeded",
+                    SectionsCount = sectionsCount,
+                    LecturesCount = lecturesCount,
+                };
+                return ApplicationServiceResult<DeleteSectionResponse>.Success(result, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to delete sectionId: {ids}", ids);
+                return ApplicationServiceResult<DeleteSectionResponse>.Fail(loggerMessage);
+            }
         }
         #endregion
 
