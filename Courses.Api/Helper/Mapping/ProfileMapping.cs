@@ -8,6 +8,7 @@ using Courses.Core.Models.Students;
 using Courses.Core.ModelsDTO.RequestDTO.Account;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Profile;
+using Courses.Core.ModelsDTO.RequestDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Account;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
@@ -105,6 +106,11 @@ namespace Courses.Api.Helper.Mapping
 
             CreateMap<Section, SectionToReturnDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));
+
+            CreateMap<CreateSectionRequest, Section>();
+
+            CreateMap<UpdateSectionRequest, Section>();
+
             #endregion
 
             #region Student Lecture Progress
@@ -117,6 +123,8 @@ namespace Courses.Api.Helper.Mapping
             #endregion
 
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
+
+            CreateMap<Instructor, InstructorWithApplicationUserResponse>();
         }
     }
 }
