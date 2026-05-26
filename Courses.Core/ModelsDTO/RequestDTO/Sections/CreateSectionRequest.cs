@@ -9,5 +9,8 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Sections
 
         [Required]
         public int Order { get; set; }
+
+        [Required]
+        public int CourseId { get; set; }
     }
 }

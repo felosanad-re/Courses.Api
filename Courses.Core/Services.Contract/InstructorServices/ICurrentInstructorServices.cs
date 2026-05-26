@@ -5,6 +5,6 @@ namespace Courses.Core.Services.Contract.InstructorServices
 {
     public interface ICurrentInstructorServices
     {
-        Task<ApplicationServiceResult<InstructorWithApplicationUserResponse>> CurrentInstructor();
+        Task<ApplicationServiceResult<InstructorWithApplicationUserResponse>> GetCurrentInstructor();
     }
 }

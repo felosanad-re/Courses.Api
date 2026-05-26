@@ -26,7 +26,7 @@ namespace Courses.Services.InstructorServices
         }
         #endregion
 
-        public async Task<ApplicationServiceResult<InstructorWithApplicationUserResponse>> CurrentInstructor()
+        public async Task<ApplicationServiceResult<InstructorWithApplicationUserResponse>> GetCurrentInstructor()
         {
             var userId = _currentUserService.UserId;
             if (userId == null) return ApplicationServiceResult<InstructorWithApplicationUserResponse>.Fail("there is no user with this id");
