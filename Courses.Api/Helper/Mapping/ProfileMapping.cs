@@ -7,6 +7,7 @@ using Courses.Core.Models.Instructors;
 using Courses.Core.Models.Students;
 using Courses.Core.ModelsDTO.RequestDTO.Account;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
+using Courses.Core.ModelsDTO.RequestDTO.Lectures;
 using Courses.Core.ModelsDTO.RequestDTO.Profile;
 using Courses.Core.ModelsDTO.RequestDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Account;
@@ -99,6 +100,13 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Lecture, LectureWithSectionResponse>();
 
             CreateMap<Lecture, CourseWithLectureVideoResponse>();
+
+            CreateMap<Lecture, LectureWithInstructorResponse>()
+                .ForMember(d => d.SectionName, o=> o.MapFrom(s => s.Section.Title));
+
+            CreateMap<CreatedLectureRequest, Lecture>();
+
+            CreateMap<UpdatedLectureRequest, Lecture>();
             #endregion
 
             #region Sections
