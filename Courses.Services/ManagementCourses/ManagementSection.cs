@@ -40,6 +40,9 @@ namespace Courses.Services.ManagementCourses
                 var errorMessage = "Course not found or you don't have access";
                 var succeededMessage = "Section Created Succeedded In database";
 
+                if (!ValidateSectionInput(req.Title, req.Order, out var normalizedTitle, out var validationError))
+                    return ApplicationServiceResult<SectionWithCourseResponse>.Fail(validationError);
+
                 // Get Current Instructor
                 var instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null) return ApplicationServiceResult<SectionWithCourseResponse>.Fail("there    is no instructor with this id");
@@ -54,6 +57,7 @@ namespace Courses.Services.ManagementCourses
 
                 // Create new Section
                 var section = _mapper.Map<Section>(req); // Create New Section
+                section.Title = normalizedTitle;
                 await _unitOfWork.CreateRepository<Section>().AddAsync(section);
                 await _unitOfWork.CompleteAsync();
 
@@ -77,7 +81,13 @@ namespace Courses.Services.ManagementCourses
             try
             {
                 var errorMessage = "Section not found or access denied";
-                var succeededMessage = "Section Updated Succeedded In database";
+                var succeededMessage = "Section Updated Succeeded In database";
+
+                if (req.Id <= 0)
+                    return ApplicationServiceResult<SectionWithCourseResponse>.Fail("section id must be greater than zero");
+
+                if (!ValidateSectionInput(req.Title, req.Order, out var normalizedTitle, out var validationError))
+                    return ApplicationServiceResult<SectionWithCourseResponse>.Fail(validationError);
 
                 // Get Current Instructor
                 var instructorId = await GetCurrentInstructorInfo();
@@ -91,6 +101,7 @@ namespace Courses.Services.ManagementCourses
 
                 if (section == null) return ApplicationServiceResult<SectionWithCourseResponse>.Fail(errorMessage);
                 _mapper.Map(req, section);
+                section.Title = normalizedTitle;
                 await _unitOfWork.CompleteAsync();
 
                 var data = _mapper.Map<SectionWithCourseResponse>(section);
@@ -114,6 +125,8 @@ namespace Courses.Services.ManagementCourses
                 var errorMessage = "Section not found or access denied";
                 var succeededMessage = "Section Deleted Succeeded From database";
 
+                if (id <= 0) return ApplicationServiceResult<DeleteSectionResponse>.Fail("section id must be greater than zero");
+
                 var instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
 
@@ -126,7 +139,12 @@ namespace Courses.Services.ManagementCourses
                 // Get Lectures Count Before Delete Section 
                 var lecturesCount = section.Lectures.Count;
 
-                _unitOfWork.CreateRepository<Section>().Delete(section);
+                section.IsDeleted = true;
+                foreach (var lecture in section.Lectures)
+                {
+                    lecture.IsDeleted = true;
+                }
+
                 await _unitOfWork.CompleteAsync();
 
                 var data = new DeleteSectionResponse()
@@ -156,13 +174,24 @@ namespace Courses.Services.ManagementCourses
                 var errorMessage = "Section not found or access denied";
                 var succeededMessage = "Sections Deleted Succeeded From database";
 
+                var sectionIds = ids?.Distinct().ToArray() ?? Array.Empty<int>();
+                if (sectionIds.Length == 0)
+                    return ApplicationServiceResult<DeleteSectionResponse>.Fail("section ids are required");
+
+                if (sectionIds.Any(id => id <= 0))
+                    return ApplicationServiceResult<DeleteSectionResponse>.Fail("section ids must be greater than zero");
+
                 var instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null) return ApplicationServiceResult<DeleteSectionResponse>.Fail("there is no instructor with this id");
 
-                var spec = new SectionWithCourseSpec(ids, instructorId);
+                var spec = new SectionWithCourseSpec(sectionIds, instructorId);
 
                 var sections = await _unitOfWork.CreateRepository<Section>().GetAllAsyncSpec(spec);
                 if (!sections.Any()) return ApplicationServiceResult<DeleteSectionResponse>.Fail(errorMessage);
+
+                if (sections.Count != sectionIds.Length)
+                    return ApplicationServiceResult<DeleteSectionResponse>.Fail("some sections don't exist or you don't have access to them");
+
                 // Get Num Of Sections
                 var sectionsCount = sections.Count;
                 // Get Num Of Lecturers
@@ -204,6 +233,33 @@ namespace Courses.Services.ManagementCourses
                 return null;
 
             return instructorInfo.Data.Id;
+        }
+
+        private static bool ValidateSectionInput(string? title, int order, out string normalizedTitle, out string errorMessage)
+        {
+            normalizedTitle = string.Empty;
+            errorMessage = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                errorMessage = "section title is required";
+                return false;
+            }
+
+            normalizedTitle = title.Trim();
+            if (normalizedTitle.Length > 300)
+            {
+                errorMessage = "section title can't be more than 300 characters";
+                return false;
+            }
+
+            if (order <= 0)
+            {
+                errorMessage = "section order must be greater than zero";
+                return false;
+            }
+
+            return true;
         }
         #endregion
     }

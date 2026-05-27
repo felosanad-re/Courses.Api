@@ -8,12 +8,15 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             : base(c => coursesIds.Contains(c.Id))
         {
             Includes.Add(c => c.Instructor);
+            Includes.Add(c => c.CourseType);
+            IncludesString.Add("Sections.Lectures");
         }
 
         public CourseWithInstructorSpec(string userId)
             :base(c => c.Instructor.UserId == userId)
         {
             Includes.Add(c => c.Instructor);
+            Includes.Add(c => c.CourseType);
         }
 
         public CourseWithInstructorSpec(int id, string userId)
@@ -22,6 +25,8 @@ namespace Courses.Core.Specifications.CoursesSpecifications
                   )
         {
             Includes.Add(c => c.Instructor);
+            Includes.Add(c => c.CourseType);
+            IncludesString.Add("Sections.Lectures");
         }
 
         public CourseWithInstructorSpec(IEnumerable<int> coursesIds, string userId)
@@ -32,6 +37,8 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             )
         {
             Includes.Add(c => c.Instructor);
+            Includes.Add(c => c.CourseType);
+            IncludesString.Add("Sections.Lectures");
         }
     }
 }

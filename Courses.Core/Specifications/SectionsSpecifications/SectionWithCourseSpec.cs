@@ -17,9 +17,10 @@ namespace Courses.Core.Specifications.SectionsSpecifications
         public SectionWithCourseSpec(IEnumerable<int> ids, int? instructorId)
             :base(x =>
                     (ids.Contains(x.Id)) &&
-                    (x.Course.Instructor.Id == instructorId)
+                    (x.Course.InstructorId == instructorId)
             )
         {
+            Includes.Add(x => x.Course);
             Includes.Add(x => x.Lectures);
         }
     }

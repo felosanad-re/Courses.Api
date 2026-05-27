@@ -10,5 +10,6 @@
         public decimal Price { get; set; }
 
         public int InstructorId { get; set; }
+        public int CourseTypeId { get; set; }
     }
 }
