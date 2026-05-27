@@ -47,7 +47,7 @@ namespace Courses.Api.Controllers.ManagementLectures
 
         #region Delete Lecture
         [HttpDelete("{id}")] //DELETE: /api/ManagementLecture/id
-        public async Task<ActionResult<ApplicationServiceResult<LectureWithInstructorResponse>>> DeleteLecture(int id)
+        public async Task<ActionResult<ApplicationServiceResult<LectureDeletedResponse>>> DeleteLecture(int id)
         {
             var result = await _managementLecture.DeleteLectureAsync(id);
             if (!result.Succeed)
@@ -59,7 +59,7 @@ namespace Courses.Api.Controllers.ManagementLectures
 
         #region Delete-Multi Lecture
         [HttpPost("Multi-Deleted")] // POST: /api/ManagementLecture/Multi-Deleted
-        public async Task<ActionResult<ApplicationServiceResult<LectureWithInstructorResponse>>> DeleteMultiLecture([FromBody]IEnumerable<int> ids)
+        public async Task<ActionResult<ApplicationServiceResult<LectureDeletedResponse>>> DeleteMultiLecture([FromBody]IEnumerable<int> ids)
         {
             var result = await _managementLecture.DeleteMultiLectureAsync(ids);
             if (!result.Succeed)
