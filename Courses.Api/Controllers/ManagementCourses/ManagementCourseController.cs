@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Courses.Api.Controllers.ManagementCourses
 {
     [Authorize(Roles = Roles.Instructor)]
-    public class ManagementCourseController : ControllerBase
+    public class ManagementCourseController : BaseController
     {
         #region DI Services
         protected readonly IManagementCourse _managementCourse;
@@ -33,7 +33,8 @@ namespace Courses.Api.Controllers.ManagementCourses
 
         #region CreateCourse
         [HttpPost("CreateCourse")] // POST: /api/ManagementCourse/CreateCourse
-        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> CreateCourseAsync(CreatedCourseRequest req)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> CreateCourseAsync([FromForm]CreatedCourseRequest req)
         {
             var result = await _managementCourse.CreateCourseAsync(req);
             if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
@@ -43,7 +44,8 @@ namespace Courses.Api.Controllers.ManagementCourses
 
         #region Update Course
         [HttpPut("UpdateCourse/{id}")] // PUT: /api/ManagementCourse/UpdateCourse/id
-        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> UpdateCourseAsync([FromRoute] int id, [FromBody] UpdatedCourseRequest req)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForInstructor>>> UpdateCourseAsync([FromRoute] int id, [FromForm] UpdatedCourseRequest req)
         {
             var result = await _managementCourse.UpdateCourseAsync(id, req);
             if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });

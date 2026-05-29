@@ -4,12 +4,16 @@ using Courses.Core.Models.Instructors;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
+using Courses.Core.Options;
+using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.InstructorsSpecifications;
 using Courses.Core.UnitOfWork;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Courses.Services.ManagementCourses
 {
@@ -20,13 +24,17 @@ namespace Courses.Services.ManagementCourses
         protected readonly ILogger<ManagementCourse> _logger;
         protected readonly ICurrentUserService _currentUserService;
         protected readonly IMapper _mapper;
+        protected readonly IAttachmentService _attachmentService;
+        protected readonly FileSettingsOptions _fileSettings;
 
-        public ManagementCourse(IUnitOfWork unitOfWork, ILogger<ManagementCourse> logger, ICurrentUserService currentUserService, IMapper mapper)
+        public ManagementCourse(IUnitOfWork unitOfWork, ILogger<ManagementCourse> logger, ICurrentUserService currentUserService, IMapper mapper, IAttachmentService attachmentService, IOptions<FileSettingsOptions> fileSettings)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _currentUserService = currentUserService;
             _mapper = mapper;
+            _attachmentService = attachmentService;
+            _fileSettings = fileSettings.Value;
         }
         #endregion
 
@@ -67,10 +75,11 @@ namespace Courses.Services.ManagementCourses
             var errorMessage = "Instructor not found";
             var succeededMessage = "Course created succeeded";
             var loggerError = "There is a problem in database";
+            string? uploadedImage = null;
 
             try
             {
-                if (!ValidateCourseInput(req.Name, req.Description, req.Image, req.CourseTypeId, req.IsPaid, req.Price, out var normalizedCourse, out var validationError))
+                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: true, req.CourseTypeId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
                 var userId = _currentUserService.UserId;
@@ -89,6 +98,8 @@ namespace Courses.Services.ManagementCourses
                 var newCourse = _mapper.Map<Course>(req);
                 newCourse.InstructorId = currentInstructor.Id;
                 ApplyNormalizedCourseValues(newCourse, normalizedCourse);
+                uploadedImage = await _attachmentService.UploadAsync(req.Image, _fileSettings.FolderName, _fileSettings.AllowedExtensions, _fileSettings.MaxSize);
+                newCourse.Image = uploadedImage;
 
                 await _unitOfWork.CreateRepository<Course>().AddAsync(newCourse);
                 await _unitOfWork.CompleteAsync();
@@ -99,6 +110,9 @@ namespace Courses.Services.ManagementCourses
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(uploadedImage))
+                    await TryDeleteImageAsync(uploadedImage);
+
                 _logger.LogError(ex, ex.Message);
                 return ApplicationServiceResult<CourseResponseForInstructor>.Fail(loggerError);
             }
@@ -112,12 +126,13 @@ namespace Courses.Services.ManagementCourses
             var errorMessage = "No course Found with this id";
             var succeededMessage = "Course updated succeeded";
             var loggerError = "There is a problem in database";
+            string? newImage = null;
 
             try
             {
                 if (id <= 0) return ApplicationServiceResult<CourseResponseForInstructor>.Fail("course id must be greater than zero");
 
-                if (!ValidateCourseInput(req.Name, req.Description, req.Image, req.CourseTypeId, req.IsPaid, req.Price, out var normalizedCourse, out var validationError))
+                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: false, req.CourseTypeId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
                 var userId = _currentUserService.UserId;
@@ -133,18 +148,30 @@ namespace Courses.Services.ManagementCourses
                 var course = await courseRepo.GetAsyncSpec(new CourseWithInstructorSpec(id, userId));
                 if (course is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(errorMessage);
 
+                var oldImage = course.Image;
+                if (req.Image is not null)
+                    newImage = await _attachmentService.UploadAsync(req.Image, _fileSettings.FolderName, _fileSettings.AllowedExtensions, _fileSettings.MaxSize);
+
                 // Update Course Mapping
                 _mapper.Map(req, course);
                 ApplyNormalizedCourseValues(course, normalizedCourse);
+                if (newImage is not null)
+                    course.Image = newImage;
 
                 courseRepo.Update(course);
                 await _unitOfWork.CompleteAsync();
+
+                if (newImage is not null && !string.IsNullOrWhiteSpace(oldImage))
+                    await _attachmentService.DeleteImageAsync(oldImage, _fileSettings.FolderName);
 
                 var data = _mapper.Map<CourseResponseForInstructor>(course);
                 return ApplicationServiceResult<CourseResponseForInstructor>.Success(data, succeededMessage);
             }
             catch (Exception ex)
             {
+                if (!string.IsNullOrWhiteSpace(newImage))
+                    await TryDeleteImageAsync(newImage);
+
                 _logger.LogError(ex, ex.Message);
                 return ApplicationServiceResult<CourseResponseForInstructor>.Fail(loggerError);
             }
@@ -253,10 +280,12 @@ namespace Courses.Services.ManagementCourses
         private static bool ValidateCourseInput(
             string? name,
             string? description,
-            string? image,
+            IFormFile? image,
+            bool imageRequired,
             int courseTypeId,
             bool isPaid,
             decimal price,
+            FileSettingsOptions fileSettings,
             out NormalizedCourseInput normalizedCourse,
             out string errorMessage)
         {
@@ -275,15 +304,22 @@ namespace Courses.Services.ManagementCourses
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(image))
+            if (image is null)
             {
-                errorMessage = "course image is required";
-                return false;
+                if (imageRequired)
+                {
+                    errorMessage = "course image is required";
+                    return false;
+                }
+            }
+            else
+            {
+                if (!ValidateImage(image, fileSettings, out errorMessage))
+                    return false;
             }
 
             var normalizedName = name.Trim();
             var normalizedDescription = description.Trim();
-            var normalizedImage = image.Trim();
 
             if (normalizedName.Length > 300)
             {
@@ -294,12 +330,6 @@ namespace Courses.Services.ManagementCourses
             if (normalizedDescription.Length > 2000)
             {
                 errorMessage = "course description can't be more than 2000 characters";
-                return false;
-            }
-
-            if (normalizedImage.Length > 500)
-            {
-                errorMessage = "course image can't be more than 500 characters";
                 return false;
             }
 
@@ -325,7 +355,6 @@ namespace Courses.Services.ManagementCourses
             {
                 Name = normalizedName,
                 Description = normalizedDescription,
-                Image = normalizedImage,
                 CourseTypeId = courseTypeId,
                 IsPaid = isPaid,
                 Price = isPaid ? price : 0m
@@ -338,7 +367,6 @@ namespace Courses.Services.ManagementCourses
         {
             course.Name = normalizedCourse.Name;
             course.Description = normalizedCourse.Description;
-            course.Image = normalizedCourse.Image;
             course.CourseTypeId = normalizedCourse.CourseTypeId;
             course.IsPaid = normalizedCourse.IsPaid;
             course.Price = normalizedCourse.Price;
@@ -359,11 +387,61 @@ namespace Courses.Services.ManagementCourses
             }
         }
 
+        private static bool ValidateImage(IFormFile image, FileSettingsOptions fileSettings, out string errorMessage)
+        {
+            errorMessage = string.Empty;
+
+            if (image.Length == 0)
+            {
+                errorMessage = "course image can't be empty";
+                return false;
+            }
+
+            if (image.Length > fileSettings.MaxSize)
+            {
+                errorMessage = $"course image size can't be more than {fileSettings.MaxSize / 1024 / 1024} MB";
+                return false;
+            }
+
+            var allowedExtensions = fileSettings.AllowedExtensions
+                .Select(extension => extension.ToLowerInvariant())
+                .ToHashSet();
+            var imageExtension = Path.GetExtension(image.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(imageExtension))
+            {
+                errorMessage = $"course image extension must be one of: {string.Join(", ", fileSettings.AllowedExtensions)}";
+                return false;
+            }
+
+            var allowedContentTypes = fileSettings.AllowedContentTypes
+                .Select(contentType => contentType.ToLowerInvariant())
+                .ToHashSet();
+            if (string.IsNullOrWhiteSpace(image.ContentType) ||
+                !allowedContentTypes.Contains(image.ContentType.ToLowerInvariant()))
+            {
+                errorMessage = $"course image content type must be one of: {string.Join(", ", fileSettings.AllowedContentTypes)}";
+                return false;
+            }
+
+            return true;
+        }
+
+        private async Task TryDeleteImageAsync(string fileName)
+        {
+            try
+            {
+                await _attachmentService.DeleteImageAsync(fileName, _fileSettings.FolderName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to delete course image {Image}", fileName);
+            }
+        }
+
         private sealed class NormalizedCourseInput
         {
             public string Name { get; set; } = string.Empty;
             public string Description { get; set; } = string.Empty;
-            public string Image { get; set; } = string.Empty;
             public int CourseTypeId { get; set; }
             public bool IsPaid { get; set; }
             public decimal Price { get; set; }
