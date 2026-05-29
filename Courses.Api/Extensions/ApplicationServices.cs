@@ -79,6 +79,21 @@ namespace Courses.Api.Extensions
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
             services.Configure<JwtOptions>(jwtSection);
             services.Configure<SeedAdminOptions>(configuration.GetSection(SeedAdminOptions.SectionName));
+            services.AddOptions<FileSettingsOptions>()
+                .Bind(configuration.GetSection(FileSettingsOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.FolderName), "FileSettings:FolderName is required.")
+                .Validate(options => options.MaxSize > 0, "FileSettings:MaxSize must be greater than zero.")
+                .Validate(
+                    options => options.AllowedExtensions is { Length: > 0 } &&
+                               options.AllowedExtensions.All(extension =>
+                                   !string.IsNullOrWhiteSpace(extension) &&
+                                   extension.StartsWith(".", StringComparison.Ordinal)),
+                    "FileSettings:AllowedExtensions must contain extensions that start with a dot.")
+                .Validate(
+                    options => options.AllowedContentTypes is { Length: > 0 } &&
+                               options.AllowedContentTypes.All(contentType => !string.IsNullOrWhiteSpace(contentType)),
+                    "FileSettings:AllowedContentTypes is required.")
+                .ValidateOnStart();
 
             var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
             services.AddAuthentication(options =>
