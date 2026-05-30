@@ -81,7 +81,7 @@ namespace Courses.Services.InstructorServices
         #endregion
 
         #region Get All Courses Async
-        public async Task<ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>> GetAllCoursesAsync()
+        public async Task<ApplicationServiceResult<Pagination<CourseResponseForInstructor>>> GetAllCoursesAsync(CoursesParams @params)
         {
             var userNotFoundMessage = "User Not Found";
             var errorMessage = "No Courses For this Instructor";
@@ -91,20 +91,28 @@ namespace Courses.Services.InstructorServices
             try
             {
                 var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>.Fail(userNotFoundMessage);
+                if (userId is null) return ApplicationServiceResult<Pagination<CourseResponseForInstructor>>.Fail(userNotFoundMessage);
 
-                var spec = new CourseWithInstructorSpec(userId);
-                var courses = await _unitOfWork.CreateRepository<Course>().GetAllAsyncSpec(spec);
-                if (!courses.Any()) return ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>.Fail(errorMessage);
+                var courseRepo = _unitOfWork.CreateRepository<Course>();
+                var spec = new CourseWithInstructorSpec(userId, @params);
+                var courses = await courseRepo.GetAllAsyncSpec(spec);
+                var courseCount = await courseRepo.GetCountAsyncSpec(new CoursesCountWithSpec(@params));
+                if (!courses.Any()) return ApplicationServiceResult<Pagination<CourseResponseForInstructor>>.Fail(errorMessage);
 
-                var data = _mapper.Map<IReadOnlyList<CourseResponseForInstructor>>(courses);
+                var dataMapping = _mapper.Map<IReadOnlyList<CourseResponseForInstructor>>(courses);
+                var data = new Pagination<CourseResponseForInstructor>(
+                        @params.PageIndex,
+                        @params.PageSize,
+                        courseCount,
+                        dataMapping
+                    );
 
-                return ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>.Success(data, succeededMessage);
+                return ApplicationServiceResult<Pagination<CourseResponseForInstructor>>.Success(data, succeededMessage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>.Fail(loggerError);
+                return ApplicationServiceResult<Pagination<CourseResponseForInstructor>>.Fail(loggerError);
             }
         }
         #endregion

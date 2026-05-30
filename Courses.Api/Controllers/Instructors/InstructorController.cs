@@ -45,9 +45,9 @@ namespace Courses.Api.Controllers.Instructors
 
         #region Get Courses for spec Instructor
         [HttpGet("Courses")] // GET: /api/Instructor/Courses
-        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>>> GetCourses()
+        public async Task<ActionResult<ApplicationServiceResult<Pagination<CourseResponseForInstructor>>>> GetCourses([FromQuery]CoursesParams param)
         {
-            var result = await _instructorService.GetAllCoursesAsync();
+            var result = await _instructorService.GetAllCoursesAsync(param);
             if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
             return Ok(result);
         }
