@@ -12,6 +12,6 @@ namespace Courses.Core.Services.Contract.InstructorServices
         // Get Instructor
         Task<ApplicationServiceResult<InstructorResponse>> GetInstructorAsync(int id);
         // Get All Courses For Instructor
-        Task<ApplicationServiceResult<IReadOnlyList<CourseResponseForInstructor>>> GetAllCoursesAsync();
+        Task<ApplicationServiceResult<Pagination<CourseResponseForInstructor>>> GetAllCoursesAsync(CoursesParams @params);
     }
 }
