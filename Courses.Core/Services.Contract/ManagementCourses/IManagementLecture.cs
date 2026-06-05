@@ -9,6 +9,9 @@ namespace Courses.Core.Services.Contract.ManagementCourses
         // Create Lecture
         Task<ApplicationServiceResult<LectureWithInstructorResponse>> CreateLectureAsync(CreatedLectureRequest req);
 
+        // Get Lecture
+        Task<ApplicationServiceResult<LectureWithInstructorResponse>> GetLectureAsync(int id);
+
         // Edit Lecture
         Task<ApplicationServiceResult<LectureWithInstructorResponse>> UpdateLectureAsync(UpdatedLectureRequest req);
 

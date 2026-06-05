@@ -212,6 +212,36 @@ namespace Courses.Services.ManagementCourses
         }
         #endregion
 
+        #region Get Lecture Async
+        public async Task<ApplicationServiceResult<LectureWithInstructorResponse>> GetLectureAsync(int id)
+        {
+            var loggerMessage = "there is a problem in database";
+
+            try
+            {
+                var instructorError = "There is no instructor with this id";
+                var errorMessage = "there is no lecture or u don't have access for this lecture";
+                var succeddedMessage = "you retrieve a lecture succeeded";
+
+                var instructorId = await GetCurrentInstructor();
+                if (instructorId is null) return ApplicationServiceResult<LectureWithInstructorResponse>.Fail(instructorError);
+
+                var spec = new LectureWithInstructorSpec(id, instructorId);
+
+                var lecture = await _unitOfWork.CreateRepository<Lecture>().GetAsyncSpec(spec);
+                if (lecture is null) return ApplicationServiceResult<LectureWithInstructorResponse>.Fail(errorMessage);
+
+                var data = _mapper.Map<LectureWithInstructorResponse>(lecture);
+                return ApplicationServiceResult<LectureWithInstructorResponse>.Success(data, succeddedMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve a lecture id {id}", id);
+                return ApplicationServiceResult<LectureWithInstructorResponse>.Fail(loggerMessage);
+            }
+        }
+        #endregion
+
         #region Helper Method
         private async Task<int?> GetCurrentInstructor()
         {

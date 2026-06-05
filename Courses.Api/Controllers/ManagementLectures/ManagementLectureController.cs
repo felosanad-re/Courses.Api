@@ -21,6 +21,17 @@ namespace Courses.Api.Controllers.ManagementLectures
         }
         #endregion
 
+        #region Get Lecture
+        [HttpGet("{id}")] // GET: /api/ManagementLecture/id
+        public async Task<ActionResult<ApplicationServiceResult<LectureWithInstructorResponse>>> GetLecture(int id)
+        {
+            var result = await _managementLecture.GetLectureAsync(id);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+
+            return Ok(result);
+        }
+        #endregion
+
         #region CreateLecture
         [HttpPost("Create")] // POST: /api/ManagementLecture/Create
         public async Task<ActionResult<ApplicationServiceResult<LectureWithInstructorResponse>>> CreateLecture(CreatedLectureRequest req)
