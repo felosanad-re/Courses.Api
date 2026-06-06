@@ -1,10 +1,6 @@
 ﻿using Courses.Core.Models;
 using Courses.Core.Specifications;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Linq.Expressions;
 
 namespace Courses.Core.GenericRepository
 {
@@ -16,6 +12,7 @@ namespace Courses.Core.GenericRepository
         Task<T?> GetAsyncSpec(ISpecifications<T> spec);
         Task<int> GetCountAsyncSpec(ISpecifications<T> spec);
 
+        Task<decimal> GetSumAsyncSpec(ISpecifications<T> spec, Expression<Func<T, decimal>> selector);
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
         void Update(T entity);
