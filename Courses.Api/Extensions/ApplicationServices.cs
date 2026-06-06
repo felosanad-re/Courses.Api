@@ -41,6 +41,8 @@ using Courses.Core.Services.Contract.RefundsServices;
 using Courses.Services.StripeRefundsServices;
 using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Services.ManagementCourses;
+using Courses.Core.Services.Contract.DashboardServices;
+using Courses.Services.DashboardInstructorServices;
 
 namespace Courses.Api.Extensions
 {
@@ -48,6 +50,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IDashboardInstructorService, DashboardInstructorService>();
             services.AddScoped<IManagementLecture, ManagementLecture>();
             services.AddScoped<IManagementSection, ManagementSection>();
             services.AddScoped<ICurrentInstructorServices, CurrentInstructorServices>();

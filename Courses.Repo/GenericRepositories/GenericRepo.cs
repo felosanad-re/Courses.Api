@@ -4,6 +4,7 @@ using Courses.Core.Specifications;
 using Courses.Repo.Data;
 using Courses.Repo.Specifications;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Courses.Repo.GenericRepositories
 {
@@ -30,6 +31,12 @@ namespace Courses.Repo.GenericRepositories
 
         public async Task<int> GetCountAsyncSpec(ISpecifications<T> spec)
             => await AddSpecifications(spec).CountAsync();
+
+        public async Task<decimal> GetSumAsyncSpec(ISpecifications<T> spec, Expression<Func<T, decimal>> selector)
+        {
+            var query = EvaluateSpec<T>.GetQuery(BaseQuery(), spec);
+            return await query.SumAsync(selector);
+        }
 
         public async Task AddAsync(T entity)
             => await _dbContext.Set<T>().AddAsync(entity);
