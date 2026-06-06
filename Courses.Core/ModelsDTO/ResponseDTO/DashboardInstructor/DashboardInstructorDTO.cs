@@ -6,7 +6,7 @@
         public int TotalNewCoursesInMonth { get; set; }
         public int TotalStudents { get; set; }
         public int NewTotalStudentsInMonth { get; set; }
-        public int TotalRevenues { get; set; }
-        public int NewTotalRevenuesInMonth { get; set; }
+        public decimal TotalRevenues { get; set; }
+        public decimal NewTotalRevenuesInMonth { get; set; }
     }
 }
