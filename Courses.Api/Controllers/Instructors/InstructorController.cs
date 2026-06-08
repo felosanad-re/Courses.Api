@@ -2,6 +2,7 @@
 using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
+using Courses.Core.ModelsDTO.RequestDTO.Students;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.Services.Contract.InstructorServices;
@@ -49,6 +50,27 @@ namespace Courses.Api.Controllers.Instructors
         {
             var result = await _instructorService.GetAllCoursesAsync(param);
             if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+            return Ok(result);
+        }
+        #endregion
+
+        #region Get Students for spec Instructor
+        [HttpGet("Students")] // GET: /api/Instructor/Students
+        public async Task<ActionResult<ApplicationServiceResult<Pagination<StudentWithInstructorResponse>>>> GetStudents([FromQuery] StudentParams param)
+        {
+            var result = await _instructorService.GetStudentsInstructorAsync(param);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+            return Ok(result);
+        }
+        #endregion
+
+        #region Get Student
+        [HttpGet("student/{id}")] // GET: /api/Instructor/student/id
+        public async Task<ActionResult<StudentWithInstructorResponse>> GetStudent(int id)
+        {
+            var result = await _instructorService.GetStudentInstructorAsync(id);
+            if (!result.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
             return Ok(result);
         }
         #endregion
