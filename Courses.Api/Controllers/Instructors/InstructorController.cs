@@ -54,6 +54,16 @@ namespace Courses.Api.Controllers.Instructors
         }
         #endregion
 
+        #region Get My Courses (with enrollment stats)
+        [HttpGet("MyCourses")] // GET: /api/Instructor/MyCourses
+        public async Task<ActionResult<ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>>> GetMyCourses([FromQuery] CoursesParams param)
+        {
+            var result = await _instructorService.GetMyCoursesAsync(param);
+            if (!result.Succeed) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+            return Ok(result);
+        }
+        #endregion
+
         #region Get Students for spec Instructor
         [HttpGet("Students")] // GET: /api/Instructor/Students
         public async Task<ActionResult<ApplicationServiceResult<Pagination<StudentWithInstructorResponse>>>> GetStudents([FromQuery] StudentParams param)

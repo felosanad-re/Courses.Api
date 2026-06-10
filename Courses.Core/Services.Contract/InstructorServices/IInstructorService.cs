@@ -20,5 +20,8 @@ namespace Courses.Core.Services.Contract.InstructorServices
 
         // Get Student Details
         Task<ApplicationServiceResult<StudentWithInstructorResponse>> GetStudentInstructorAsync(int id);
+
+        // Get Instructor Courses with Student Enrollments
+        Task<ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>> GetMyCoursesAsync(CoursesParams param);
     }
 }

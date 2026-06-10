@@ -10,6 +10,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Students;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.UserServices;
+using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.EnrollmentSpecifications;
 using Courses.Core.Specifications.InstructorsSpecifications;
@@ -281,6 +282,66 @@ namespace Courses.Services.InstructorServices
             {
                 _logger.LogError(ex, "there is a problem when try to retrieve Student details id {id}", id);
                 return ApplicationServiceResult<StudentWithInstructorResponse>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Get My Courses Async
+        public async Task<ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>> GetMyCoursesAsync(CoursesParams param)
+        {
+            var userNotFoundMessage = "There is no instructor with this id";
+            var errorMessage = "There is No Courses";
+            var succeededMessage = "you retrieve all courses succeeded";
+            var loggerError = "There is a problem in database";
+
+            try
+            {
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>.Fail(userNotFoundMessage);
+
+                var coursesRepo = _unitOfWork.CreateRepository<Course>();
+
+                // Build spec to get courses for this instructor with optional search
+                var coursesSpec = new InstructorWithMyCoursesSpec(param, instructorId, isPagination: true);
+
+                // Get total count before pagination
+                var countSpec = new InstructorWithMyCoursesSpec(param, instructorId);
+                var totalCount = await coursesRepo.GetCountAsyncSpec(countSpec);
+
+                if (totalCount == 0)
+                    return ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>.Fail(errorMessage);
+
+                var courses = await coursesRepo.GetAllAsyncSpec(coursesSpec);
+
+                // Map to response DTOs using AutoMapper (handles Image full-path via ImageResolver)
+                // Then manually set enrollment aggregation fields
+                var data = courses.Select(course =>
+                {
+                    var dto = _mapper.Map<InstructorWithCoursesResponse>(course);
+                    var enrollments = course.Enrollments.ToList();
+
+                    dto.TotalEnrollment = enrollments.Select(e => e.StudentId).Distinct().Count();
+                    dto.TotalRevenues = enrollments.Where(e => e.IsPaid).Sum(e => e.Amount);
+                    dto.FirstEnrollment = enrollments.Any() ? enrollments.Min(e => e.CreatedAt) : null;
+                    dto.LastEnrollment = enrollments.Any() ? enrollments.Max(e => e.CreatedAt) : null;
+
+                    return dto;
+                }).ToList();
+
+                var paginatedResult = new Pagination<InstructorWithCoursesResponse>(
+                    param.PageIndex,
+                    param.PageSize,
+                    totalCount,
+                    data
+                );
+
+                return ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>.Success(paginatedResult, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+                return ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>.Fail(loggerError);
             }
         }
         #endregion

@@ -43,6 +43,8 @@ namespace Courses.Api.Helper.Mapping
             #region Courses With Instructors
             CreateMap<Course, CourseResponseForInstructor>()
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponseForInstructor>, string>(s => s.Image));
+            CreateMap<Course, InstructorWithCoursesResponse>()
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, InstructorWithCoursesResponse>, string>(s => s.Image));
             CreateMap<CreatedCourseRequest, Course>()
                 .ForMember(d => d.Image, o => o.Ignore());
             CreateMap<UpdatedCourseRequest, Course>()
