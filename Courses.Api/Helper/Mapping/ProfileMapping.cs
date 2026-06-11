@@ -49,6 +49,8 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.Image, o => o.Ignore());
             CreateMap<UpdatedCourseRequest, Course>()
                 .ForMember(d => d.Image, o => o.Ignore());
+            CreateMap<Course, CourseAnalyticDTO>()
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseAnalyticDTO>,string>(s => s.Image));
             #endregion
 
             CreateMap<Instructor, InstructorResponse>();
