@@ -126,14 +126,18 @@ namespace Courses.Services.AnalyticsServices
                 var fromDate = req.FromDate ?? DateTime.UtcNow.AddMonths(-12);
                 var range = (toDate - fromDate).TotalDays;
 
+                // Check In Range
+                // 1. If FromDate > ToDate
+                if(req.FromDate.HasValue && req.ToDate.HasValue && req.FromDate > req.ToDate)
+                    return ApplicationServiceResult<IReadOnlyList<MonthlyAnalyticsDto>>.Fail("FromDate cannot be greater than ToDate");
+                // Check If Data Too Large
+                if((toDate - fromDate).TotalDays > 1500)
+                    return ApplicationServiceResult<IReadOnlyList<MonthlyAnalyticsDto>>.Fail("Date range is too large.");
+
                 var enrollmentRepo = _unitOfWork.CreateRepository<Enrollment>();
-                var enrollmentSpec = new BaseSpecifications<Enrollment>(x =>
-                    (x.Course.InstructorId == instructorId) &&
-                    (x.CreatedAt >= fromDate) &&
-                    (x.CreatedAt <= toDate) &&
-                    (x.Status == EnrollStatus.Active)
-                );
-                enrollmentSpec.Includes.Add(x => x.Student);
+
+                var enrollmentSpec = BuildEnrollmentAnalyticsSpec(instructorId, req);
+
                 var enrollments = await enrollmentRepo.GetAllAsyncSpec(enrollmentSpec);
 
                 // Choose grouping strategy based on range duration
@@ -288,6 +292,28 @@ namespace Courses.Services.AnalyticsServices
         }
         #endregion
 
+        #region Build Enrollment Analytics Spec
+        /// <summary>
+        /// Generate EnrollmentSpec For Chart Analyze
+        /// </summary>
+        private BaseSpecifications<Enrollment> BuildEnrollmentAnalyticsSpec(
+            int? instructorId,
+            ChartRequest req)
+        {
+            var toDate = req.ToDate ?? DateTime.UtcNow;
+            var fromDate = req.FromDate ?? DateTime.UtcNow.AddMonths(-12);
+            var spec = new BaseSpecifications<Enrollment>(x =>
+                (x.Course.InstructorId == instructorId) &&
+                (x.CreatedAt >= fromDate) &&
+                (x.CreatedAt <= toDate) &&
+                (x.Status == EnrollStatus.Active)
+            );
+
+            spec.Includes.Add(x => x.Student);
+
+            return spec;
+        }
+        #endregion
         private async Task<int?> GetCurrentInstructor()
         {
             var instructorInfo = await _currentInstructorServices.GetCurrentInstructor();
