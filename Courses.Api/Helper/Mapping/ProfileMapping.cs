@@ -96,6 +96,12 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Enrollment, PaymentResponse>();
 
             CreateMap<Enrollment, RefundResponse>();
+
+            CreateMap<Enrollment, InstructorWithEnrollmentsDetails>()
+                .ForMember(d => d.EnrollmentId, o => o.MapFrom(s => s.Id))
+                .ForMember(d => d.CourseId, o => o.MapFrom(s => s.CourseId))
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name))
+                .ForMember(d => d.CourseTitle, o => o.MapFrom(s => s.Course.Name));
             #endregion
 
             #region Lecture
