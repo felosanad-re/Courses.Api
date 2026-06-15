@@ -9,6 +9,7 @@ using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.Services.Contract.CoursesServices;
 using Courses.Core.Services.Contract.CourseTypeServices;
 using Courses.Core.Services.Contract.DashboardServices;
+using Courses.Core.Services.Contract.EarningServices;
 using Courses.Core.Services.Contract.EnrollmentServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ManagementCourses;
@@ -30,6 +31,7 @@ using Courses.Services.CoursesServices;
 using Courses.Services.CourseTypeServices;
 using Courses.Services.CreateToken;
 using Courses.Services.DashboardInstructorServices;
+using Courses.Services.EarningServices;
 using Courses.Services.EnrollmentServices;
 using Courses.Services.InstructorServices;
 using Courses.Services.ManagementCourses;
@@ -52,6 +54,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IEarningService, EarningService>();
             services.AddScoped<IAnalyzeService, AnalyzeService>();
             services.AddScoped<IDashboardInstructorService, DashboardInstructorService>();
             services.AddScoped<IManagementLecture, ManagementLecture>();

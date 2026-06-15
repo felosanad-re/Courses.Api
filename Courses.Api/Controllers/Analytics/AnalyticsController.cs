@@ -1,13 +1,15 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Analyzer;
 using Courses.Core.ModelsDTO.ResponseDTO.Analyses;
 using Courses.Core.Services.Contract.AnalyticsServices;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Analytics
 {
+    [Authorize(Roles = Roles.Instructor)]
     public class AnalyticsController : BaseController
     {
         protected readonly IAnalyzeService _analyzeService;
