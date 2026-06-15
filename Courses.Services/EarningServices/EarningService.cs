@@ -115,9 +115,9 @@ namespace Courses.Services.EarningServices
 
                 var enrollmentRepo = _unitOfWork.CreateRepository<Enrollment>();
 
-                var enrollmentSpec = BuildEnrollmentSpec(param, instructorId, true);
+                var enrollmentSpec = BuildEnrollmentSpec(param, instructorId, isPagination: true);
 
-                var countEnrollmentSpec = BuildEnrollmentSpec(param, instructorId);
+                var countEnrollmentSpec = BuildEnrollmentSpec(param, instructorId, isPagination: false);
 
                 var enrollmentCount = await enrollmentRepo.GetCountAsyncSpec(countEnrollmentSpec);
                 if (enrollmentCount == 0)
@@ -165,6 +165,7 @@ namespace Courses.Services.EarningServices
                     (x.Course.InstructorId == instructorId) &&
                     (string.IsNullOrEmpty(param.Search) || x.Course.Name.Contains(param.Search)));
             spec.Includes.Add(x => x.Student);
+            spec.Includes.Add(x => x.Course);
 
             if(isPagination)
             {
