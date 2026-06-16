@@ -87,8 +87,13 @@ namespace Courses.Api.Extensions
 
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+            // JWT Options
             services.Configure<JwtOptions>(jwtSection);
+            
+            // Seeding Admin Options
             services.Configure<SeedAdminOptions>(configuration.GetSection(SeedAdminOptions.SectionName));
+            
+            // File Settings Options
             services.AddOptions<FileSettingsOptions>()
                 .Bind(configuration.GetSection(FileSettingsOptions.SectionName))
                 .Validate(options => !string.IsNullOrWhiteSpace(options.FolderName), "FileSettings:FolderName is required.")
@@ -104,6 +109,9 @@ namespace Courses.Api.Extensions
                                options.AllowedContentTypes.All(contentType => !string.IsNullOrWhiteSpace(contentType)),
                     "FileSettings:AllowedContentTypes is required.")
                 .ValidateOnStart();
+
+            // Zoom Options
+            services.Configure<ZoomPotions>(configuration.GetSection(ZoomPotions.SectionName));
 
             var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
             services.AddAuthentication(options =>
