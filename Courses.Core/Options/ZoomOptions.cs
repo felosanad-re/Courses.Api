@@ -1,6 +1,6 @@
 ﻿namespace Courses.Core.Options
 {
-    public class ZoomPotions
+    public class ZoomOptions
     {
         public const string SectionName = "Zoom";
 

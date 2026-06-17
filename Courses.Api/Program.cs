@@ -67,7 +67,7 @@ namespace Courses.Api
 
                 var app = builder.Build();
 
-                #region Middleware
+                #region Middle-ware
                 await app.InitializeDatabaseAsync();
 
                 app.UseMiddleware<ExceptionMiddleware>();
