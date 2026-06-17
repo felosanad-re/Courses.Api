@@ -20,6 +20,7 @@ using Courses.Core.Services.Contract.RefundsServices;
 using Courses.Core.Services.Contract.StripeWebHookServices;
 using Courses.Core.Services.Contract.StudentServices;
 using Courses.Core.Services.Contract.UserServices;
+using Courses.Core.Services.Contract.ZoomServices;
 using Courses.Core.UnitOfWork;
 using Courses.Repo.RedisRepository;
 using Courses.Repo.UnitOfWorks;
@@ -43,6 +44,7 @@ using Courses.Services.StripeWebHookServices;
 using Courses.Services.StudentServices;
 using Courses.Services.UserServices;
 using Courses.Services.VideoCourseServices;
+using Courses.Services.ZoomServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
@@ -54,6 +56,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddHttpClient<IZoomService, ZoomService>();
             services.AddScoped<IEarningService, EarningService>();
             services.AddScoped<IAnalyzeService, AnalyzeService>();
             services.AddScoped<IDashboardInstructorService, DashboardInstructorService>();
@@ -87,8 +90,13 @@ namespace Courses.Api.Extensions
 
 
             var jwtSection = configuration.GetSection(JwtOptions.SectionName);
+            // JWT Options
             services.Configure<JwtOptions>(jwtSection);
+            
+            // Seeding Admin Options
             services.Configure<SeedAdminOptions>(configuration.GetSection(SeedAdminOptions.SectionName));
+            
+            // File Settings Options
             services.AddOptions<FileSettingsOptions>()
                 .Bind(configuration.GetSection(FileSettingsOptions.SectionName))
                 .Validate(options => !string.IsNullOrWhiteSpace(options.FolderName), "FileSettings:FolderName is required.")
@@ -104,6 +112,9 @@ namespace Courses.Api.Extensions
                                options.AllowedContentTypes.All(contentType => !string.IsNullOrWhiteSpace(contentType)),
                     "FileSettings:AllowedContentTypes is required.")
                 .ValidateOnStart();
+
+            // Zoom Options
+            services.Configure<ZoomOptions>(configuration.GetSection(ZoomOptions.SectionName));
 
             var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
             services.AddAuthentication(options =>
