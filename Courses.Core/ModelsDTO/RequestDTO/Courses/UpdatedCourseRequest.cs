@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Courses.Core.Models.Courses;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Courses.Core.ModelsDTO.RequestDTO.Courses
@@ -16,6 +17,8 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
         public string Description { get; set; } = string.Empty;
 
         public IFormFile? Image { get; set; }
+
+        public CourseStatus Status { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]

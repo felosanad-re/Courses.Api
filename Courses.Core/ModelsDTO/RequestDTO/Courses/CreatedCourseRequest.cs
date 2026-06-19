@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Courses.Core.Models.Courses;
+using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
 
 namespace Courses.Core.ModelsDTO.RequestDTO.Courses
@@ -21,6 +22,9 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
         [Required]
         [Range(1, int.MaxValue)]
         public int CourseTypeId { get; set; }
+
+        [Required]
+        public CourseStatus Status { get; set; }
 
         public bool IsPaid { get; set; }
 
