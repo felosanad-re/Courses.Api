@@ -1,18 +1,18 @@
-﻿using Courses.Core.Models.Enrollments;
+﻿using Courses.Core.Models.Courses;
+using Courses.Core.Models.LiveSessions;
 
-namespace Courses.Core.Models.LiveSessions
+namespace Courses.Core.ModelsDTO.ResponseDTO.LiveSessions
 {
-    public class LiveSession : BaseModel
+    public class LiveSessionResponse
     {
-        public int SectionId { get; set; }
-        public Section Section { get; set; }
-        public string Topic { get; set; }
+        public int CourseId { get; set; }
+        public string CourseName { get; set; }
         public string ZoomMeetingId { get; set; }
         public string HostJoinUrl { get; set; } // Instructor Only
         public string StudentJoinUrl { get; set; } // For Students
         public DateTime ScheduledAt { get; set; }
         public int DurationMinutes { get; set; } // Session Time
-        public LiveSessionStatus Status { get; set; }
+        public string Status { get; set; }
         public string? RecordingUrl { get; set; }
     }
 }

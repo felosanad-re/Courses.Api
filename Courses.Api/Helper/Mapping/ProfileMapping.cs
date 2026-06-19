@@ -4,6 +4,7 @@ using Courses.Core.Models.ApplicationUsers;
 using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.Models.Instructors;
+using Courses.Core.Models.LiveSessions;
 using Courses.Core.Models.Students;
 using Courses.Core.ModelsDTO.RequestDTO.Account;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
@@ -16,6 +17,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
+using Courses.Core.ModelsDTO.ResponseDTO.LiveSessions;
 using Courses.Core.ModelsDTO.ResponseDTO.Payments;
 using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.ModelsDTO.ResponseDTO.Refunds;
@@ -142,6 +144,13 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<StudentLectureProgress, ProgressWithLectureResponse>()
                 .ForMember(d => d.LectureName, o => o.MapFrom(s => s.Lecture.Title))
                 .ForMember(d => d.VideoDuration, o => o.MapFrom(s => s.Lecture.DurationInSeconds));
+            #endregion
+
+            #region Live Sessions
+            CreateMap<LiveSession, LiveSessionResponse>();
+            CreateMap<LiveSession, LiveSessionListResponse>();
+            CreateMap<LiveSession, LiveSessionDetailsResponse>()
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
             #endregion
 
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
