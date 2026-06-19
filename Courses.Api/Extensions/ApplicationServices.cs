@@ -12,6 +12,7 @@ using Courses.Core.Services.Contract.DashboardServices;
 using Courses.Core.Services.Contract.EarningServices;
 using Courses.Core.Services.Contract.EnrollmentServices;
 using Courses.Core.Services.Contract.InstructorServices;
+using Courses.Core.Services.Contract.LiveSessionServices;
 using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Core.Services.Contract.PaymentsServices;
 using Courses.Core.Services.Contract.ProfileServices;
@@ -35,6 +36,7 @@ using Courses.Services.DashboardInstructorServices;
 using Courses.Services.EarningServices;
 using Courses.Services.EnrollmentServices;
 using Courses.Services.InstructorServices;
+using Courses.Services.LiveSessionServices;
 using Courses.Services.ManagementCourses;
 using Courses.Services.PaymentsServices;
 using Courses.Services.ProfileServices;
@@ -56,6 +58,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ILiveSessionService, LiveSessionService>();
             services.AddHttpClient<IZoomService, ZoomService>();
             services.AddScoped<IEarningService, EarningService>();
             services.AddScoped<IAnalyzeService, AnalyzeService>();

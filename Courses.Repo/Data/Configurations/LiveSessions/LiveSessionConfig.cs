@@ -8,10 +8,14 @@ namespace Courses.Repo.Data.Configurations.LiveSessions
     {
         public void Configure(EntityTypeBuilder<LiveSession> builder)
         {
-            builder.HasOne(s => s.Course)
+            builder.HasOne(s => s.Section)
                 .WithMany()
-                .HasForeignKey(s => s.CourseId)
-                .OnDelete(DeleteBehavior.Restrict); // Can't delete Courses if has Sessions
+                .HasForeignKey(s => s.SectionId)
+                .OnDelete(DeleteBehavior.Restrict); // Can't delete Sections if has Sessions
+
+            builder.Property(s => s.Topic)
+                .IsRequired()
+                .HasMaxLength(200);
 
             builder.Property(s => s.ScheduledAt).IsRequired();
 
@@ -24,7 +28,6 @@ namespace Courses.Repo.Data.Configurations.LiveSessions
                 .HasMaxLength(500);
 
             builder.Property(s => s.RecordingUrl)
-                .IsRequired()
                 .HasMaxLength(500);
         }
     }
