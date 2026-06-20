@@ -1,16 +1,19 @@
 ﻿using AutoMapper;
+using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.Models.LiveSessions;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.LiveSessions;
 using Courses.Core.ModelsDTO.RequestDTO.Zoom;
 using Courses.Core.ModelsDTO.ResponseDTO.LiveSessions;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.LiveSessionServices;
 using Courses.Core.Services.Contract.ZoomServices;
 using Courses.Core.Specifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace Courses.Services.LiveSessionServices
 {
@@ -171,6 +174,43 @@ namespace Courses.Services.LiveSessionServices
         }
         #endregion
 
+        // Get Section with Sessions
+        public async Task<ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>> GetSectionsWithSessionsAsync(int courseId)
+        {
+            const string loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                const string errorMessage = "There is no Instructor With This id";
+                const string succeededMessage = "you retrieve all Sections with Live Sessions Succeeded";
+
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>.Fail(errorMessage);
+
+                var sectionsSpec = new BaseSpecifications<Section>(x =>
+                    (x.Course.InstructorId == instructorId) &&
+                    (x.CourseId == courseId)&&
+                    (x.Course.Status == CourseStatus.OnlineCourse)
+                );
+                sectionsSpec.Includes.Add(x => x.Sessions);
+
+                var sections = await _unitOfWork.CreateRepository<Section>().GetAllAsyncSpec(sectionsSpec);
+                if (!sections.Any())
+                    return ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>.Success(new List<SectionWithSessionsResponse>(), "there is no sections with online Sessions yet, Create your first Section then Online Sessions");
+
+                var data = _mapper.Map<IReadOnlyList<SectionWithSessionsResponse>>(sections);
+
+                return ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve sections with live session for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>.Fail(loggerError);
+            }
+        }
+
         #region Helper Methods
         /// <summary>
         /// Gets the current instructor id and normalizes invalid auth/current-user states to null.
@@ -190,7 +230,9 @@ namespace Courses.Services.LiveSessionServices
         private async Task<Section?> GetInstructorSectionAsync(int sectionId, int instructorId)
         {
             var sectionSpec = new BaseSpecifications<Section>(x =>
-                x.Id == sectionId && x.Course.InstructorId == instructorId
+                (x.Id == sectionId)&&
+                (x.Course.InstructorId == instructorId)&&
+                (x.Course.Status == CourseStatus.OnlineCourse)
             );
             sectionSpec.Includes.Add(x => x.Course);
 

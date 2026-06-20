@@ -134,7 +134,7 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<CreateSectionRequest, Section>();
 
             CreateMap<UpdateSectionRequest, Section>();
-
+            CreateMap<Section, SectionWithSessionsResponse>();
             #endregion
 
             #region Student Lecture Progress
@@ -151,6 +151,8 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<LiveSession, LiveSessionListResponse>();
             CreateMap<LiveSession, LiveSessionDetailsResponse>()
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
+
+            CreateMap<LiveSession, SessionsWithSectionResponse>();
             #endregion
 
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();

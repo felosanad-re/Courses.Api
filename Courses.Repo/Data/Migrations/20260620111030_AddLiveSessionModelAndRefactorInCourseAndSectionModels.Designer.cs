@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Courses.Repo.Data.Migrations
 {
     [DbContext(typeof(CoursesDbContext))]
-    [Migration("20260619175059_AlterCourseTable")]
-    partial class AlterCourseTable
+    [Migration("20260620111030_AddLiveSessionModelAndRefactorInCourseAndSectionModels")]
+    partial class AddLiveSessionModelAndRefactorInCourseAndSectionModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -528,6 +528,9 @@ namespace Courses.Repo.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<string>("RecordingUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -843,7 +846,7 @@ namespace Courses.Repo.Data.Migrations
             modelBuilder.Entity("Courses.Core.Models.LiveSessions.LiveSession", b =>
                 {
                     b.HasOne("Courses.Core.Models.Enrollments.Section", "Section")
-                        .WithMany()
+                        .WithMany("Sessions")
                         .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -938,6 +941,8 @@ namespace Courses.Repo.Data.Migrations
             modelBuilder.Entity("Courses.Core.Models.Enrollments.Section", b =>
                 {
                     b.Navigation("Lectures");
+
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Courses.Core.Models.Instructors.Instructor", b =>

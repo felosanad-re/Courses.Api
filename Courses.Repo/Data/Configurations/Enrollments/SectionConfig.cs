@@ -30,6 +30,11 @@ namespace Courses.Repo.Data.Configurations.Enrollments
                 .WithOne(l => l.Section)
                 .HasForeignKey(l => l.SectionId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasMany(ls => ls.Sessions)
+                .WithOne(s => s.Section)
+                .HasForeignKey(s => s.SectionId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
