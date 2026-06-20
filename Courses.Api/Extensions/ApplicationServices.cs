@@ -117,7 +117,12 @@ namespace Courses.Api.Extensions
                 .ValidateOnStart();
 
             // Zoom Options
-            services.Configure<ZoomOptions>(configuration.GetSection(ZoomOptions.SectionName));
+            services.AddOptions<ZoomOptions>()
+                .Bind(configuration.GetSection(ZoomOptions.SectionName))
+                .Validate(options => !string.IsNullOrWhiteSpace(options.AccountId), "Zoom:AccountId is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Zoom:ClientId is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Zoom:ClientSecret is required.")
+                .ValidateOnStart();
 
             var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
             services.AddAuthentication(options =>
