@@ -1,4 +1,5 @@
 ﻿using Courses.Core.Models.Courses;
+using Courses.Core.Models.LiveSessions;
 
 namespace Courses.Core.Models.Enrollments
 {
@@ -19,5 +20,8 @@ namespace Courses.Core.Models.Enrollments
 
         // All lectures within this section (one-to-many)
         public ICollection<Lecture> Lectures { get; set; } = new HashSet<Lecture>();
+
+        // All Live Session (one-to-many)
+        public ICollection<LiveSession> Sessions { get; set; } = new HashSet<LiveSession>();
     }
 }

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Courses.Repo.Data.Migrations
 {
     [DbContext(typeof(CoursesDbContext))]
-    [Migration("20260616115813_AddLiveSessionModel")]
-    partial class AddLiveSessionModel
+    [Migration("20260620111030_AddLiveSessionModelAndRefactorInCourseAndSectionModels")]
+    partial class AddLiveSessionModelAndRefactorInCourseAndSectionModels
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,6 +158,12 @@ namespace Courses.Repo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("decimal(18,2)")
                         .HasDefaultValue(0m);
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("RecorderCourse");
 
                     b.HasKey("Id");
 
@@ -505,9 +511,6 @@ namespace Courses.Repo.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -525,13 +528,18 @@ namespace Courses.Repo.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
                     b.Property<string>("RecordingUrl")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("ScheduledAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("SectionId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -541,6 +549,11 @@ namespace Courses.Repo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<string>("ZoomMeetingId")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -548,7 +561,7 @@ namespace Courses.Repo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("SectionId");
 
                     b.ToTable("LiveSession");
                 });
@@ -832,13 +845,13 @@ namespace Courses.Repo.Data.Migrations
 
             modelBuilder.Entity("Courses.Core.Models.LiveSessions.LiveSession", b =>
                 {
-                    b.HasOne("Courses.Core.Models.Courses.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
+                    b.HasOne("Courses.Core.Models.Enrollments.Section", "Section")
+                        .WithMany("Sessions")
+                        .HasForeignKey("SectionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Course");
+                    b.Navigation("Section");
                 });
 
             modelBuilder.Entity("Courses.Core.Models.Students.Student", b =>
@@ -928,6 +941,8 @@ namespace Courses.Repo.Data.Migrations
             modelBuilder.Entity("Courses.Core.Models.Enrollments.Section", b =>
                 {
                     b.Navigation("Lectures");
+
+                    b.Navigation("Sessions");
                 });
 
             modelBuilder.Entity("Courses.Core.Models.Instructors.Instructor", b =>

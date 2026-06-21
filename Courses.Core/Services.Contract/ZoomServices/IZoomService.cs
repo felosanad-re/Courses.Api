@@ -18,5 +18,12 @@ namespace Courses.Core.Services.Contract.ZoomServices
         /// participant join URL, meeting ID, and other related information.
         /// </summary>
         Task<ApplicationServiceResult<ZoomResponse>> CreateMeetingAsync(ZoomRequest req);
+
+        /// <summary>
+        /// Update A Zoom meeting for instructor
+        /// </summary>
+        Task<ApplicationServiceResult<bool>> UpdateMeetingAsync(ZoomRequest req, long zoomMeetingId);
+
+        Task<ApplicationServiceResult<bool>> DeleteMeetingAsync(long zoomMeetingId);
     }
 }

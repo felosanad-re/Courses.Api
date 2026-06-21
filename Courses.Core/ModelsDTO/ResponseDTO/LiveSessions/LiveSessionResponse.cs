@@ -1,6 +1,4 @@
-﻿using Courses.Core.Models.Courses;
-using Courses.Core.Models.LiveSessions;
-
+﻿
 namespace Courses.Core.ModelsDTO.ResponseDTO.LiveSessions
 {
     public class LiveSessionResponse

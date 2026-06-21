@@ -9,7 +9,7 @@ namespace Courses.Repo.Data.Configurations.LiveSessions
         public void Configure(EntityTypeBuilder<LiveSession> builder)
         {
             builder.HasOne(s => s.Section)
-                .WithMany()
+                .WithMany(se => se.Sessions)
                 .HasForeignKey(s => s.SectionId)
                 .OnDelete(DeleteBehavior.Restrict); // Can't delete Sections if has Sessions
 

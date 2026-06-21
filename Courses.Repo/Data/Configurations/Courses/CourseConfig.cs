@@ -26,6 +26,10 @@ namespace Courses.Repo.Data.Configurations.Courses
             builder.Property(c => c.Image)
                 .HasMaxLength(500);
 
+            builder.Property(c => c.Status)
+                .HasConversion<string>()
+                .HasDefaultValue(CourseStatus.RecorderCourse);
+
             builder.Property(c => c.IsPaid)
                 .IsRequired()
                 .HasDefaultValue(false);
