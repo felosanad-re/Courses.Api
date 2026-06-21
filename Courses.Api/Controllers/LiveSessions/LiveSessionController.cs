@@ -62,5 +62,25 @@ namespace Courses.Api.Controllers.LiveSessions
             return Ok(res);
         }
         #endregion
+
+        #region Update Session
+        [HttpPost("UpdateLiveSession/{sessionId}")] // POST: /api/LiveSession/UpdateLiveSession/id
+        public async Task<ActionResult<ApplicationServiceResult<LiveSessionResponse>>> UpdateSession(int sessionId, LiveSessionRequest req)
+        {
+            var res = await _liveSessionService.UpdatedLiveSessionAsync(req, sessionId);
+            if (!res.Succeed) return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+            return Ok(res);
+        }
+        #endregion
+
+        #region Delete Session
+        [HttpDelete("DeleteSession/{sessionId}")] // DELETE: /api/LiveSession/DeleteSesion/id
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> DeleteSession(int sessionId)
+        {
+            var res = await _liveSessionService.DeletedLiveSessionAsync(sessionId);
+            if (!res.Succeed) return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+            return Ok(res);
+        }
+        #endregion
     }
 }

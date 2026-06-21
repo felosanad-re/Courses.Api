@@ -20,7 +20,9 @@ namespace Courses.Core.Services.Contract.LiveSessionServices
         Task<ApplicationServiceResult<LiveSessionResponse>> CreateLiveSessionAsync(LiveSessionRequest req);
 
         // Update
+        Task<ApplicationServiceResult<LiveSessionResponse>> UpdatedLiveSessionAsync(LiveSessionRequest req, int sessionId);
 
         // Delete
+        Task<ApplicationServiceResult<bool>> DeletedLiveSessionAsync(int sessionId);
     }
 }

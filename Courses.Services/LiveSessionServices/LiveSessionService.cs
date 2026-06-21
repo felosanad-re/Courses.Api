@@ -13,7 +13,6 @@ using Courses.Core.Services.Contract.ZoomServices;
 using Courses.Core.Specifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace Courses.Services.LiveSessionServices
 {
@@ -48,7 +47,7 @@ namespace Courses.Services.LiveSessionServices
             try
             {
                 const string errorMessage = "There is no Instructor With This id";
-                const string succeededMessage = "the meeting Created Succeeded";
+                const string succeededMessage = "The Live Session Created Succeeded";
 
                 instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null)
@@ -174,7 +173,7 @@ namespace Courses.Services.LiveSessionServices
         }
         #endregion
 
-        // Get Section with Sessions
+        #region Get Section with Sessions
         public async Task<ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>> GetSectionsWithSessionsAsync(int courseId)
         {
             const string loggerError = "There is a problem in database";
@@ -210,6 +209,110 @@ namespace Courses.Services.LiveSessionServices
                 return ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>.Fail(loggerError);
             }
         }
+        #endregion
+
+        #region Updated Live Session Async
+        public async Task<ApplicationServiceResult<LiveSessionResponse>> UpdatedLiveSessionAsync(LiveSessionRequest req, int sessionId)
+        {
+            const string loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                const string errorMessage = "There is no Instructor With This id";
+                const string succeededMessage = "The Live Session Updated Succeeded";
+
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<LiveSessionResponse>.Fail(errorMessage);
+
+                var sessionSpec = CreateInstructorLiveSessionSpec(instructorId.Value, sessionId);
+                // Check session is own this instructor
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+                var session = await sessionRepo.GetAsyncSpec(sessionSpec);
+                if (session is null)
+                    return ApplicationServiceResult<LiveSessionResponse>.Fail("There is No Session with this Id");
+
+                // Check on Section if instructor want to move session to another Section
+                var section = await GetInstructorSectionAsync(req.SectionId, instructorId.Value);
+                if (section is null)
+                    return ApplicationServiceResult<LiveSessionResponse>.Fail("there is no section with this id for this instructor");
+
+                // Get Zoom Meeting ID
+                if (!long.TryParse(session.ZoomMeetingId, out var zoomMeetingId))
+                    return ApplicationServiceResult<LiveSessionResponse>.Fail("Invalid Zoom meeting id");
+
+                var zoomData = new ZoomRequest
+                {
+                    Duration = req.Duration,
+                    StartTime = req.ScheduledAt,
+                    Topic = req.Topic
+                };
+
+                var updateZoomMeeting = await _zoomService.UpdateMeetingAsync(zoomData, zoomMeetingId);
+                if (!updateZoomMeeting.Succeed)
+                    return ApplicationServiceResult<LiveSessionResponse>.Fail(updateZoomMeeting.Message ?? "Zoom meeting not updated");
+
+                session.SectionId = req.SectionId;
+                session.Section = section;
+                session.Topic = req.Topic;
+                session.ScheduledAt = req.ScheduledAt;
+                session.DurationMinutes = req.Duration;
+
+                await _unitOfWork.CompleteAsync();
+
+                var data = _mapper.Map<LiveSessionResponse>(session);
+
+                return ApplicationServiceResult<LiveSessionResponse>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to update live Session For instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<LiveSessionResponse>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Deleted Live Session Async
+        public async Task<ApplicationServiceResult<bool>> DeletedLiveSessionAsync(int sessionId)
+        {
+            const string loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                const string errorMessage = "There is no Instructor With This id";
+                const string succeededMessage = "The Live Session Deleted Succeeded";
+
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<bool>.Fail(errorMessage);
+
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+                var sessionSpec = CreateInstructorLiveSessionSpec(instructorId.Value, sessionId);
+                var session = await sessionRepo.GetAsyncSpec(sessionSpec);
+                if (session is null)
+                    return ApplicationServiceResult<bool>.Fail("There is No Session with this Id");
+
+                if (!long.TryParse(session.ZoomMeetingId, out var zoomMeetingId))
+                    return ApplicationServiceResult<bool>.Fail("Invalid Zoom meeting id");
+
+                var deleteZoom = await _zoomService.DeleteMeetingAsync(zoomMeetingId);
+                if (!deleteZoom.Succeed)
+                    return ApplicationServiceResult<bool>.Fail(deleteZoom.Message ?? "Zoom meeting not deleted");
+
+                sessionRepo.Delete(session);
+                await _unitOfWork.CompleteAsync();
+
+                return ApplicationServiceResult<bool>.Success(true, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to deleted live Session For instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<bool>.Fail(loggerError);
+            }
+        }
+        #endregion
 
         #region Helper Methods
         /// <summary>
