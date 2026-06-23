@@ -42,6 +42,17 @@ namespace Courses.Api.Controllers.LiveSessions
         }
         #endregion
 
+        #region Get Session Stats
+        [HttpGet("LiveSessionStats")] // GET: /api/LiveSession/LiveSessionStats
+        public async Task<ActionResult<ApplicationServiceResult<LiveSessionStatisticsResponse>>> GetSessionStats()
+        {
+            var res = await _liveSessionService.GetLiveSessionStatsAsync();
+            if (!res.Succeed) return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
         #region Get Sections With Sessions
         [HttpGet("Sections/Sessions/{courseId}")] // GET: /api/LiveSession/Sections/Sessions
         public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<SectionWithSessionsResponse>>>> GetSectionsWithSessions(int courseId)
@@ -74,7 +85,7 @@ namespace Courses.Api.Controllers.LiveSessions
         #endregion
 
         #region Delete Session
-        [HttpDelete("DeleteSession/{sessionId}")] // DELETE: /api/LiveSession/DeleteSesion/id
+        [HttpDelete("DeleteSession/{sessionId}")] // DELETE: /api/LiveSession/DeleteSession/id
         public async Task<ActionResult<ApplicationServiceResult<bool>>> DeleteSession(int sessionId)
         {
             var res = await _liveSessionService.DeletedLiveSessionAsync(sessionId);

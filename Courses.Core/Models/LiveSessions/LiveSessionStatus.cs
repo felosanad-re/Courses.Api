@@ -9,6 +9,8 @@ namespace Courses.Core.Models.LiveSessions
         [EnumMember(Value = "Live")]
         Live,
         [EnumMember(Value = "Ended")]
-        Ended
+        Ended,
+        [EnumMember(Value = "Cancelled")]
+        Cancelled
     }
 }

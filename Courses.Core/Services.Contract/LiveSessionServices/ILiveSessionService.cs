@@ -7,6 +7,9 @@ namespace Courses.Core.Services.Contract.LiveSessionServices
 {
     public interface ILiveSessionService
     {
+        // Get Live Sessions Stats
+        Task<ApplicationServiceResult<LiveSessionStatisticsResponse>> GetLiveSessionStatsAsync();
+
         // Get All Live Sessions
         Task<ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>> GetLiveSessionsAsync();
 

@@ -99,6 +99,60 @@ namespace Courses.Services.LiveSessionServices
         }
         #endregion
 
+        #region Get Live Session Stats Async
+        public async Task<ApplicationServiceResult<LiveSessionStatisticsResponse>> GetLiveSessionStatsAsync()
+        {
+            const string loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                const string errorMessage = "There is no Instructor With This id";
+                const string succeededMessage = "you retrieve all Live Sessions Statistics Succeeded";
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<LiveSessionStatisticsResponse>.Fail(errorMessage);
+
+                var totalSessionSpec = CreateInstructorLiveSessionSpec(instructorId.Value);
+
+                var completeSessionSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Ended);
+
+                var cancelSessionsSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Cancelled);
+
+                var upcomingSessionsSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Scheduled,
+                    DateTime.UtcNow);
+
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+
+                var totalSessions = await sessionRepo.GetCountAsyncSpec(totalSessionSpec);
+                var completedSessions = await sessionRepo.GetCountAsyncSpec(completeSessionSpec);
+                var cancelSessions = await sessionRepo.GetCountAsyncSpec(cancelSessionsSpec);
+                var upcomingSessions = await sessionRepo.GetCountAsyncSpec(upcomingSessionsSpec);
+
+                var data = new LiveSessionStatisticsResponse
+                {
+                    CancelledSessions = cancelSessions,
+                    TotalSessions = totalSessions,
+                    CompletedSessions = completedSessions,
+                    UpcomingSessions = upcomingSessions
+                };
+
+                return ApplicationServiceResult<LiveSessionStatisticsResponse>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieved a live session Statistics for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<LiveSessionStatisticsResponse>.Fail(loggerError);
+            }
+        }
+        #endregion
+
         #region Get Live Sessions Async
         /// <summary>
         /// Returns all live sessions created by the current instructor for dashboard/list views.
@@ -301,6 +355,7 @@ namespace Courses.Services.LiveSessionServices
                 if (!deleteZoom.Succeed)
                     return ApplicationServiceResult<bool>.Fail(deleteZoom.Message ?? "Zoom meeting not deleted");
 
+                session.Status = LiveSessionStatus.Cancelled;
                 sessionRepo.Delete(session);
                 await _unitOfWork.CompleteAsync();
 
@@ -355,6 +410,18 @@ namespace Courses.Services.LiveSessionServices
             liveSessionSpec.IncludesString.Add("Section.Course");
 
             return liveSessionSpec;
+        }
+
+        private static BaseSpecifications<LiveSession> CreateInstructorLiveSessionStatsSpec(int instructorId, LiveSessionStatus status, DateTime? scheduledAt = null)
+        {
+            var spec = new BaseSpecifications<LiveSession>(x => 
+                (x.Section.Course.InstructorId == instructorId)&&
+                (x.Status == status)&&
+                (!scheduledAt.HasValue || x.ScheduledAt >= scheduledAt.Value)
+            );
+            spec.Includes.Add(x => x.Section);
+            spec.IncludesString.Add("Section.Course");
+            return spec;
         }
         #endregion
     }
