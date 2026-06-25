@@ -8,7 +8,6 @@
         public string Topic { get; set; }
         public string ZoomMeetingId { get; set; }
         public string HostJoinUrl { get; set; }
-        public string StudentJoinUrl { get; set; }
         public DateTime ScheduledAt { get; set; }
         public int DurationMinutes { get; set; }
         public string Status { get; set; }

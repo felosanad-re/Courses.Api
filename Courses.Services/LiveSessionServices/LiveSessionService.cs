@@ -99,11 +99,65 @@ namespace Courses.Services.LiveSessionServices
         }
         #endregion
 
+        #region Get Live Session Stats Async
+        public async Task<ApplicationServiceResult<LiveSessionStatisticsResponse>> GetLiveSessionStatsAsync()
+        {
+            const string loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                const string errorMessage = "There is no Instructor With This id";
+                const string succeededMessage = "you retrieve all Live Sessions Statistics Succeeded";
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<LiveSessionStatisticsResponse>.Fail(errorMessage);
+
+                var totalSessionSpec = CreateInstructorLiveSessionSpec(instructorId.Value);
+
+                var completeSessionSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Ended);
+
+                var cancelSessionsSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Cancelled);
+
+                var upcomingSessionsSpec = CreateInstructorLiveSessionStatsSpec(
+                    instructorId.Value,
+                    LiveSessionStatus.Scheduled,
+                    DateTime.UtcNow);
+
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+
+                var totalSessions = await sessionRepo.GetCountAsyncSpec(totalSessionSpec);
+                var completedSessions = await sessionRepo.GetCountAsyncSpec(completeSessionSpec);
+                var cancelSessions = await sessionRepo.GetCountAsyncSpec(cancelSessionsSpec);
+                var upcomingSessions = await sessionRepo.GetCountAsyncSpec(upcomingSessionsSpec);
+
+                var data = new LiveSessionStatisticsResponse
+                {
+                    CancelledSessions = cancelSessions,
+                    TotalSessions = totalSessions,
+                    CompletedSessions = completedSessions,
+                    UpcomingSessions = upcomingSessions
+                };
+
+                return ApplicationServiceResult<LiveSessionStatisticsResponse>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieved a live session Statistics for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<LiveSessionStatisticsResponse>.Fail(loggerError);
+            }
+        }
+        #endregion
+
         #region Get Live Sessions Async
         /// <summary>
         /// Returns all live sessions created by the current instructor for dashboard/list views.
         /// </summary>
-        public async Task<ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>> GetLiveSessionsAsync()
+        public async Task<ApplicationServiceResult<Pagination<LiveSessionListResponse>>> GetLiveSessionsAsync(SessionParams param)
         {
             const string loggerError = "There is a problem in database";
             int? instructorId = null;
@@ -115,24 +169,45 @@ namespace Courses.Services.LiveSessionServices
 
                 instructorId = await GetCurrentInstructorInfo();
                 if (instructorId is null)
-                    return ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>.Fail(errorMessage);
+                    return ApplicationServiceResult<Pagination<LiveSessionListResponse>>.Fail(errorMessage);
 
                 // Reuse the ownership spec so instructors can only see their own sessions.
-                var liveSessionSpec = CreateInstructorLiveSessionSpec(instructorId.Value);
+                var liveSessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+
+                var liveSessionSpec = CreateGetAllInstructorLiveSessionSpec(
+                    instructorId.Value,
+                    param);
+
                 liveSessionSpec.AddOrderBy(x => x.ScheduledAt);
+                var liveSessionCountSpec = CreateGetAllInstructorLiveSessionSpec(instructorId.Value, applypagination: false);
 
-                var liveSessions = await _unitOfWork.CreateRepository<LiveSession>().GetAllAsyncSpec(liveSessionSpec);
+                var liveSessions = await liveSessionRepo.GetAllAsyncSpec(liveSessionSpec);
+
+                var liveSessionCount = await liveSessionRepo.GetCountAsyncSpec(liveSessionCountSpec);
+
                 if (!liveSessions.Any())
-                    return ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>.Success(new List<LiveSessionListResponse>(), "No Live Session Created Yet");
+                    return ApplicationServiceResult<Pagination<LiveSessionListResponse>>.Success(new Pagination<LiveSessionListResponse>(
+                        param.PageIndex,
+                        param.PageSize,
+                        0,
+                        new List<LiveSessionListResponse>()
+                        ), "No Live Session Created Yet");
 
-                var data = _mapper.Map<IReadOnlyList<LiveSessionListResponse>>(liveSessions);
+                var dataMapping = _mapper.Map<IReadOnlyList<LiveSessionListResponse>>(liveSessions);
 
-                return ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>.Success(data, succeededMessage);
+                var pagination = new Pagination<LiveSessionListResponse>(
+                        param.PageIndex,
+                        param.PageSize,
+                        liveSessionCount,
+                        dataMapping
+                    );
+
+                return ApplicationServiceResult<Pagination<LiveSessionListResponse>>.Success(pagination, succeededMessage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "there is a problem when try to retrieved a live session for instructorId {instructorId}", instructorId);
-                return ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>.Fail(loggerError);
+                return ApplicationServiceResult<Pagination<LiveSessionListResponse>>.Fail(loggerError);
             }
         }
         #endregion
@@ -301,6 +376,7 @@ namespace Courses.Services.LiveSessionServices
                 if (!deleteZoom.Succeed)
                     return ApplicationServiceResult<bool>.Fail(deleteZoom.Message ?? "Zoom meeting not deleted");
 
+                session.Status = LiveSessionStatus.Cancelled;
                 sessionRepo.Delete(session);
                 await _unitOfWork.CompleteAsync();
 
@@ -345,7 +421,7 @@ namespace Courses.Services.LiveSessionServices
         /// <summary>
         /// Builds the common live-session ownership query used by list/details/update/delete operations.
         /// </summary>
-        private static BaseSpecifications<LiveSession> CreateInstructorLiveSessionSpec(int instructorId, int? liveSessionId = null)
+        private static BaseSpecifications<LiveSession> CreateInstructorLiveSessionSpec(int instructorId,  int? liveSessionId = null)
         {
             var liveSessionSpec = new BaseSpecifications<LiveSession>(x =>
                 x.Section.Course.InstructorId == instructorId &&
@@ -355,6 +431,51 @@ namespace Courses.Services.LiveSessionServices
             liveSessionSpec.IncludesString.Add("Section.Course");
 
             return liveSessionSpec;
+        }
+
+        private static BaseSpecifications<LiveSession> CreateGetAllInstructorLiveSessionSpec(int instructorId, SessionParams? param = null, bool applypagination = true)
+        {
+            var search = param?.Search?.Trim().ToLower();
+            var spec = new BaseSpecifications<LiveSession>(x =>
+                (string.IsNullOrEmpty(search) || x.Topic.ToLower().Contains(search))&&
+                (x.Section.Course.InstructorId == instructorId)
+            );
+
+            spec.Includes.Add(x => x.Section);
+            spec.IncludesString.Add("Section.Course");
+
+            if (applypagination && param is not null)
+            {
+                spec.AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
+
+                switch (param?.Sort)
+                    {
+                        case "CreatedAtAsc":
+                            spec.AddOrderBy(x => x.CreatedAt);
+                            break;
+
+                        case "CreatedAtDesc":
+                            spec.AddOrderByDesc(x => x.CreatedAt);
+                            break;
+
+                        default:
+                            spec.AddOrderByDesc(x => x.CreatedAt);
+                            break;
+                    }
+
+            }
+            return spec;
+        }
+
+        private static BaseSpecifications<LiveSession> CreateInstructorLiveSessionStatsSpec(int instructorId, LiveSessionStatus status, DateTime? scheduledAt = null)
+        {
+            var spec = new BaseSpecifications<LiveSession>(x => 
+                (x.Section.Course.InstructorId == instructorId)&&
+                (x.Status == status)&&
+                (!scheduledAt.HasValue || x.ScheduledAt >= scheduledAt.Value)
+            );
+
+            return spec;
         }
         #endregion
     }
