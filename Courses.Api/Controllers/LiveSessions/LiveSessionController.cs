@@ -22,9 +22,9 @@ namespace Courses.Api.Controllers.LiveSessions
 
         #region GetAllLiveSession
         [HttpGet("LiveSessions")] // GET: /api/LiveSession/LiveSessions
-        public async Task<ActionResult<ApplicationServiceResult<LiveSessionListResponse>>> GetAllLiveSession()
+        public async Task<ActionResult<ApplicationServiceResult<Pagination<LiveSessionListResponse>>>> GetAllLiveSession([FromQuery]SessionParams param)
         {
-            var res = await _liveSessionService.GetLiveSessionsAsync();
+            var res = await _liveSessionService.GetLiveSessionsAsync(param);
             if (!res.Succeed) return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
 
             return Ok(res);

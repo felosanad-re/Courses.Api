@@ -11,7 +11,7 @@ namespace Courses.Core.Services.Contract.LiveSessionServices
         Task<ApplicationServiceResult<LiveSessionStatisticsResponse>> GetLiveSessionStatsAsync();
 
         // Get All Live Sessions
-        Task<ApplicationServiceResult<IReadOnlyList<LiveSessionListResponse>>> GetLiveSessionsAsync();
+        Task<ApplicationServiceResult<Pagination<LiveSessionListResponse>>> GetLiveSessionsAsync(SessionParams param);
 
         // Get Live Session
         Task<ApplicationServiceResult<LiveSessionDetailsResponse>> GetLiveSessionDetailsAsync(int id);

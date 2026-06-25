@@ -148,7 +148,9 @@ namespace Courses.Api.Helper.Mapping
 
             #region Live Sessions
             CreateMap<LiveSession, LiveSessionResponse>();
-            CreateMap<LiveSession, LiveSessionListResponse>();
+            CreateMap<LiveSession, LiveSessionListResponse>()
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title))
+                .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Section.Course.Name));
             CreateMap<LiveSession, LiveSessionDetailsResponse>()
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
 
