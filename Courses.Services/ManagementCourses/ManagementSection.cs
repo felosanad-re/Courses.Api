@@ -58,6 +58,8 @@ namespace Courses.Services.ManagementCourses
                 // Create new Section
                 var section = _mapper.Map<Section>(req); // Create New Section
                 section.Title = normalizedTitle;
+                section.Course.Status = CourseStatus.Draft;
+
                 await _unitOfWork.CreateRepository<Section>().AddAsync(section);
                 await _unitOfWork.CompleteAsync();
 
@@ -102,6 +104,8 @@ namespace Courses.Services.ManagementCourses
                 if (section == null) return ApplicationServiceResult<SectionWithCourseResponse>.Fail(errorMessage);
                 _mapper.Map(req, section);
                 section.Title = normalizedTitle;
+                section.Course.Status = CourseStatus.Draft;
+
                 await _unitOfWork.CompleteAsync();
 
                 var data = _mapper.Map<SectionWithCourseResponse>(section);

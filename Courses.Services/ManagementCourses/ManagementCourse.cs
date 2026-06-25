@@ -100,6 +100,7 @@ namespace Courses.Services.ManagementCourses
                 ApplyNormalizedCourseValues(newCourse, normalizedCourse);
                 uploadedImage = await _attachmentService.UploadAsync(req.Image, _fileSettings.FolderName, _fileSettings.AllowedExtensions, _fileSettings.MaxSize);
                 newCourse.Image = uploadedImage;
+                newCourse.Status = CourseStatus.Draft;
 
                 await _unitOfWork.CreateRepository<Course>().AddAsync(newCourse);
                 await _unitOfWork.CompleteAsync();
@@ -157,6 +158,8 @@ namespace Courses.Services.ManagementCourses
                 ApplyNormalizedCourseValues(course, normalizedCourse);
                 if (newImage is not null)
                     course.Image = newImage;
+
+                course.Status = CourseStatus.Draft;
 
                 courseRepo.Update(course);
                 await _unitOfWork.CompleteAsync();

@@ -76,7 +76,7 @@ namespace Courses.Api.Helper.Mapping
 
             CreateMap<Course, CourseProgressResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Name));
-            CreateMap<Course, CourseStatusResponse>();
+            CreateMap<Course, CourseTypesResponse>();
             #endregion
 
             CreateMap<CourseCategory, CourseCategoryToReturnDTO>();

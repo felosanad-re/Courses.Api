@@ -26,9 +26,16 @@ namespace Courses.Repo.Data.Configurations.Courses
             builder.Property(c => c.Image)
                 .HasMaxLength(500);
 
-            builder.Property(c => c.Status)
+            builder.Property(c => c.Type)
                 .HasConversion<string>()
-                .HasDefaultValue(CourseStatus.RecorderCourse);
+                .HasDefaultValue(CourseType.RecorderCourse);
+
+            builder.Property(c => c.Status)
+                .HasConversion<string>();
+
+            builder.Property(c => c.PublishedAt)
+                .HasColumnType("datetime2")
+                .IsRequired(false);
 
             builder.Property(c => c.IsPaid)
                 .IsRequired()

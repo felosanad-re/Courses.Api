@@ -9,7 +9,8 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         public CoursesWithSpec(CoursesParams @params)
             :base(x =>
                 (string.IsNullOrEmpty(@params.Search) || x.Name.ToLower().Contains(@params.Search.Trim().ToLower())) &&
-                (!@params.Type.HasValue || x.CourseCategoryId == @params.Type)
+                (!@params.Type.HasValue || x.CourseCategoryId == @params.Type)&&
+                (x.Status == CourseStatus.Published)
             )
         {
             Includes.Add(c => c.CourseCategory);

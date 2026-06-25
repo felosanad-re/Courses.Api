@@ -11,6 +11,7 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
         public bool IsPaid { get; set; }
         public decimal Price { get; set; }
 
+        public string Status { get; set; }
         public string CourseCategory { get; set; } // NFP
         public int CourseCategoryId { get; set; }
 

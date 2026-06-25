@@ -24,8 +24,9 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
         public int CourseCategoryId { get; set; }
 
         [Required]
-        public CourseStatus Status { get; set; }
+        public CourseType Type { get; set; }
 
+        public CourseStatus Status { get; set; }
         public bool IsPaid { get; set; }
 
         [Range(0, double.MaxValue)]

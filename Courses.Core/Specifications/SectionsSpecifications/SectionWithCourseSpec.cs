@@ -12,6 +12,7 @@ namespace Courses.Core.Specifications.SectionsSpecifications
         {
             Includes.Add(x => x.Course);
             Includes.Add(x => x.Lectures);
+            IsTracking = true;
         }
 
         public SectionWithCourseSpec(IEnumerable<int> ids, int? instructorId)
