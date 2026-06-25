@@ -27,7 +27,11 @@ namespace Courses.Core.Models.Courses
         public int CourseCategoryId { get; set; }
 
         // Show if course is online or recorder
-        public CourseStatus Status { get; set; } = CourseStatus.RecorderCourse;
+        public CourseType Type { get; set; } = CourseType.RecorderCourse;
+
+        // explain if the course is published or still in review
+        public CourseStatus Status { get; set; } = CourseStatus.Published;
+        public DateTime? PublishedAt { get; set; }
 
         // Students enrolled in this course (one-to-many via Enrollment join)
         public ICollection<Enrollment> Enrollments { get; set; } = new HashSet<Enrollment>();

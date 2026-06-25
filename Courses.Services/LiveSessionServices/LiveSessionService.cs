@@ -266,7 +266,7 @@ namespace Courses.Services.LiveSessionServices
                 var sectionsSpec = new BaseSpecifications<Section>(x =>
                     (x.Course.InstructorId == instructorId) &&
                     (x.CourseId == courseId)&&
-                    (x.Course.Status == CourseStatus.OnlineCourse)
+                    (x.Course.Type == CourseType.OnlineCourse)
                 );
                 sectionsSpec.Includes.Add(x => x.Sessions);
 
@@ -411,7 +411,7 @@ namespace Courses.Services.LiveSessionServices
             var sectionSpec = new BaseSpecifications<Section>(x =>
                 (x.Id == sectionId)&&
                 (x.Course.InstructorId == instructorId)&&
-                (x.Course.Status == CourseStatus.OnlineCourse)
+                (x.Course.Type == CourseType.OnlineCourse)
             );
             sectionSpec.Includes.Add(x => x.Course);
 

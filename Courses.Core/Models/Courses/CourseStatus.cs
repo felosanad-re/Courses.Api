@@ -2,15 +2,15 @@
 
 namespace Courses.Core.Models.Courses
 {
-    /// <summary>
-    /// This Enum Show if course Is Online Or Recorded
-    /// </summary>
     public enum CourseStatus
     {
-        [EnumMember(Value = "Online Course") ]
-        OnlineCourse,
-
-        [EnumMember(Value = "Recorder Course") ]
-        RecorderCourse
+        [EnumMember(Value = "Draft")]
+        Draft,
+        [EnumMember(Value = "Published")]
+        Published,
+        [EnumMember(Value = "Pending Review")]
+        PendingReview,
+        [EnumMember(Value = "Suspended")]
+        Suspended
     }
 }

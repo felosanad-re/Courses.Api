@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
+using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Lectures;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ManagementCourses;
-using Courses.Core.Specifications;
 using Courses.Core.Specifications.LectureSpecifications;
 using Courses.Core.Specifications.SectionsSpecifications;
 using Courses.Core.UnitOfWork;
@@ -56,6 +56,7 @@ namespace Courses.Services.ManagementCourses
                 var lecture = _mapper.Map<Lecture>(req);
                 lecture.Title = req.Title.Trim();
                 lecture.VideoUrl = normalizedVideoUrl;
+                lecture.Section.Course.Status = CourseStatus.Draft;
                 lecture.Section = section;
 
                 await _unitOfWork.CreateRepository<Lecture>().AddAsync(lecture);
@@ -102,6 +103,7 @@ namespace Courses.Services.ManagementCourses
                 _mapper.Map(req, lecture);
                 lecture.Title = req.Title.Trim();
                 lecture.VideoUrl = normalizedVideoUrl;
+                lecture.Section.Course.Status = CourseStatus.Draft;
                 lecture.Section = section;
                 await _unitOfWork.CompleteAsync();
 

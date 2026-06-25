@@ -18,7 +18,7 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
 
         public IFormFile? Image { get; set; }
 
-        public CourseStatus Status { get; set; }
+        public CourseType Type { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]
