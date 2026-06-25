@@ -79,13 +79,13 @@ namespace Courses.Services.ManagementCourses
 
             try
             {
-                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: true, req.CourseTypeId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
+                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: true, req.CourseCategoryId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
                 var userId = _currentUserService.UserId;
                 if (userId is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
 
-                var courseType = await _unitOfWork.CreateRepository<CourseType>().GetAsync(req.CourseTypeId);
+                var courseType = await _unitOfWork.CreateRepository<CourseCategory>().GetAsync(req.CourseCategoryId);
                 if (courseType is null)
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail("Course type not found");
 
@@ -132,13 +132,13 @@ namespace Courses.Services.ManagementCourses
             {
                 if (id <= 0) return ApplicationServiceResult<CourseResponseForInstructor>.Fail("course id must be greater than zero");
 
-                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: false, req.CourseTypeId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
+                if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: false, req.CourseCategoryId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
                 var userId = _currentUserService.UserId;
                 if (userId is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
 
-                var courseType = await _unitOfWork.CreateRepository<CourseType>().GetAsync(req.CourseTypeId);
+                var courseType = await _unitOfWork.CreateRepository<CourseCategory>().GetAsync(req.CourseCategoryId);
                 if (courseType is null)
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail("Course type not found");
 
@@ -282,7 +282,7 @@ namespace Courses.Services.ManagementCourses
             string? description,
             IFormFile? image,
             bool imageRequired,
-            int courseTypeId,
+            int courseCategoryId,
             bool isPaid,
             decimal price,
             FileSettingsOptions fileSettings,
@@ -333,7 +333,7 @@ namespace Courses.Services.ManagementCourses
                 return false;
             }
 
-            if (courseTypeId <= 0)
+            if (courseCategoryId <= 0)
             {
                 errorMessage = "course type id must be greater than zero";
                 return false;
@@ -355,7 +355,7 @@ namespace Courses.Services.ManagementCourses
             {
                 Name = normalizedName,
                 Description = normalizedDescription,
-                CourseTypeId = courseTypeId,
+                CourseCategoryId = courseCategoryId,
                 IsPaid = isPaid,
                 Price = isPaid ? price : 0m
             };
@@ -367,7 +367,7 @@ namespace Courses.Services.ManagementCourses
         {
             course.Name = normalizedCourse.Name;
             course.Description = normalizedCourse.Description;
-            course.CourseTypeId = normalizedCourse.CourseTypeId;
+            course.CourseCategoryId = normalizedCourse.CourseCategoryId;
             course.IsPaid = normalizedCourse.IsPaid;
             course.Price = normalizedCourse.Price;
         }
@@ -442,7 +442,7 @@ namespace Courses.Services.ManagementCourses
         {
             public string Name { get; set; } = string.Empty;
             public string Description { get; set; } = string.Empty;
-            public int CourseTypeId { get; set; }
+            public int CourseCategoryId { get; set; }
             public bool IsPaid { get; set; }
             public decimal Price { get; set; }
         }

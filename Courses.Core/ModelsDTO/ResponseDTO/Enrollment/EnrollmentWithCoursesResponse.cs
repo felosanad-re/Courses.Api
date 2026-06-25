@@ -12,6 +12,6 @@
 
         public int InstructorId { get; set; }
 
-        public string CourseType { get; set; }
+        public string CourseCategory { get; set; }
     }
 }

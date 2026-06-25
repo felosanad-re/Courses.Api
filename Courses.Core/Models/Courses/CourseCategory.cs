@@ -4,7 +4,7 @@
     /// Category/type for courses (e.g., "Programming", "Design", "Business").
     /// A Course belongs to one CourseType; a CourseType has many Courses.
     /// </summary>
-    public class CourseType : BaseModel
+    public class CourseCategory : BaseModel
     {
         public string Name { get; set; }
 

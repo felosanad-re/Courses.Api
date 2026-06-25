@@ -18,8 +18,8 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Courses
         public int InstructorId { get; set; }
 
 
-        public string CourseType { get; set; } // NFP
-        public int CourseTypeId { get; set; }
+        public string CourseCategory { get; set; } // NFP
+        public int CourseCategoryId { get; set; }
 
 
         public List<EnrollmentResponse> Enrollments { get; set; }

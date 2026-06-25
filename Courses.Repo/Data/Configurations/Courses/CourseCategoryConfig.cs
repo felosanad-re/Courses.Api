@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Courses.Repo.Data.Configurations.Courses
 {
-    public class CourseTypeConfig : IEntityTypeConfiguration<CourseType>
+    public class CourseCategoryConfig : IEntityTypeConfiguration<CourseCategory>
     {
-        public void Configure(EntityTypeBuilder<CourseType> builder)
+        public void Configure(EntityTypeBuilder<CourseCategory> builder)
         {
             // Table name
-            builder.ToTable("CourseTypes");
+            builder.ToTable("CourseCategories");
 
             // Primary key
             builder.HasKey(ct => ct.Id);
@@ -23,8 +23,8 @@ namespace Courses.Repo.Data.Configurations.Courses
 
             // One-to-many relationship: CourseType -> Courses
             builder.HasMany(ct => ct.Courses)
-                .WithOne(c => c.CourseType)
-                .HasForeignKey(c => c.CourseTypeId)
+                .WithOne(c => c.CourseCategory)
+                .HasForeignKey(c => c.CourseCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Unique index on Name — no duplicate course types
