@@ -22,7 +22,7 @@ namespace Courses.Core.ModelsDTO.RequestDTO.Courses
 
         [Required]
         [Range(1, int.MaxValue)]
-        public int CourseTypeId { get; set; }
+        public int CourseCategoryId { get; set; }
 
         public bool IsPaid { get; set; }
 

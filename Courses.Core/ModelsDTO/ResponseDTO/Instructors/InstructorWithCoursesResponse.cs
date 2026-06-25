@@ -9,7 +9,7 @@
         public string Status { get; set; }
         public bool IsPaid { get; set; }
         public decimal Price { get; set; }
-        public int CourseTypeId { get; set; }
+        public int CourseCategoryId { get; set; }
         public int TotalEnrollment { get; set; } // Num Of Students
         public decimal TotalRevenues { get; set; }
         public DateTime? FirstEnrollment { get; set; }

@@ -13,7 +13,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Profile;
 using Courses.Core.ModelsDTO.RequestDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Account;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
-using Courses.Core.ModelsDTO.ResponseDTO.CoursesTypes;
+using Courses.Core.ModelsDTO.ResponseDTO.CoursesCategories;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
@@ -61,24 +61,25 @@ namespace Courses.Api.Helper.Mapping
 
             #region Courses
             CreateMap<Course, CourseResponse>()
-                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
+                .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name))
                 .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponse>, string>(s => s.Image));
 
             CreateMap<Course, CoursesToReturnDTO>()
-                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
+                .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name))
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CoursesToReturnDTO>, string>(s => s.Image));
 
             CreateMap<Course, CourseDetailsToReturnDTO>()
-                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.CourseType.Name))
+                .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name))
                 .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseDetailsToReturnDTO>, string>(s => s.Image));
 
             CreateMap<Course, CourseProgressResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Name));
+            CreateMap<Course, CourseStatusResponse>();
             #endregion
 
-            CreateMap<CourseType, CourseTypeToReturnDTO>();
+            CreateMap<CourseCategory, CourseCategoryToReturnDTO>();
 
             #region Enrollment
             CreateMap<Enrollment, EnrollmentResponse>()
@@ -92,7 +93,7 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Enrollment, EnrollmentWithCoursesResponse>, string>(s => s.Course.Image))
                 .ForMember(d => d.InstructorId, o => o.MapFrom(s => s.Course.InstructorId))
                 .ForMember(d => d.IsPaid, o => o.MapFrom(s => s.Course.IsPaid))
-                .ForMember(d => d.CourseType, o => o.MapFrom(s => s.Course.CourseType.Name))
+                .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.Course.CourseCategory.Name))
                 .ForMember(d => d.Price, o => o.MapFrom(s => s.Course.Price));
 
             CreateMap<Enrollment, PaymentResponse>();

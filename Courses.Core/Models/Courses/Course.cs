@@ -23,8 +23,8 @@ namespace Courses.Core.Models.Courses
 
 
         // The category/type of this course (many-to-one)
-        public CourseType CourseType { get; set; }
-        public int CourseTypeId { get; set; }
+        public CourseCategory CourseCategory { get; set; }
+        public int CourseCategoryId { get; set; }
 
         // Show if course is online or recorder
         public CourseStatus Status { get; set; } = CourseStatus.RecorderCourse;

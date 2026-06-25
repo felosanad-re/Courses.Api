@@ -31,7 +31,7 @@ namespace Courses.Repo.Data
 
         // Courses
         public DbSet<Course> Courses { get; set; }
-        public DbSet<CourseType> CourseTypes { get; set; }
+        public DbSet<CourseCategory> CourseCategories { get; set; }
 
         // Enrollments
         public DbSet<Enrollment> Enrollments { get; set; }

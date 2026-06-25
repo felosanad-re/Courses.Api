@@ -58,10 +58,10 @@ namespace Courses.Repo.Data.Configurations.Courses
                 .HasForeignKey(c => c.InstructorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Many-to-one relationship: Course -> CourseType
-            builder.HasOne(c => c.CourseType)
+            // Many-to-one relationship: Course -> CourseCategory
+            builder.HasOne(c => c.CourseCategory)
                 .WithMany(ct => ct.Courses)
-                .HasForeignKey(c => c.CourseTypeId)
+                .HasForeignKey(c => c.CourseCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // One-to-many relationship: Course -> Enrollments

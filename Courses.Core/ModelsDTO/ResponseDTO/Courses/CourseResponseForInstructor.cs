@@ -12,6 +12,6 @@
         public string Status { get; set; }
 
         public int InstructorId { get; set; }
-        public int CourseTypeId { get; set; }
+        public int CourseCategoryId { get; set; }
     }
 }

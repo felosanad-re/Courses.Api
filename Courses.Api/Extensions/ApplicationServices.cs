@@ -7,7 +7,6 @@ using Courses.Core.Services.Contract.AccountServices;
 using Courses.Core.Services.Contract.AnalyticsServices;
 using Courses.Core.Services.Contract.AttachmentServices;
 using Courses.Core.Services.Contract.CoursesServices;
-using Courses.Core.Services.Contract.CourseTypeServices;
 using Courses.Core.Services.Contract.DashboardServices;
 using Courses.Core.Services.Contract.EarningServices;
 using Courses.Core.Services.Contract.EnrollmentServices;
@@ -30,7 +29,7 @@ using Courses.Services.AccountServices;
 using Courses.Services.AnalyticsServices;
 using Courses.Services.AttachmentServices;
 using Courses.Services.CoursesServices;
-using Courses.Services.CourseTypeServices;
+using Courses.Services.CourseCategoriesServices;
 using Courses.Services.CreateToken;
 using Courses.Services.DashboardInstructorServices;
 using Courses.Services.EarningServices;
@@ -51,6 +50,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Courses.Core.Services.Contract.CourseCategoriesServices;
 
 namespace Courses.Api.Extensions
 {
@@ -76,7 +76,7 @@ namespace Courses.Api.Extensions
             services.AddScoped<ICourseSectionService, CourseSectionService>();
             services.AddScoped<ICurrentStudentService, CurrentStudentService>();
             services.AddScoped<IEnrollmentService, EnrollmentService>();
-            services.AddScoped<ICourseTypeService, CourseTypeService>();
+            services.AddScoped<ICourseCategoryService, CourseCategoryService>();
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IInstructorService, InstructorService>();
             services.AddScoped<IInstructorRequestService, InstructorRequestService>();

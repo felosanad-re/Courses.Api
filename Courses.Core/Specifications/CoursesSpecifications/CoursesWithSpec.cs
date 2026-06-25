@@ -9,10 +9,10 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         public CoursesWithSpec(CoursesParams @params)
             :base(x =>
                 (string.IsNullOrEmpty(@params.Search) || x.Name.ToLower().Contains(@params.Search.Trim().ToLower())) &&
-                (!@params.Type.HasValue || x.CourseTypeId == @params.Type)
+                (!@params.Type.HasValue || x.CourseCategoryId == @params.Type)
             )
         {
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
 
             AddPagination(@params.PageSize * (@params.PageIndex - 1), @params.PageSize);
 
@@ -22,7 +22,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         public CoursesWithSpec(int courseId)
             :base(x => x.Id == courseId)
         {
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
             Includes.Add(c => c.Sections);
             IncludesString.Add("Sections.Lectures");
             Includes.Add(c => c.Instructor);

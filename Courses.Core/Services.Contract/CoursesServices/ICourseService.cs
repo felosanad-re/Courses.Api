@@ -8,6 +8,16 @@ namespace Courses.Core.Services.Contract.CoursesServices
     {
         Task<ApplicationServiceResult<Pagination<CoursesToReturnDTO>>> GetAllCoursesAsync(CoursesParams @params);
 
+        /// <summary>
+        /// Get Online Courses
+        /// </summary>
+        //Task<ApplicationServiceResult<IReadOnlyList<CourseStatusResponse>>> GetOnlineCourseStatusAsync();
+
+        /// <summary>
+        /// Get Recorded Courses
+        /// </summary>
+        //Task<ApplicationServiceResult<IReadOnlyList<CourseStatusResponse>>> GetRecordedCourseStatusAsync();
+
         Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId);
     }
 }

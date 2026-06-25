@@ -9,7 +9,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             : base(c => coursesIds.Contains(c.Id))
         {
             Includes.Add(c => c.Instructor);
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
             IncludesString.Add("Sections.Lectures");
         }
 
@@ -20,7 +20,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             )
         {
             Includes.Add(c => c.Instructor);
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
 
             AddPagination(@params.PageSize * (@params.PageIndex - 1), @params.PageSize);
         }
@@ -31,7 +31,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
                   )
         {
             Includes.Add(c => c.Instructor);
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
             IncludesString.Add("Sections.Lectures");
         }
 
@@ -43,7 +43,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             )
         {
             Includes.Add(c => c.Instructor);
-            Includes.Add(c => c.CourseType);
+            Includes.Add(c => c.CourseCategory);
             IncludesString.Add("Sections.Lectures");
         }
     }
