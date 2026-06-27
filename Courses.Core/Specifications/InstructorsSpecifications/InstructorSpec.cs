@@ -4,10 +4,11 @@ namespace Courses.Core.Specifications.InstructorsSpecifications
 {
     public class InstructorSpec : BaseSpecifications<Instructor>
     {
-        public InstructorSpec(string id)
-            :base(I => I.UserId == id)
+        public InstructorSpec(int instructorId)
+            :base(I => I.Id == instructorId)
         {
-
+            Includes.Add(i => i.ApplicationUser);
+            Includes.Add(i => i.Courses);
         }
 
         public InstructorSpec()
@@ -17,11 +18,10 @@ namespace Courses.Core.Specifications.InstructorsSpecifications
             Includes.Add(i => i.Courses);
         }
 
-        public InstructorSpec(int id)
-            :base(I => I.Id == id)
+        public InstructorSpec(string userId)
+            :base(x => x.UserId == userId)
         {
-            Includes.Add(i => i.ApplicationUser);
-            Includes.Add(i => i.Courses);
+            
         }
     }
 }

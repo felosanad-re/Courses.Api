@@ -1,9 +1,4 @@
 ﻿using Courses.Core.Models.Enrollments;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Courses.Core.Specifications.SectionsSpecifications
 {
@@ -13,6 +8,15 @@ namespace Courses.Core.Specifications.SectionsSpecifications
             : base(x => x.CourseId == courseId)
         {
             Includes.Add(x => x.Lectures);
+        }
+
+        public SectionWithSpec(int courseId, int instructorId)
+            :base(x =>
+                (x.CourseId == courseId)&&
+                (x.Course.InstructorId == instructorId)
+            )
+        {
+
         }
     }
 }
