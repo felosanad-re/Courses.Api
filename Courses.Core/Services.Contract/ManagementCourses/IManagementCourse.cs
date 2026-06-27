@@ -20,5 +20,8 @@ namespace Courses.Core.Services.Contract.ManagementCourses
 
         // Delete Bulk
         Task<ApplicationServiceResult<DeleteCoursesResult>> DeleteCoursesAsync(IEnumerable<int> courseIds);
+
+        // Request For Published Course [Send To Admin]
+        Task<ApplicationServiceResult<CourseResponseForSubmit>> SubmitForReview(int courseId);
     }
 }

@@ -5,6 +5,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Students;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.InstructorServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -81,6 +82,42 @@ namespace Courses.Api.Controllers.Instructors
             var result = await _instructorService.GetStudentInstructorAsync(id);
             if (!result.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+            return Ok(result);
+        }
+        #endregion
+
+        #region Get Online Courses
+        [HttpGet("Online-Courses")] // GET: /api/Instructor/Online-Courses
+        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>>> GetOnlineCourses(string? search)
+        {
+            var result = await _instructorService.GetOnlineCoursesAsync(search);
+            if (!result.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+
+            return Ok(result);
+        }
+        #endregion
+
+        #region Get Online Courses
+        [HttpGet("Recorded-Courses")] // GET: /api/Instructor/Recorded-Courses
+        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>>> GetRecordedCourses(string? search)
+        {
+            var result = await _instructorService.GetRecordedCoursesAsync(search);
+            if (!result.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+
+            return Ok(result);
+        }
+        #endregion
+
+        #region Get Sections
+        [HttpGet("Sections/{courseId}")] // Get: /api/instructor/sections/courseId?search=${search}
+        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<SectionListResponse>>>> GetSections([FromRoute]int courseId)
+        {
+            var result = await _instructorService.GetSectionsAsync(courseId);
+            if (!result.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
+
             return Ok(result);
         }
         #endregion

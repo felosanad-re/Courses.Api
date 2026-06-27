@@ -25,26 +25,37 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             AddPagination(@params.PageSize * (@params.PageIndex - 1), @params.PageSize);
         }
 
-        public CourseWithInstructorSpec(int id, string userId)
+        public CourseWithInstructorSpec(int id, int instructorId)
             : base(c =>
-                    (c.Id == id) && (c.Instructor.UserId == userId)
+                    (c.Id == id) && (c.Instructor.Id == instructorId)
                   )
+        {
+            Includes.Add(c => c.Instructor);
+            Includes.Add(c => c.CourseCategory);
+            Includes.Add(c => c.Sections);
+            IncludesString.Add("Sections.Lectures");
+        }
+
+        public CourseWithInstructorSpec(IEnumerable<int> coursesIds, int instructorId)
+            :base(c => 
+                (coursesIds.Contains(c.Id))
+                &&
+                (c.Instructor.Id == instructorId)
+            )
         {
             Includes.Add(c => c.Instructor);
             Includes.Add(c => c.CourseCategory);
             IncludesString.Add("Sections.Lectures");
         }
 
-        public CourseWithInstructorSpec(IEnumerable<int> coursesIds, string userId)
-            :base(c => 
-                (coursesIds.Contains(c.Id))
-                &&
-                (c.Instructor.UserId == userId)
+        public CourseWithInstructorSpec(int instructorId, CourseType type, string? search)
+            :base(x =>
+                (x.InstructorId == instructorId)&&
+                (x.Type == type)&&
+                (string.IsNullOrEmpty(search) || x.Name.Contains(search))
             )
         {
-            Includes.Add(c => c.Instructor);
-            Includes.Add(c => c.CourseCategory);
-            IncludesString.Add("Sections.Lectures");
+
         }
     }
 }

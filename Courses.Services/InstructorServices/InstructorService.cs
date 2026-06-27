@@ -7,6 +7,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Students;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Students;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.UserServices;
@@ -14,8 +15,11 @@ using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.EnrollmentSpecifications;
 using Courses.Core.Specifications.InstructorsSpecifications;
+using Courses.Core.Specifications.SectionsSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Courses.Services.InstructorServices
 {
@@ -88,6 +92,7 @@ namespace Courses.Services.InstructorServices
         #endregion
 
         #region Get All Courses Async
+
         public async Task<ApplicationServiceResult<Pagination<CourseResponseForInstructor>>> GetAllCoursesAsync(CoursesParams @params)
         {
             var userNotFoundMessage = "User Not Found";
@@ -342,6 +347,103 @@ namespace Courses.Services.InstructorServices
             {
                 _logger.LogError(ex, ex.Message);
                 return ApplicationServiceResult<Pagination<InstructorWithCoursesResponse>>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Get Online Courses Async
+        public async Task<ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>> GetOnlineCoursesAsync(string? search)
+        {
+            var userNotFoundMessage = "There is no instructor with this id";
+            var noCoursesMessage = "There is No Courses";
+            var succeededMessage = "you retrieve all courses succeeded";
+            var loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                // Normalize For Search Value
+                search = search?.Trim().ToLower();
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId == null)
+                    return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Fail(userNotFoundMessage);
+
+                var spec = new CourseWithInstructorSpec(instructorId.Value, CourseType.OnlineCourse, search);
+                var onlineCourses = await _unitOfWork.CreateRepository<Course>().GetAllAsyncSpec(spec);
+                if (!onlineCourses.Any())
+                    return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Success(new List<CourseTypesResponse>(), noCoursesMessage);
+                var data = _mapper.Map<IReadOnlyList<CourseTypesResponse>>(onlineCourses);
+
+                return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "There is a Problem when try to retrieve online courses for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Get Recorded Courses Async
+        public async Task<ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>> GetRecordedCoursesAsync(string? search)
+        {
+            var userNotFoundMessage = "There is no instructor with this id";
+            var noCoursesMessage = "There is No Courses";
+            var succeededMessage = "you retrieve all courses succeeded";
+            var loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                // Normalize For Search Value
+                search = search?.Trim().ToLower();
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId == null)
+                    return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Fail(userNotFoundMessage);
+
+                var spec = new CourseWithInstructorSpec(instructorId.Value, CourseType.RecorderCourse, search);
+                var recordedCourses = await _unitOfWork.CreateRepository<Course>().GetAllAsyncSpec(spec);
+                if (!recordedCourses.Any())
+                    return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Success(new List<CourseTypesResponse>(), noCoursesMessage);
+                var data = _mapper.Map<IReadOnlyList<CourseTypesResponse>>(recordedCourses);
+
+                return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "There is a Problem when try to retrieve online courses for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<IReadOnlyList<CourseTypesResponse>>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Get Sections Async
+        public async Task<ApplicationServiceResult<IReadOnlyList<SectionListResponse>>> GetSectionsAsync(int courseId)
+        {
+            var userNotFoundMessage = "There is no instructor with this id";
+            var noSectionsMessage = "There is No Sections For This Course Yet";
+            var succeededMessage = "you retrieve all courses succeeded";
+            var loggerError = "There is a problem in database";
+            int? instructorId = null;
+
+            try
+            {
+                instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<IReadOnlyList<SectionListResponse>>.Fail(userNotFoundMessage);
+                var spec = new SectionWithSpec(courseId, instructorId.Value);
+
+                var sections = await _unitOfWork.CreateRepository<Section>().GetAllAsyncSpec(spec);
+                if (!sections.Any())
+                    return ApplicationServiceResult<IReadOnlyList<SectionListResponse>>.Success(new List<SectionListResponse>(), noSectionsMessage);
+
+                var data = _mapper.Map<IReadOnlyList<SectionListResponse>>(sections);
+                return ApplicationServiceResult<IReadOnlyList<SectionListResponse>>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve Sections For Course {courseId} and Instructor {instructorId}", courseId, instructorId);
+                return ApplicationServiceResult<IReadOnlyList<SectionListResponse>>.Fail(loggerError);
             }
         }
         #endregion

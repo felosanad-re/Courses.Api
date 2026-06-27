@@ -6,6 +6,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.Options;
 using Courses.Core.Services.Contract.AttachmentServices;
+using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ManagementCourses;
 using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.Specifications.CoursesSpecifications;
@@ -22,19 +23,19 @@ namespace Courses.Services.ManagementCourses
         #region Inject Services
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger<ManagementCourse> _logger;
-        protected readonly ICurrentUserService _currentUserService;
+        protected readonly ICurrentInstructorServices _currentInstructorServices;
         protected readonly IMapper _mapper;
         protected readonly IAttachmentService _attachmentService;
         protected readonly FileSettingsOptions _fileSettings;
 
-        public ManagementCourse(IUnitOfWork unitOfWork, ILogger<ManagementCourse> logger, ICurrentUserService currentUserService, IMapper mapper, IAttachmentService attachmentService, IOptions<FileSettingsOptions> fileSettings)
+        public ManagementCourse(IUnitOfWork unitOfWork, ILogger<ManagementCourse> logger, IMapper mapper, IAttachmentService attachmentService, IOptions<FileSettingsOptions> fileSettings, ICurrentInstructorServices currentInstructorServices)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
-            _currentUserService = currentUserService;
             _mapper = mapper;
             _attachmentService = attachmentService;
             _fileSettings = fileSettings.Value;
+            _currentInstructorServices = currentInstructorServices;
         }
         #endregion
 
@@ -50,10 +51,11 @@ namespace Courses.Services.ManagementCourses
             {
                 if (id <= 0) return ApplicationServiceResult<CourseResponseForInstructor>.Fail("course id must be greater than zero");
 
-                var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
 
-                var spec = new CourseWithInstructorSpec(id, userId);
+                var spec = new CourseWithInstructorSpec(id, instructorId.Value);
                 var course = await _unitOfWork.CreateRepository<Course>().GetAsyncSpec(spec);
                 if (course is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(errorMessage);
 
@@ -82,8 +84,9 @@ namespace Courses.Services.ManagementCourses
                 if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: true, req.CourseCategoryId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
-                var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
+                var instructorId = await GetCurrentInstructorInfo();
+                if(instructorId is null)
+                    return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
 
                 var courseType = await _unitOfWork.CreateRepository<CourseCategory>().GetAsync(req.CourseCategoryId);
                 if (courseType is null)
@@ -91,7 +94,7 @@ namespace Courses.Services.ManagementCourses
 
                 // Get Current Instructor
                 var currentInstructor = await _unitOfWork.CreateRepository<Instructor>()
-                    .GetAsyncSpec(new InstructorSpec(userId));
+                    .GetAsyncSpec(new InstructorSpec(instructorId.Value));
                 if (currentInstructor is null)
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(errorMessage);
 
@@ -136,8 +139,9 @@ namespace Courses.Services.ManagementCourses
                 if (!ValidateCourseInput(req.Name, req.Description, req.Image, imageRequired: false, req.CourseCategoryId, req.IsPaid, req.Price, _fileSettings, out var normalizedCourse, out var validationError))
                     return ApplicationServiceResult<CourseResponseForInstructor>.Fail(validationError);
 
-                var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<CourseResponseForInstructor>.Fail(userNotFoundMessage);
 
                 var courseType = await _unitOfWork.CreateRepository<CourseCategory>().GetAsync(req.CourseCategoryId);
                 if (courseType is null)
@@ -146,7 +150,7 @@ namespace Courses.Services.ManagementCourses
                 var courseRepo = _unitOfWork.CreateRepository<Course>();
 
                 // Get Course with Instructor
-                var course = await courseRepo.GetAsyncSpec(new CourseWithInstructorSpec(id, userId));
+                var course = await courseRepo.GetAsyncSpec(new CourseWithInstructorSpec(id, instructorId.Value));
                 if (course is null) return ApplicationServiceResult<CourseResponseForInstructor>.Fail(errorMessage);
 
                 var oldImage = course.Image;
@@ -193,13 +197,13 @@ namespace Courses.Services.ManagementCourses
             {
                 if (id <= 0) return ApplicationServiceResult<bool>.Fail("course id must be greater than zero");
 
-                var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<bool>
-                        .Fail(userNotFoundMessage);
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<bool>.Fail(userNotFoundMessage);
 
                 var courseRepo = _unitOfWork.CreateRepository<Course>();
                 // Get Course
-                var course = await courseRepo.GetAsyncSpec(new CourseWithInstructorSpec(id, userId));
+                var course = await courseRepo.GetAsyncSpec(new CourseWithInstructorSpec(id, instructorId.Value));
                 if (course is null) return ApplicationServiceResult<bool>.Fail(errorMessage);
 
                 SoftDeleteCourseWithChildren(course);
@@ -231,13 +235,13 @@ namespace Courses.Services.ManagementCourses
                 if (ids.Any(id => id <= 0))
                     return ApplicationServiceResult<DeleteCoursesResult>.Fail("course ids must be greater than zero");
 
-                var userId = _currentUserService.UserId;
-                if (userId is null) return ApplicationServiceResult<DeleteCoursesResult>
-                    .Fail(userNotFoundMessage);
+                var instructorId = await GetCurrentInstructorInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<DeleteCoursesResult>.Fail(userNotFoundMessage);
 
                 var courseRepo = _unitOfWork.CreateRepository<Course>();
                 // All Courses For Specification Instructors
-                var courses = await courseRepo.GetAllAsyncSpec(new CourseWithInstructorSpec(ids, userId));
+                var courses = await courseRepo.GetAllAsyncSpec(new CourseWithInstructorSpec(ids, instructorId.Value));
 
                 // Get All Courses With Ids
                 var allCourses = await courseRepo.GetAllAsyncSpec(new CourseWithInstructorSpec(ids));
@@ -279,7 +283,62 @@ namespace Courses.Services.ManagementCourses
         }
         #endregion
 
+        #region Submit For Review
+        public async Task<ApplicationServiceResult<CourseResponseForSubmit>> SubmitForReview(int courseId)
+        {
+            var userNotFoundMessage = "User Not Found";
+            var errorMessage = "No Courses with this id";
+            var succeededMessage = "Course Send For Review Succeeded";
+            var loggerError = "There is a problem in database";
+            int? instructorid = null;
+
+            try
+            {
+                instructorid = await GetCurrentInstructorInfo();
+                if (instructorid is null)
+                    return ApplicationServiceResult<CourseResponseForSubmit>.Fail(userNotFoundMessage);
+
+                var spec = new CourseWithInstructorSpec(courseId, instructorid.Value);
+                var course = await _unitOfWork.CreateRepository<Course>().GetAsyncSpec(spec);
+                if (course is null)
+                    return ApplicationServiceResult<CourseResponseForSubmit>.Fail(errorMessage);
+
+                // Check If Course Contain Section
+                if(!course.Sections.Any())
+                    return ApplicationServiceResult<CourseResponseForSubmit>.Fail("Course must contain at least one section.");
+
+                // Check Course Contain At lasted one lecture
+                if(course.Sections.Any(s => s.Lectures.Any()))
+                    return ApplicationServiceResult<CourseResponseForSubmit>.Fail("Each section must contain at least one lecture.");
+
+                // Check Course Status
+                if (course.Status != CourseStatus.Draft)
+                    return ApplicationServiceResult<CourseResponseForSubmit>.Fail("Only draft courses can be submitted for review");
+
+                course.Status = CourseStatus.PendingReview;
+                await _unitOfWork.CompleteAsync();
+                var data = _mapper.Map<CourseResponseForSubmit>(course);
+                return ApplicationServiceResult<CourseResponseForSubmit>.Success(data, succeededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while submitting course for review. InstructorId: {InstructorId}", instructorid);
+                return ApplicationServiceResult<CourseResponseForSubmit>.Fail(loggerError);
+            }
+        }
+        #endregion
+
         #region Helper Methods
+
+        private async Task<int?> GetCurrentInstructorInfo()
+        {
+            var instructorinfo = await _currentInstructorServices.GetCurrentInstructor();
+            if (!instructorinfo.Succeed || instructorinfo.Data == null)
+                return null;
+
+            return instructorinfo.Data.Id;
+        }
+
         private static bool ValidateCourseInput(
             string? name,
             string? description,

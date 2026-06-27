@@ -78,6 +78,7 @@ namespace Courses.Services.CoursesServices
                 return ApplicationServiceResult<CourseDetailsToReturnDTO>.Fail(logError);
             }
         }
+
         #endregion
     }
 }

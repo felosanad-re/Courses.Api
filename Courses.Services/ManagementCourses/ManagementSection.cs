@@ -6,7 +6,6 @@ using Courses.Core.ModelsDTO.RequestDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.ManagementCourses;
-using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.SectionsSpecifications;
 using Courses.Core.UnitOfWork;
@@ -38,7 +37,7 @@ namespace Courses.Services.ManagementCourses
             try
             {
                 var errorMessage = "Course not found or you don't have access";
-                var succeededMessage = "Section Created Succeedded In database";
+                var succeededMessage = "Section Created Succeeded In database";
 
                 if (!ValidateSectionInput(req.Title, req.Order, out var normalizedTitle, out var validationError))
                     return ApplicationServiceResult<SectionWithCourseResponse>.Fail(validationError);
@@ -58,7 +57,7 @@ namespace Courses.Services.ManagementCourses
                 // Create new Section
                 var section = _mapper.Map<Section>(req); // Create New Section
                 section.Title = normalizedTitle;
-                section.Course.Status = CourseStatus.Draft;
+                course.Status = CourseStatus.Draft;
 
                 await _unitOfWork.CreateRepository<Section>().AddAsync(section);
                 await _unitOfWork.CompleteAsync();

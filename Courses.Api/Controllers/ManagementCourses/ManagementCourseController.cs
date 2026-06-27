@@ -73,5 +73,17 @@ namespace Courses.Api.Controllers.ManagementCourses
             return Ok(result);
         }
         #endregion
+
+        #region Review Course
+        [HttpPost("review-course/{courseId}")] // Post: /api/managementCourse/review-course/Id
+        public async Task<ActionResult<ApplicationServiceResult<CourseResponseForSubmit>>> ReviewCourse(int courseId)
+        {
+            var res = await _managementCourse.SubmitForReview(courseId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
     }
 }
