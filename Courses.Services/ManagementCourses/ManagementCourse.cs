@@ -42,10 +42,10 @@ namespace Courses.Services.ManagementCourses
         #region Get Course Details Async
         public async Task<ApplicationServiceResult<CourseResponseForInstructor>> GetCourseDetailsAsync(int id)
         {
-            var userNotFoundMessage = "User Not Found";
-            var errorMessage = "No Courses with this id";
-            var succeededMessage = "Course details retrieved successfully";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string errorMessage = "No Courses with this id";
+            const string succeededMessage = "Course details retrieved successfully";
+            const string loggerError = "There is a problem in database";
 
             try
             {
@@ -73,10 +73,10 @@ namespace Courses.Services.ManagementCourses
         #region Create Course Async
         public async Task<ApplicationServiceResult<CourseResponseForInstructor>> CreateCourseAsync(CreatedCourseRequest req)
         {
-            var userNotFoundMessage = "User Not Found";
-            var errorMessage = "Instructor not found";
-            var succeededMessage = "Course created succeeded";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string errorMessage = "Instructor not found";
+            const string succeededMessage = "Course created succeeded";
+            const string loggerError = "There is a problem in database";
             string? uploadedImage = null;
 
             try
@@ -126,10 +126,10 @@ namespace Courses.Services.ManagementCourses
         #region Update Course Async
         public async Task<ApplicationServiceResult<CourseResponseForInstructor>> UpdateCourseAsync(int id, UpdatedCourseRequest req)
         {
-            var userNotFoundMessage = "User Not Found";
-            var errorMessage = "No course Found with this id";
-            var succeededMessage = "Course updated succeeded";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string errorMessage = "No course Found with this id";
+            const string succeededMessage = "Course updated succeeded";
+            const string loggerError = "There is a problem in database";
             string? newImage = null;
 
             try
@@ -188,10 +188,10 @@ namespace Courses.Services.ManagementCourses
         #region Delete Course Async
         public async Task<ApplicationServiceResult<bool>> DeleteCourseAsync(int id)
         {
-            var userNotFoundMessage = "User Not Found";
-            var errorMessage = "No course Found with this id";
-            var succeededMessage = "Course Deleted succeeded";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string errorMessage = "No course Found with this id";
+            const string succeededMessage = "Course Deleted succeeded";
+            const string loggerError = "There is a problem in database";
 
             try
             {
@@ -222,9 +222,9 @@ namespace Courses.Services.ManagementCourses
         #region Delete Courses Async
         public async Task<ApplicationServiceResult<DeleteCoursesResult>> DeleteCoursesAsync(IEnumerable<int> courseIds)
         {
-            var userNotFoundMessage = "User Not Found";
-            var succeededMessage = "Course Deleted succeeded";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string succeededMessage = "Course Deleted succeeded";
+            const string loggerError = "There is a problem in database";
 
             try
             {
@@ -286,10 +286,10 @@ namespace Courses.Services.ManagementCourses
         #region Submit For Review
         public async Task<ApplicationServiceResult<CourseResponseForSubmit>> SubmitForReview(int courseId)
         {
-            var userNotFoundMessage = "User Not Found";
-            var errorMessage = "No Courses with this id";
-            var succeededMessage = "Course Send For Review Succeeded";
-            var loggerError = "There is a problem in database";
+            const string userNotFoundMessage = "User Not Found";
+            const string errorMessage = "No Courses with this id";
+            const string succeededMessage = "Course Send For Review Succeeded";
+            const string loggerError = "There is a problem in database";
             int? instructorid = null;
 
             try
@@ -308,7 +308,7 @@ namespace Courses.Services.ManagementCourses
                     return ApplicationServiceResult<CourseResponseForSubmit>.Fail("Course must contain at least one section.");
 
                 // Check Course Contain At lasted one lecture
-                if(course.Sections.Any(s => s.Lectures.Any()))
+                if(!course.Sections.Any(s => s.Lectures.Any()))
                     return ApplicationServiceResult<CourseResponseForSubmit>.Fail("Each section must contain at least one lecture.");
 
                 // Check Course Status
