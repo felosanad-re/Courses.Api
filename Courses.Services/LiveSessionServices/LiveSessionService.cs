@@ -11,6 +11,7 @@ using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Services.Contract.LiveSessionServices;
 using Courses.Core.Services.Contract.ZoomServices;
 using Courses.Core.Specifications;
+using Courses.Core.Specifications.LiveSessions;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
 
@@ -385,6 +386,95 @@ namespace Courses.Services.LiveSessionServices
             catch (Exception ex)
             {
                 _logger.LogError(ex, "there is a problem when try to deleted live Session For instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<bool>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Update Status By Zoom Meeting Id (Webhook)
+        /// <summary>
+        /// Updates the <see cref="LiveSessionStatus"/> of the live session that matches
+        /// the provided Zoom meeting id. Called by the Zoom webhook when a meeting
+        /// starts (<c>meeting.started</c>) or ends (<c>meeting.ended</c>).
+        /// </summary>
+        public async Task<ApplicationServiceResult<bool>> UpdateStatusByZoomMeetingIdAsync(string zoomMeetingId, LiveSessionStatus status)
+        {
+            const string loggerError = "There is a problem in database";
+
+            try
+            {
+                // Guard against empty/null meeting id coming from the webhook payload.
+                if (string.IsNullOrWhiteSpace(zoomMeetingId))
+                    return ApplicationServiceResult<bool>.Fail("Zoom meeting id is required");
+
+                // Look up the session by the Zoom meeting id (no instructor context here,
+                // because the webhook is server-to-server and not tied to a user session).
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+                var sessionSpec = new LiveSessionWithWebHooks(zoomMeetingId);
+
+                var session = await sessionRepo.GetAsyncSpec(sessionSpec);
+                if (session is null)
+                {
+                    _logger.LogWarning("Zoom webhook status update skipped: no live session for ZoomMeetingId {ZoomMeetingId}", zoomMeetingId);
+                    return ApplicationServiceResult<bool>.Fail("There is No Live Session with this Zoom meeting id");
+                }
+
+                // Apply the new status and persist.
+                session.Status = status;
+                await _unitOfWork.CompleteAsync();
+
+                _logger.LogInformation("Live session {SessionId} status updated to {Status} from Zoom webhook.", session.Id, status);
+
+                return ApplicationServiceResult<bool>.Success(true, "Live Session Status Updated Succeeded");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "There is a problem when trying to update live session status by ZoomMeetingId {ZoomMeetingId}", zoomMeetingId);
+                return ApplicationServiceResult<bool>.Fail(loggerError);
+            }
+        }
+        #endregion
+
+        #region Save Recording Url By Zoom Meeting Id (Webhook)
+        /// <summary>
+        /// Persists the cloud recording share URL on the live session that matches
+        /// the provided Zoom meeting id. Called by the Zoom webhook when
+        /// <c>recording.completed</c> fires.
+        /// </summary>
+        public async Task<ApplicationServiceResult<bool>> SaveRecordingUrlByZoomMeetingIdAsync(string zoomMeetingId, string recordingUrl)
+        {
+            const string loggerError = "There is a problem in database";
+
+            try
+            {
+                // Validate both the meeting id and the recording url coming from the webhook payload.
+                if (string.IsNullOrWhiteSpace(zoomMeetingId))
+                    return ApplicationServiceResult<bool>.Fail("Zoom meeting id is required");
+
+                if (string.IsNullOrWhiteSpace(recordingUrl))
+                    return ApplicationServiceResult<bool>.Fail("Recording url is required");
+
+                var sessionRepo = _unitOfWork.CreateRepository<LiveSession>();
+                var sessionSpec = new LiveSessionWithWebHooks(zoomMeetingId);
+
+                var session = await sessionRepo.GetAsyncSpec(sessionSpec);
+                if (session is null)
+                {
+                    _logger.LogWarning("Zoom webhook recording save skipped: no live session for ZoomMeetingId {ZoomMeetingId}", zoomMeetingId);
+                    return ApplicationServiceResult<bool>.Fail("There is No Live Session with this Zoom meeting id");
+                }
+
+                // Store the recording url so students/instructors can replay the session later.
+                session.RecordingUrl = recordingUrl;
+                await _unitOfWork.CompleteAsync();
+
+                _logger.LogInformation("Live session {SessionId} recording url saved from Zoom webhook.", session.Id);
+
+                return ApplicationServiceResult<bool>.Success(true, "Recording Url Saved Succeeded");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "There is a problem when trying to save recording url by ZoomMeetingId {ZoomMeetingId}", zoomMeetingId);
                 return ApplicationServiceResult<bool>.Fail(loggerError);
             }
         }

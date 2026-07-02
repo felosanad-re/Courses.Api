@@ -1,4 +1,5 @@
-﻿using Courses.Core.ModelsDTO;
+﻿using Courses.Core.Models.LiveSessions;
+using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.LiveSessions;
 using Courses.Core.ModelsDTO.ResponseDTO.LiveSessions;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
@@ -27,5 +28,11 @@ namespace Courses.Core.Services.Contract.LiveSessionServices
 
         // Delete
         Task<ApplicationServiceResult<bool>> DeletedLiveSessionAsync(int sessionId);
+
+        // Update Live Session Status By Zoom Meeting Id (Used By Zoom Webhook)
+        Task<ApplicationServiceResult<bool>> UpdateStatusByZoomMeetingIdAsync(string zoomMeetingId, LiveSessionStatus status);
+
+        // Save Recording Url By Zoom Meeting Id (Used By Zoom Webhook)
+        Task<ApplicationServiceResult<bool>> SaveRecordingUrlByZoomMeetingIdAsync(string zoomMeetingId, string recordingUrl);
     }
 }
