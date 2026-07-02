@@ -58,6 +58,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IZoomWebhookService, ZoomWebhookService>();
             services.AddScoped<ILiveSessionService, LiveSessionService>();
             services.AddHttpClient<IZoomService, ZoomService>();
             services.AddScoped<IEarningService, EarningService>();
@@ -122,6 +123,7 @@ namespace Courses.Api.Extensions
                 .Validate(options => !string.IsNullOrWhiteSpace(options.AccountId), "Zoom:AccountId is required.")
                 .Validate(options => !string.IsNullOrWhiteSpace(options.ClientId), "Zoom:ClientId is required.")
                 .Validate(options => !string.IsNullOrWhiteSpace(options.ClientSecret), "Zoom:ClientSecret is required.")
+                .Validate(options => !string.IsNullOrWhiteSpace(options.WebhookSecret), "Zoom:WebhookSecret is required.")
                 .ValidateOnStart();
 
             var jwtOptions = jwtSection.Get<JwtOptions>() ?? new JwtOptions();
