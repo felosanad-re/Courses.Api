@@ -1,12 +1,15 @@
 ﻿namespace Courses.Core.ModelsDTO.ResponseDTO.Lectures
 {
-    public class LectureToReturnDTO
+    /// <summary>
+    /// This Response course content if course id Recorded or online
+    /// </summary>
+    public class CourseContentItemDTO
     {
         public int Id { get; set; }
         public string Title { get; set; }
 
         // URL to the lecture video (could be a streaming URL or file path)
-        public string VideoUrl { get; set; }
+        public string Url { get; set; }
 
 
         // The section this lecture belongs to (many-to-one)

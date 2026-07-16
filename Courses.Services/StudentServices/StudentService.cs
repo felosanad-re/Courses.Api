@@ -27,7 +27,7 @@ namespace Courses.Services.StudentServices
         public async Task<ApplicationServiceResult<IReadOnlyList<EnrollmentWithCoursesResponse>>> GetAllStudentCoursesAsync()
         {
             var userNotFoundError = "Student Not Found With this id";
-            var succeededMessage = "Revived Student Courses Enrollmented Succeeded";
+            var succeededMessage = "Retrieved Student Courses Enrollments Succeeded";
             var loggerError = "there is a problem in database";
 
             var student = await _currentStudentService.GetStudentWithApplicationUser();
@@ -42,7 +42,7 @@ namespace Courses.Services.StudentServices
 
                 spec.IsTracking = false;
                 spec.Includes.Add(x => x.Course);
-                spec.IncludesString.Add("Course.CourseType");
+                spec.IncludesString.Add("Course.CourseCategory");
 
                 var enrollments = await _unitOfWork.CreateRepository<Enrollment>().GetAllAsyncSpec(spec);
 

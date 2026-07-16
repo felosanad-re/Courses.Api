@@ -112,8 +112,9 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Lecture, LectureResponse>()
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
 
-            CreateMap<Lecture, LectureToReturnDTO>()
-                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
+            CreateMap<Lecture, CourseContentItemDTO>()
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title))
+                .ForMember(d => d.Url, o => o.MapFrom(s => s.VideoUrl));
 
             CreateMap<Lecture, LectureWithSectionResponse>();
 
@@ -158,6 +159,11 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title));
 
             CreateMap<LiveSession, SessionsWithSectionResponse>();
+
+            CreateMap<LiveSession, CourseContentItemDTO>()
+                .ForMember(d => d.Title, o => o.MapFrom(s => s.Topic))
+                .ForMember(d => d.SectionName, o => o.MapFrom(s => s.Section.Title))
+                .ForMember(d => d.Url, o => o.MapFrom(s => s.StudentJoinUrl));
             #endregion
 
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();

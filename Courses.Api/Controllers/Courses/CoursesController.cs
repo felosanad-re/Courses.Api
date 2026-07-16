@@ -1,4 +1,5 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core.Models.Courses;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
@@ -39,10 +40,10 @@ namespace Courses.Api.Controllers.Courses
         #endregion
 
         #region Get Course Details
-        [HttpGet("Course/{courseId}")] // GET: /api/Courses/Course/courseId
-        public async Task<ActionResult<CourseDetailsToReturnDTO>> GetCourseDetails(int courseId)
+        [HttpGet("Course/{courseId}")] // GET: /api/Courses/Course/courseId?type=recorded
+        public async Task<ActionResult<CourseDetailsToReturnDTO>> GetCourseDetails(int courseId, [FromQuery]CourseType type)
         {
-            var result = await _courseService.GetCourseDetailsAsync(courseId);
+            var result = await _courseService.GetCourseDetailsAsync(courseId, type);
             if(result is null) return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
             return Ok(result);
         }

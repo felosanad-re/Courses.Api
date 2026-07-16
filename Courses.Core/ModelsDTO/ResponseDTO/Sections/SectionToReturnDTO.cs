@@ -11,6 +11,6 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
         public string CourseName { get; set; } // NFP
         public int CourseId { get; set; }
 
-        public IReadOnlyList<LectureToReturnDTO> Lectures { get; set; } // NFP
+        public IReadOnlyList<CourseContentItemDTO> Content { get; set; } // NFP
     }
 }
