@@ -85,6 +85,15 @@ namespace Courses.Repo.Data.Configurations.Courses
                 .HasForeignKey(s => s.CourseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasMany(c => c.Ratings)
+                .WithOne(r => r.Course)
+                .HasForeignKey(r => r.CourseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Property(c => c.AverageRating)
+                .HasColumnType("decimal(8, 2)");
+
+
             // Soft delete query filter — automatically exclude deleted courses
             builder.HasQueryFilter(c => !c.IsDeleted);
         }

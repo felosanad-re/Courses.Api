@@ -38,5 +38,10 @@ namespace Courses.Core.Models.Courses
 
         // Sections containing lectures for this course (one-to-many)
         public ICollection<Section> Sections { get; set; } = new HashSet<Section>();
+
+        // Rating and reviews for this course (one-to-many)
+        public ICollection<CourseRating> Ratings { get; set; } = new HashSet<CourseRating>();
+        public decimal AverageRating { get; set; }
+        public int RatingCount { get; set; }
     }
 }
