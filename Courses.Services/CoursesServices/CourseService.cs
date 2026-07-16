@@ -3,7 +3,10 @@ using Courses.Core.Models.Courses;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
+using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
+using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.CoursesServices;
+using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
@@ -57,7 +60,7 @@ namespace Courses.Services.CoursesServices
         #endregion
 
         #region Get Course Details
-        public async Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId)
+        public async Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId, CourseType type)
         {
             var errorMessage = "there is no course with this id";
             var succeeddedMessage = "this is a course details";
@@ -65,10 +68,47 @@ namespace Courses.Services.CoursesServices
 
             try
             {
-                var course = await _unitOfWork.CreateRepository<Course>().GetAsyncSpec(new CoursesWithSpec(courseId));
+
+                BaseSpecifications<Course> spec = type switch
+                {
+                    CourseType.OnlineCourse => new OnlineCoursesWithSpec(courseId),
+                    CourseType.RecorderCourse => new RecordedCoursesWithSpec(courseId),
+                    _ => throw new ArgumentOutOfRangeException(nameof(type))
+                };
+
+                var course = await _unitOfWork.CreateRepository<Course>().GetAsyncSpec(spec);
                 if (course is null) return ApplicationServiceResult<CourseDetailsToReturnDTO>.Fail(errorMessage);
 
                 var data = _mapper.Map<CourseDetailsToReturnDTO>(course);
+                data.Sections = course.Sections
+                    .OrderBy(section => section.Order)
+                    .Select(section =>
+                    {
+                        var sectionDto = _mapper.Map<SectionToReturnDTO>(section);
+
+                        var lectures = section.Lectures
+                            .Select(lecture => new
+                            {
+                                lecture.Order,
+                                Content = _mapper.Map<CourseContentItemDTO>(lecture)
+                            });
+
+                        var sessions = section.Sessions
+                            .Select(session => new
+                            {
+                                session.Order,
+                                Content = _mapper.Map<CourseContentItemDTO>(session)
+                            });
+
+                        sectionDto.Content = lectures
+                            .Concat(sessions)
+                            .OrderBy(item => item.Order)
+                            .Select(item => item.Content)
+                            .ToList();
+
+                        return sectionDto;
+                    })
+                    .ToList();
 
                 return ApplicationServiceResult<CourseDetailsToReturnDTO>.Success(data, succeeddedMessage);
             }

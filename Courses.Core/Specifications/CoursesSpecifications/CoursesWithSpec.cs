@@ -19,16 +19,14 @@ namespace Courses.Core.Specifications.CoursesSpecifications
 
             AddSorting(@params);
         }
-
         public CoursesWithSpec(int courseId)
-            :base(x => x.Id == courseId)
+            : base(x => x.Id == courseId)
         {
             Includes.Add(c => c.CourseCategory);
             Includes.Add(c => c.Sections);
             IncludesString.Add("Sections.Lectures");
             Includes.Add(c => c.Instructor);
         }
-
         #region Helper method
         private void AddSorting(CoursesParams @params)
         {

@@ -1,4 +1,5 @@
-﻿using Courses.Core.ModelsDTO;
+﻿using Courses.Core.Models.Courses;
+using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 
@@ -8,6 +9,6 @@ namespace Courses.Core.Services.Contract.CoursesServices
     {
         Task<ApplicationServiceResult<Pagination<CoursesToReturnDTO>>> GetAllCoursesAsync(CoursesParams @params);
 
-        Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId);
+        Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId, CourseType type);
     }
 }

@@ -5,7 +5,7 @@
         public string? Sort { get; set; } // Course Type
         public string? Search { get; set; }
         public int? Type { get; set; }
-        public int MaxPageSize { get; set; } = 10;
+        public int MaxPageSize { get; set; } = 30;
 
         public int PageIndex { get; set; } = 1;
 

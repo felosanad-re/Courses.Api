@@ -8,7 +8,7 @@
         public string Image { get; set; }
         public bool IsPaid { get; set; }
         public decimal Price { get; set; }
-
+        public string Type { get; set; }
         public string Status { get; set; }
 
         public string CourseCategory { get; set; } // NFP
