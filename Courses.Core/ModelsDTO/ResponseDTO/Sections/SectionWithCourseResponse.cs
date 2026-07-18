@@ -9,7 +9,8 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Sections
         public int Order { get; set; }
 
         public int CourseId { get; set; }
-
+        public decimal AverageRating { get; set; }
+        public int RatingCount { get; set; }
         public List<LectureWithSectionResponse> Lectures { get; set; } = new();
     }
 }

@@ -42,6 +42,18 @@ namespace Courses.Core.Specifications.CoursesSpecifications
                         AddOrderByDesc(x => x.Price);
                         break;
 
+                    case CourseSortingOptions.Rating:
+                        AddOrderByDesc(x => x.AverageRating);
+                        break;
+
+                    case CourseSortingOptions.Newest:
+                        AddOrderByDesc(x => x.CreatedAt);
+                        break;
+
+                    case CourseSortingOptions.Popular:
+                        AddOrderByDesc(x => x.Enrollments.Count);
+                        break;
+
                     default:
                         AddOrderBy(x => x.Name);
                         break;
