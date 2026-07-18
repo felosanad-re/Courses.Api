@@ -13,5 +13,7 @@
 
         public string CourseCategory { get; set; } // NFP
         public int CourseCategoryId { get; set; }
+        public decimal AverageRating { get; set; }
+        public int RatingCount { get; set; }
     }
 }

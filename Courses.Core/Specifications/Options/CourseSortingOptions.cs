@@ -4,5 +4,8 @@
     {
         PriceAsc,
         PriceDesc,
+        Rating,
+        Newest,
+        Popular
     }
 }

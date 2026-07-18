@@ -95,7 +95,9 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.InstructorId, o => o.MapFrom(s => s.Course.InstructorId))
                 .ForMember(d => d.IsPaid, o => o.MapFrom(s => s.Course.IsPaid))
                 .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.Course.CourseCategory.Name))
-                .ForMember(d => d.Price, o => o.MapFrom(s => s.Course.Price));
+                .ForMember(d => d.Price, o => o.MapFrom(s => s.Course.Price))
+                .ForMember(d => d.AverageRating, o => o.MapFrom(s => s.Course.AverageRating))
+                .ForMember(d => d.RatingCount, o => o.MapFrom(s => s.Course.RatingCount));
 
             CreateMap<Enrollment, PaymentResponse>();
 
@@ -129,7 +131,9 @@ namespace Courses.Api.Helper.Mapping
             #endregion
 
             #region Sections
-            CreateMap<Section, SectionWithCourseResponse>();
+            CreateMap<Section, SectionWithCourseResponse>()
+                .ForMember(d => d.AverageRating, o => o.MapFrom(s => s.Course.AverageRating))
+                .ForMember(d => d.RatingCount, o => o.MapFrom(s => s.Course.RatingCount));
 
             CreateMap<Section, SectionToReturnDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name));
