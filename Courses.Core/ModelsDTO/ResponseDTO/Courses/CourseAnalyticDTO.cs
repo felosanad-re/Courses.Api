@@ -7,5 +7,8 @@
         public string Image { get; set; }
         public int Enrollments { get; set; }
         public decimal Revenue { get; set; }
+
+        public decimal AverageRating { get; set; }
+        public int RatingCount { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Analyses
         public int TotalEnrollments { get; set; }
         public int TotalStudents { get; set; }
         public decimal TotalRevenue { get; set; }
-        public double? AverageCourseRating { get; set; } // Coming After Add Rating in course
+        public int? TotalCourseRatings { get; set; } // Coming After Add Rating in course
 
         // After Add Admin Services For Accepted and Reject Courses
         public int? PublishedCourses { get; set; }

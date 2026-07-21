@@ -9,6 +9,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.Services.Contract.AnalyticsServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Specifications;
+using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
@@ -34,6 +35,7 @@ namespace Courses.Services.AnalyticsServices
         {
             var userNotFoundMessage = "There is no instructor with this id";
             var succeededMessage = "this all Analytics for instructor";
+            var warringMessage = "there is no Analytics for instructor";
             var loggerError = "There is a problem in database";
             int? instructorId = null;
 
@@ -48,7 +50,11 @@ namespace Courses.Services.AnalyticsServices
                 var enrollmentSpec = new BaseSpecifications<Enrollment>(x => x.Course.InstructorId == instructorId);
                 enrollmentSpec.Includes.Add(x => x.Course);
 
-                var coursesSpec = new BaseSpecifications<Course>(x => x.InstructorId == instructorId);
+                var coursesSpec = new AllCoursesWithInstructorSpec(instructorId);
+
+                var publishCoursesSpec = new AllCoursesWithInstructorSpec(instructorId, CourseStatus.Published);
+                
+                var draftCoursesSpec = new AllCoursesWithInstructorSpec(instructorId, CourseStatus.Draft);
 
                 var courses = await coursesRepo.GetAllAsyncSpec(coursesSpec);
                 if (!courses.Any())
@@ -56,15 +62,23 @@ namespace Courses.Services.AnalyticsServices
                     {
                         TopCourseRating = null,
                         TopCourseSelling = null,
-                        AverageCourseRating = 0,
+                        TotalCourseRatings = 0,
                         DraftCourses = 0,
                         PublishedCourses = 0,
                         TotalCourses = 0,
                         TotalEnrollments = 0,
                         TotalRevenue = 0,
                         TotalStudents = 0
-                    }, succeededMessage);
+                    }, warringMessage);
 
+                // Get Published Courses Count => x.Status == "Published"
+                var publishedCount = await coursesRepo.GetCountAsyncSpec(publishCoursesSpec);
+
+                // Get Draft Courses Count => x.Status == "Draft"
+                var draftCourses = await coursesRepo.GetCountAsyncSpec(draftCoursesSpec);
+
+                // Get Total ratings Count
+                var totalRatings = courses.Sum(x => x.RatingCount);
                 var enrollments = await enrollmentRepo.GetAllAsyncSpec(enrollmentSpec);
 
                 // Get Top Best Selling Course (by revenue, then by enrollment count)
@@ -78,6 +92,20 @@ namespace Courses.Services.AnalyticsServices
                     }).OrderByDescending(x => x.Revenue)
                       .ThenByDescending(x => x.Enrollments)
                       .FirstOrDefault();
+
+                // Get Top Rating Course(by Rating Average)
+                var topCourseAverage = courses
+                    .Where(x => x.RatingCount > 0)
+                    .OrderByDescending(x => x.AverageRating)
+                    .ThenByDescending(x => x.RatingCount)
+                    .FirstOrDefault();
+
+                // Auto Mapping For Image Resolver
+                CourseAnalyticDTO? topRatingCourse = null;
+                if(topCourseAverage != null)
+                {
+                    topRatingCourse = _mapper.Map<CourseAnalyticDTO>(topCourseAverage);
+                }
 
                 // Auto Mapping For Image Resolver
                 CourseAnalyticDTO? bestSellingCourse = null;
@@ -94,7 +122,11 @@ namespace Courses.Services.AnalyticsServices
                     TotalEnrollments = enrollments.Count,
                     TotalStudents = enrollments.Select(x => x.StudentId).Distinct().Count(),
                     TotalRevenue = enrollments.Where(x => x.IsPaid).Sum(x => x.Amount),
-                    TopCourseSelling = bestSellingCourse
+                    TopCourseSelling = bestSellingCourse,
+                    TopCourseRating = topRatingCourse,
+                    DraftCourses = draftCourses,
+                    PublishedCourses = publishedCount,
+                    TotalCourseRatings = totalRatings
                 };
 
                 return ApplicationServiceResult<InstructorAnalyticsDto>.Success(data, succeededMessage);
