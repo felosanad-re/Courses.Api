@@ -8,5 +8,7 @@
         public int NewTotalStudentsInMonth { get; set; }
         public decimal TotalRevenues { get; set; }
         public decimal NewTotalRevenuesInMonth { get; set; }
+        public decimal AverageRating { get; set; }
+        public decimal NewAverageRatingInMonth { get; set; }
     }
 }

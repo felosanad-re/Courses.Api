@@ -9,5 +9,14 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         {
 
         }
+
+        public AllCoursesWithInstructorSpec(int? instructorId, CourseStatus status)
+            :base(x =>
+                (x.InstructorId == instructorId) &&
+                (x.Status == status)
+            )
+        {
+
+        }
     }
 }

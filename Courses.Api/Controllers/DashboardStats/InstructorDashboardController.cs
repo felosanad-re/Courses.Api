@@ -1,5 +1,6 @@
 ﻿using Courses.Api.ErrorHandler;
 using Courses.Core.ModelsDTO;
+using Courses.Core.ModelsDTO.RequestDTO.DashboardInstructor;
 using Courses.Core.ModelsDTO.ResponseDTO.DashboardInstructor;
 using Courses.Core.Services.Contract.DashboardServices;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +25,18 @@ namespace Courses.Api.Controllers.DashboardStats
             if (!result.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
             return Ok(result);
+        }
+        #endregion
+
+        #region Get Reviews
+        [HttpGet("Reviews")] // GET: /api/InstructorDashboard/Reviews
+        public async Task<ActionResult<Pagination<DashboardInstructorReviewsDTO>>> GetReviews([FromQuery]RatingParams ratingParams)
+        {
+            var res = await _dashboardInstructorService.GetReviewsAsync(ratingParams);
+            if(!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
         }
         #endregion
     }
