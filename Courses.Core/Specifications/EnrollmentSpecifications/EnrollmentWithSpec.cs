@@ -25,5 +25,22 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
         {
             Includes.Add(x => x.Course);
         }
+
+        public EnrollmentWithSpec(int? instructorId, DateTime oneMonthAgo)
+            : base(x => 
+                (x.Course.InstructorId == instructorId)&&
+                (x.CreatedAt >= oneMonthAgo)
+            )
+        {
+
+        }
+
+        public EnrollmentWithSpec(int? instructorId)
+            : base(x => 
+                (x.Course.InstructorId == instructorId)
+            )
+        {
+
+        }
     }
 }

@@ -10,5 +10,21 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         {
 
         }
+
+        public CoursesCountWithSpec(int? instructorId, DateTime oneMonthAgo)
+            :base(x => 
+                (x.InstructorId == instructorId)&&
+                (x.CreatedAt >= oneMonthAgo)
+            )
+        {
+            
+        }
+        public CoursesCountWithSpec(int? instructorId)
+            :base(x => 
+                (x.InstructorId == instructorId)
+            )
+        {
+            
+        }
     }
 }
