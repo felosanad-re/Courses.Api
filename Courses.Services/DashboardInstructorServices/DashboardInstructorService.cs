@@ -1,16 +1,17 @@
-﻿using Courses.Core.Models.Courses;
+﻿using AutoMapper;
+using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.ModelsDTO;
+using Courses.Core.ModelsDTO.RequestDTO.DashboardInstructor;
 using Courses.Core.ModelsDTO.ResponseDTO.DashboardInstructor;
 using Courses.Core.Services.Contract.DashboardServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.EnrollmentSpecifications;
+using Courses.Core.Specifications.RatingSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.Extensions.Logging;
-using System.Net.NetworkInformation;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Courses.Services.DashboardInstructorServices
 {
@@ -19,14 +20,17 @@ namespace Courses.Services.DashboardInstructorServices
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ILogger<DashboardInstructorService> _logger;
         protected readonly ICurrentInstructorServices _currentInstructorServices;
+        protected readonly IMapper _mapper;
 
-        public DashboardInstructorService(IUnitOfWork unitOfWork, ILogger<DashboardInstructorService> logger, ICurrentInstructorServices currentInstructorServices)
+        public DashboardInstructorService(IUnitOfWork unitOfWork, ILogger<DashboardInstructorService> logger, ICurrentInstructorServices currentInstructorServices, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _currentInstructorServices = currentInstructorServices;
+            _mapper = mapper;
         }
 
+        #region Get Dashboard Instruct Stats Async
         public async Task<ApplicationServiceResult<DashboardInstructorDTO>> GetDashboardInstructStatsAsync()
         {
             int? instructorId = null;
@@ -110,6 +114,49 @@ namespace Courses.Services.DashboardInstructorServices
             {
                 _logger.LogError(ex, "There is error when try to retrieve status for instructor id  {instructorId}", instructorId);
                 return ApplicationServiceResult<DashboardInstructorDTO>.Fail("There Is problem In database");
+            }
+        }
+        #endregion
+
+        public async Task<ApplicationServiceResult<Pagination<DashboardInstructorReviewsDTO>>> GetReviewsAsync(RatingParams param)
+        {
+            int? instructorId = null;
+            const string errorMassage = "No User With This Id";
+            const string waringMassage = "No reviews yet.";
+            const string succeededMassage = "Reviews retrieved successfully";
+            const string loggerError = "there is a problem in database";
+
+            try
+            {
+                instructorId = await GetCurrentInstrurInfo();
+                if (instructorId is null)
+                    return ApplicationServiceResult<Pagination<DashboardInstructorReviewsDTO>>.Fail(errorMassage);
+
+                param.Search = param.Search?.Trim().ToLower();
+                var ratingSpec = new RatingWithSpec(param, instructorId.Value);
+                var ratingCountSpec = new RatingWithSpec(param, instructorId.Value, isCount: true);
+
+                var ratingRepo = _unitOfWork.CreateRepository<CourseRating>();
+
+                var rating = await ratingRepo.GetAllAsyncSpec(ratingSpec);
+                if (!rating.Any())
+                    return ApplicationServiceResult<Pagination<DashboardInstructorReviewsDTO>>.Success(new Pagination<DashboardInstructorReviewsDTO>(param.PageIndex, param.PageSize, 0, []), waringMassage);
+                var ratingCount = await ratingRepo.GetCountAsyncSpec(ratingCountSpec);
+
+                var paginationData = _mapper.Map<IReadOnlyList<DashboardInstructorReviewsDTO>>(rating);
+
+                var data = new Pagination<DashboardInstructorReviewsDTO>(
+                        param.PageIndex,
+                        param.PageSize,
+                        ratingCount,
+                        paginationData
+                    );
+                return ApplicationServiceResult<Pagination<DashboardInstructorReviewsDTO>>.Success(data, succeededMassage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrave the courses reviews for instructorId {instructorId}", instructorId);
+                return ApplicationServiceResult<Pagination<DashboardInstructorReviewsDTO>>.Fail(loggerError);
             }
         }
 

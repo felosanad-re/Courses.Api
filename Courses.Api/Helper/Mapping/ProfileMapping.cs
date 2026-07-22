@@ -14,6 +14,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.Account;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.CoursesCategories;
+using Courses.Core.ModelsDTO.ResponseDTO.DashboardInstructor;
 using Courses.Core.ModelsDTO.ResponseDTO.Enrollment;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
@@ -169,6 +170,10 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
 
             CreateMap<Instructor, InstructorWithApplicationUserResponse>();
+
+            CreateMap<CourseRating, DashboardInstructorReviewsDTO>()
+                .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
         }
     }
 }
