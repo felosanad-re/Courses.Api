@@ -1,0 +1,10 @@
+﻿using Courses.Core.ModelsDTO;
+using Courses.Core.ModelsDTO.ResponseDTO.AdminDashboard;
+
+namespace Courses.Core.Services.Contract.AdminDashboardServices
+{
+    public interface IAdminDashboardService
+    {
+        Task<ApplicationServiceResult<AdminDashboardStatsResponse>> GetStatsAsync();
+    }
+}

@@ -4,8 +4,11 @@ using Courses.Core.Options;
 using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
+using Courses.Core.Services.Contract.AdminDashboardServices;
+using Courses.Core.Services.Contract.AdminServices;
 using Courses.Core.Services.Contract.AnalyticsServices;
 using Courses.Core.Services.Contract.AttachmentServices;
+using Courses.Core.Services.Contract.CourseCategoriesServices;
 using Courses.Core.Services.Contract.CoursesServices;
 using Courses.Core.Services.Contract.DashboardServices;
 using Courses.Core.Services.Contract.EarningServices;
@@ -26,10 +29,12 @@ using Courses.Repo.RedisRepository;
 using Courses.Repo.UnitOfWorks;
 using Courses.Services;
 using Courses.Services.AccountServices;
+using Courses.Services.AdminDashboardServices;
+using Courses.Services.AdminServices;
 using Courses.Services.AnalyticsServices;
 using Courses.Services.AttachmentServices;
-using Courses.Services.CoursesServices;
 using Courses.Services.CourseCategoriesServices;
+using Courses.Services.CoursesServices;
 using Courses.Services.CreateToken;
 using Courses.Services.DashboardInstructorServices;
 using Courses.Services.EarningServices;
@@ -50,7 +55,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Courses.Core.Services.Contract.CourseCategoriesServices;
 
 namespace Courses.Api.Extensions
 {
@@ -58,6 +62,8 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<ICurrentAdminService, CurrentAdminService>();
+            services.AddScoped<IAdminDashboardService, AdminDashboardService>();
             services.AddScoped<ICourseRatingService, CourseRatingService>();
             services.AddScoped<IZoomWebhookService, ZoomWebhookService>();
             services.AddScoped<ILiveSessionService, LiveSessionService>();

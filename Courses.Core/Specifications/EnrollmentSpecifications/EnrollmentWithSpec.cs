@@ -42,5 +42,11 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
         {
 
         }
+
+        public EnrollmentWithSpec()
+            :base()
+        {
+            
+        }
     }
 }
