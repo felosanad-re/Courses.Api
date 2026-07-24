@@ -1,4 +1,5 @@
-﻿using Courses.Core.Models.Courses;
+﻿using AutoMapper;
+using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.Models.Instructors;
 using Courses.Core.Models.Students;
@@ -10,6 +11,7 @@ using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.EnrollmentSpecifications;
+using Courses.Core.Specifications.RatingSpecifications;
 using Courses.Core.Specifications.StudentSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
@@ -22,13 +24,15 @@ namespace Courses.Services.AdminDashboardServices
         #region Service
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly ICurrentUserService _currentUserService;
+        protected readonly IMapper _mapper;
         protected readonly ILogger<AdminDashboardService> _logger;
 
-        public AdminDashboardService(IUnitOfWork unitOfWork, ILogger<AdminDashboardService> logger, ICurrentUserService currentUserService)
+        public AdminDashboardService(IUnitOfWork unitOfWork, ILogger<AdminDashboardService> logger, ICurrentUserService currentUserService, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _logger = logger;
             _currentUserService = currentUserService;
+            _mapper = mapper;
         }
         #endregion
 
@@ -184,6 +188,35 @@ namespace Courses.Services.AdminDashboardServices
             {
                 _logger.LogError(ex, "There is a problem retrieving admin dashboard charts for userId {UserId}", userId);
                 return ApplicationServiceResult<AdminDashboardChartsResponse>.Fail(LoggerMessage);
+            }
+        }
+        #endregion
+
+        #region Get Latest Reviews Async
+        public async Task<ApplicationServiceResult<List<AdminDashboardReviewsResponse>>> GetLatestReviewsAsync()
+        {
+            const string SucceededMessage = "Dashboard charts retrieved successfully.";
+            const string WarnningMessage = "No reviews found.";
+            const string LoggerMessage = "Failed to retrieve dashboard charts.";
+            string? userId = _currentUserService.UserId;
+
+            try
+            {
+                var courseRatingRepo = _unitOfWork.CreateRepository<CourseRating>();
+                var courseRatingSpec = new RatingWithSpec();
+
+                var ratings = await courseRatingRepo.GetAllAsyncSpec(courseRatingSpec);
+                if (!ratings.Any())
+                    return ApplicationServiceResult<List<AdminDashboardReviewsResponse>>.Success(new(), WarnningMessage);
+
+                var ratingData = _mapper.Map<List<AdminDashboardReviewsResponse>>(ratings);
+                return ApplicationServiceResult<List<AdminDashboardReviewsResponse>>.Success(ratingData, SucceededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve Reviews for Admin {userId}", userId);
+                return ApplicationServiceResult<List<AdminDashboardReviewsResponse>>.Fail(LoggerMessage);
+
             }
         }
         #endregion

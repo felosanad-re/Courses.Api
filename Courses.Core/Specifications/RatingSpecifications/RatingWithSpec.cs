@@ -19,5 +19,16 @@ namespace Courses.Core.Specifications.RatingSpecifications
             AddOrderByDesc(x => x.CreatedAt);
             AddPagination((ratingParams.PageIndex - 1) * ratingParams.PageSize, ratingParams.PageSize);
         }
+
+        public RatingWithSpec()
+            :base()
+        {
+            Includes.Add(x => x.Course);
+            Includes.Add(x => x.Student);
+            AddOrderByDesc(x => x.CreatedAt);
+            Take = 5;
+            Skip = 0;
+            IsTracking = false;
+        }
     }
 }
