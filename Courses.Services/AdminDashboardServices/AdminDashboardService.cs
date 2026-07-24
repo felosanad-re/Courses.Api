@@ -11,6 +11,7 @@ using Courses.Core.Services.Contract.UserServices;
 using Courses.Core.Specifications;
 using Courses.Core.Specifications.CoursesSpecifications;
 using Courses.Core.Specifications.EnrollmentSpecifications;
+using Courses.Core.Specifications.InstructorsSpecifications;
 using Courses.Core.Specifications.RatingSpecifications;
 using Courses.Core.Specifications.StudentSpecifications;
 using Courses.Core.UnitOfWork;
@@ -217,6 +218,49 @@ namespace Courses.Services.AdminDashboardServices
                 _logger.LogError(ex, "there is a problem when try to retrieve Reviews for Admin {userId}", userId);
                 return ApplicationServiceResult<List<AdminDashboardReviewsResponse>>.Fail(LoggerMessage);
 
+            }
+        }
+        #endregion
+
+        #region Get Quick Actions Async
+        public async Task<ApplicationServiceResult<AdminDashboardQuickActionsResponse>> GetQuickActionsAsync()
+        {
+            const string SucceededMessage = "Dashboard quick actions retrieved successfully.";
+            const string LoggerMessage = "Failed to retrieve dashboard Quick Actions.";
+            string? userId = _currentUserService.UserId;
+
+            try
+            {
+                var draftCoursesSpec = new CoursesCountWithSpec(CourseStatus.Draft);
+                var pendingCoursesSpec = new CoursesCountWithSpec(CourseStatus.PendingReview);
+                var pendingInstructorsSpec = new InstructorSpec(InstructorStatus.Pending);
+
+                var coursesRepo = _unitOfWork.CreateRepository<Course>();
+                var instructorRepo = _unitOfWork.CreateRepository<Instructor>();
+                // Draft Courses
+                var draftCoursesCountTask = coursesRepo.GetCountAsyncSpec(draftCoursesSpec);
+
+                // Pending Courses
+                var pendingCoursesCountTask = coursesRepo.GetCountAsyncSpec(pendingCoursesSpec);
+
+                // Pending Instructors
+                var pendingInstructorsCountTask = instructorRepo.GetCountAsyncSpec(pendingInstructorsSpec);
+
+                await Task.WhenAll(pendingCoursesCountTask, pendingCoursesCountTask, pendingCoursesCountTask);
+
+                var data = new AdminDashboardQuickActionsResponse
+                {
+                    DraftCoursesCount = await draftCoursesCountTask,
+                    PendingInstructorsCount = await pendingInstructorsCountTask,
+                    PendingCoursesCount = await pendingCoursesCountTask,
+                };
+
+                return ApplicationServiceResult<AdminDashboardQuickActionsResponse>.Success(data, SucceededMessage);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve Quick Actions for Admin {userId}", userId);
+                return ApplicationServiceResult<AdminDashboardQuickActionsResponse>.Fail(LoggerMessage);
             }
         }
         #endregion

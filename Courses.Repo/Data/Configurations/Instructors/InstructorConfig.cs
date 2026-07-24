@@ -41,6 +41,10 @@ namespace Courses.Repo.Data.Configurations.Instructors
                 .IsRequired()
                 .HasDefaultValueSql("GETUTCDATE()");
 
+            builder.Property(i => i.Status)
+                .HasConversion<string>()
+                .HasDefaultValue(InstructorStatus.Pending);
+
             builder.Property(i => i.IsDeleted)
                 .IsRequired()
                 .HasDefaultValue(false);

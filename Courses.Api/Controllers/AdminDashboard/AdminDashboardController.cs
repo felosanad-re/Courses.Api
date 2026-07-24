@@ -12,12 +12,14 @@ namespace Courses.Api.Controllers.AdminDashboard
     [Authorize(Roles = Roles.Admin)]
     public class AdminDashboardController : BaseController
     {
+        #region Services
         protected readonly IAdminDashboardService _adminDashboardService;
 
         public AdminDashboardController(IAdminDashboardService adminDashboardService)
         {
             _adminDashboardService = adminDashboardService;
         }
+        #endregion
 
         #region Get Stats
         [HttpGet("Stats")] // GET: /api/AdminDashboard/Stats
@@ -43,7 +45,7 @@ namespace Courses.Api.Controllers.AdminDashboard
         }
         #endregion
 
-        #region
+        #region Get Lasted Reviews
         [HttpGet("Reviews")] // GET: /api/AdminDashboard/Reviews
         public async Task<ActionResult<List<AdminDashboardReviewsResponse>>> GetLastedReviews()
         {
@@ -54,5 +56,15 @@ namespace Courses.Api.Controllers.AdminDashboard
             return Ok(res);
         }
         #endregion
+
+        [HttpGet("Actions")] // GET: /api/AdminDashboard/Actions
+        public async Task<ActionResult<ApplicationServiceResult<AdminDashboardQuickActionsResponse>>> GetActions()
+        {
+            var res = await _adminDashboardService.GetQuickActionsAsync();
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
     }
 }
