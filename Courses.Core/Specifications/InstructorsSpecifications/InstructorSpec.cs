@@ -18,6 +18,12 @@ namespace Courses.Core.Specifications.InstructorsSpecifications
             Includes.Add(i => i.Courses);
         }
 
+        public InstructorSpec(InstructorStatus status)
+            : base(x => x.Status == status)
+        {
+
+        }
+
         public InstructorSpec(string userId)
             :base(x => x.UserId == userId)
         {

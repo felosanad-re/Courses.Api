@@ -13,6 +13,10 @@ namespace Courses.Core.Models.Instructors
         // The instructor's area of expertise (e.g., "Web Development", "Data Science")
         public string Specialization { get; set; }
 
+        public InstructorStatus Status { get; set; } = InstructorStatus.Pending;
+
+        public DateTime? ApprovedAt { get; set; }
+
         // Navigation to the Identity user account (one-to-one with ApplicationUser)
         public ApplicationUser ApplicationUser { get; set; }
         public string UserId { get; set; }
