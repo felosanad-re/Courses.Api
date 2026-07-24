@@ -17,6 +17,9 @@ namespace Courses.Repo.GenericRepositories
             _dbContext = dbContext;
         }
 
+        public IQueryable<T> GetQuerySpec(ISpecifications<T> spec)
+            => AddSpecifications(spec);
+
         public async Task<IReadOnlyList<T>> GetAllAsync()
             => await BaseQuery().AsNoTracking().ToListAsync();
 

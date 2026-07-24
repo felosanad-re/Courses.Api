@@ -42,5 +42,17 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
         {
 
         }
+
+        public EnrollmentWithSpec(DateTime fromDate)
+            : base(x => x.CreatedAt >= fromDate)
+        {
+            IsTracking = false;
+        }
+
+        public EnrollmentWithSpec()
+            : base()
+        {
+            
+        }
     }
 }

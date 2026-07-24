@@ -9,5 +9,11 @@ namespace Courses.Core.Specifications.StudentSpecifications
         {
             Includes.Add(s => s.ApplicationUser);
         }
+
+        public StudentSpec(DateTime fromDate)
+            : base(x => x.CreatedAt >= fromDate)
+        {
+            IsTracking = false;
+        }
     }
 }

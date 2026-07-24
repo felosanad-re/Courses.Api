@@ -26,5 +26,17 @@ namespace Courses.Core.Specifications.CoursesSpecifications
         {
             
         }
+
+        public CoursesCountWithSpec()
+            : base()
+        {
+
+        }
+
+        public CoursesCountWithSpec(CourseStatus status)
+            : base(x => x.Status == status)
+        {
+            
+        }
     }
 }
