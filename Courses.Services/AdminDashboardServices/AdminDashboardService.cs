@@ -27,6 +27,7 @@ namespace Courses.Services.AdminDashboardServices
             _currentUserService = currentUserService;
         }
 
+        #region Get Stats Async
         public async Task<ApplicationServiceResult<AdminDashboardStatsResponse>> GetStatsAsync()
         {
             const string SucceededMessage = "Dashboard statistics retrieved successfully.";
@@ -77,5 +78,22 @@ namespace Courses.Services.AdminDashboardServices
                 return ApplicationServiceResult<AdminDashboardStatsResponse>.Fail(LoggerMessage);
             }
         }
+        #endregion
+
+        #region GetChartsAsync
+        public Task<ApplicationServiceResult<AdminDashboardChartsResponse>> GetChartsAsync()
+        {
+            const string SucceededMessage = "Dashboard statistics retrieved successfully.";
+            const string LoggerMessage = "Failed to retrieve dashboard statistics.";
+            string? userId = _currentUserService.UserId;
+
+            // Students
+
+            // Enrollments
+
+            // Revenue
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

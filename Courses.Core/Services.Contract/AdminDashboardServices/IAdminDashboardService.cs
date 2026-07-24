@@ -6,5 +6,7 @@ namespace Courses.Core.Services.Contract.AdminDashboardServices
     public interface IAdminDashboardService
     {
         Task<ApplicationServiceResult<AdminDashboardStatsResponse>> GetStatsAsync();
+
+        Task<ApplicationServiceResult<AdminDashboardChartsResponse>> GetChartsAsync();
     }
 }
