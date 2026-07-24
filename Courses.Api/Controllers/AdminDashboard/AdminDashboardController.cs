@@ -31,6 +31,7 @@ namespace Courses.Api.Controllers.AdminDashboard
         }
         #endregion
 
+        #region Get Charts
         [HttpGet("Charts")] // GET: /api/AdminDashboard/Charts
         public async Task<ActionResult<ApplicationServiceResult<AdminDashboardStatsResponse>>> GetCharts()
         {
@@ -40,5 +41,18 @@ namespace Courses.Api.Controllers.AdminDashboard
 
             return Ok(res);
         }
+        #endregion
+
+        #region
+        [HttpGet("Reviews")] // GET: /api/AdminDashboard/Reviews
+        public async Task<ActionResult<List<AdminDashboardReviewsResponse>>> GetLastedReviews()
+        {
+            var res = await _adminDashboardService.GetLatestReviewsAsync();
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
     }
 }

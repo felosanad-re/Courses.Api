@@ -8,5 +8,7 @@ namespace Courses.Core.Services.Contract.AdminDashboardServices
         Task<ApplicationServiceResult<AdminDashboardStatsResponse>> GetStatsAsync();
 
         Task<ApplicationServiceResult<AdminDashboardChartsResponse>> GetChartsAsync();
+
+        Task<ApplicationServiceResult<List<AdminDashboardReviewsResponse>>> GetLatestReviewsAsync();
     }
 }
