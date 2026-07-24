@@ -30,5 +30,15 @@ namespace Courses.Api.Controllers.AdminDashboard
             return Ok(res);
         }
         #endregion
+
+        [HttpGet("Charts")] // GET: /api/AdminDashboard/Charts
+        public async Task<ActionResult<ApplicationServiceResult<AdminDashboardStatsResponse>>> GetCharts()
+        {
+            var res = await _adminDashboardService.GetChartsAsync();
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
     }
 }

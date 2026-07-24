@@ -10,10 +10,10 @@ namespace Courses.Core.Specifications.StudentSpecifications
             Includes.Add(s => s.ApplicationUser);
         }
 
-        public StudentSpec()
-            : base()
+        public StudentSpec(DateTime fromDate)
+            : base(x => x.CreatedAt >= fromDate)
         {
-            
+            IsTracking = false;
         }
     }
 }
