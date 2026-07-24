@@ -6,6 +6,7 @@ namespace Courses.Core.GenericRepository
 {
     public interface IGenericRepository<T> where T : BaseModel
     {
+        IQueryable<T> GetQuerySpec(ISpecifications<T> spec);
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<T?> GetAsync(int id);
         Task<IReadOnlyList<T>> GetAllAsyncSpec(ISpecifications<T> spec);
