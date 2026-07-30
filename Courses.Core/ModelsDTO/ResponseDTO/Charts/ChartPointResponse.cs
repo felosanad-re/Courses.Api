@@ -2,7 +2,7 @@
 {
     public class ChartPointResponse
     {
-        public string Lable { get; set; }
+        public string Label { get; set; }
         public decimal Value { get; set; }
     }
 }

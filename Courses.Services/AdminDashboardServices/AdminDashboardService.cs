@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Courses.Core.Models;
 using Courses.Core.Models.Courses;
 using Courses.Core.Models.Enrollments;
 using Courses.Core.Models.Instructors;
@@ -17,6 +18,9 @@ using Courses.Core.Specifications.StudentSpecifications;
 using Courses.Core.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Courses.Services.AdminDashboardServices
 {
@@ -91,7 +95,7 @@ namespace Courses.Services.AdminDashboardServices
         #endregion
 
         #region GetChartsAsync
-        public async Task<ApplicationServiceResult<AdminDashboardChartsResponse>> GetChartsAsync()
+        public async Task<ApplicationServiceResult<AdminDashboardChartsResponse>> GetChartsAsync(DateTime? fromDate, DateTime? toDate)
         {
             const string SucceededMessage = "Dashboard charts retrieved successfully.";
             const string LoggerMessage = "Failed to retrieve dashboard charts.";
@@ -99,61 +103,109 @@ namespace Courses.Services.AdminDashboardServices
 
             try
             {
-                var fromDate = DateTime.UtcNow.AddDays(-30); // show the last 30 days
+                var start = fromDate ?? DateTime.UtcNow.AddMonths(-12); // show the last Year
+                var end = toDate ?? DateTime.UtcNow;
+                var range = (end - start).TotalDays; // last month| Last 6 months | last year
 
-                var studentSpec = new StudentSpec(fromDate);
-                var enrollmentSpec = new EnrollmentWithSpec(fromDate);
+                var studentSpec = new StudentSpec(start, end);
+                var enrollmentSpec = new EnrollmentWithSpec(start, end);
 
                 var enrollmentRepo = _unitOfWork.CreateRepository<Enrollment>();
 
                 // Students
                 var studentQuery = _unitOfWork.CreateRepository<Student>().GetQuerySpec(studentSpec);
 
-                var studentChart = await studentQuery
-                .GroupBy(x => new
-                {
-                    x.CreatedAt.Year,
-                    x.CreatedAt.Month
-                })
-                .OrderBy(x => x.Key.Year)
-                .ThenBy(x => x.Key.Month)
-                .Select(x => new ChartPointResponse
-                {
-                    Lable = $"{x.Key.Year}/{x.Key.Month}",
-                    Value = x.Count()
-                }).ToListAsync();
-
                 // Enrollments
                 var enrollmentQuery = enrollmentRepo.GetQuerySpec(enrollmentSpec);
 
-                var enrollmentChart = await enrollmentQuery
-                .GroupBy(x => new
-                {
-                    x.CreatedAt.Year,
-                    x.CreatedAt.Month
-                })
-                .OrderBy(x => x.Key.Year)
-                .ThenBy(x => x.Key.Month)
-                .Select(x => new ChartPointResponse
-                {
-                    Lable = $"{x.Key.Year}/{x.Key.Month}",
-                    Value = x.Count()
-                }).ToListAsync();
+                List<ChartPointResponse> studentChart;
+                List<ChartPointResponse> enrollmentChart;
+                List<ChartPointResponse> revenueChart;
 
-                // Revenue
-                var revenueChart = await enrollmentQuery
-                .GroupBy(x => new
+                if (range <= 30)
                 {
-                    x.CreatedAt.Year,
-                    x.CreatedAt.Month
-                })
-                .OrderBy(x => x.Key.Year)
-                .ThenBy(x => x.Key.Month)
-                .Select(x => new ChartPointResponse
+                    var studentGrouped = await studentQuery.GroupBy(x => new
+                    {
+                        x.CreatedAt.Date
+                    })
+                    .Select(x => new ChartPointResponse
+                    {
+                        Label = x.Key.Date.ToString("yyyy-MM-dd"),
+                        Value = x.Count()
+                    }).ToDictionaryAsync(x => x.Label);
+
+                    var enrollmentGrouped = await enrollmentQuery
+                    .GroupBy(x => new
+                    {
+                        x.CreatedAt.Date
+                    })
+                    .Select(x => new ChartPointResponse
+                     {
+                         Label = x.Key.Date.ToString("yyyy-MM-dd"),
+                         Value = x.Count()
+                     }).ToDictionaryAsync(x => x.Label);
+
+                    // Revenue
+                    var revenueGrouped = await enrollmentQuery
+                        .GroupBy(x => new
+                        {
+                            x.CreatedAt.Date
+                        })
+                        .Select(x => new ChartPointResponse
+                        {
+                            Label= x.Key.Date.ToString("yyyy-MM-dd"),
+                            Value = x.Sum(x => x.Amount)
+                        }).ToDictionaryAsync(x => x.Label);
+
+                    studentChart = NormalizeByDay(studentGrouped, start, end);
+                    enrollmentChart = NormalizeByDay(enrollmentGrouped, start, end);
+                    revenueChart = NormalizeByDay(revenueGrouped, start, end);
+                }
+
+                else
                 {
-                    Lable = $"{x.Key.Year}/{x.Key.Month}",
-                    Value = x.Sum(x => x.Amount)
-                }).ToListAsync();
+                    var studentGrouped = await studentQuery
+                        .GroupBy(x => new
+                        {
+                            x.CreatedAt.Year,
+                            x.CreatedAt.Month
+                        })
+                        .Select(x => new ChartPointResponse
+                        {
+                            Label = new DateTime(x.Key.Year, x.Key.Month, 1).ToString("yyyy-MM"),
+                            Value = x.Count()
+                        }).ToDictionaryAsync(x => x.Label);
+
+                    var enrollmentGrouped = await enrollmentQuery
+                        .GroupBy(x => new
+                        {
+                            x.CreatedAt.Year,
+                            x.CreatedAt.Month
+                        })
+                        .Select(x => new ChartPointResponse
+                        {
+                            Label = new DateTime(x.Key.Year, x.Key.Month, 1).ToString("yyyy-MM"),
+                            Value = x.Count()
+                        }).ToDictionaryAsync(x => x.Label);
+
+                    // Revenue
+                    var revenueGrouped = await enrollmentQuery
+                        .GroupBy(x => new
+                        {
+                            x.CreatedAt.Year,
+                            x.CreatedAt.Month
+                        })
+                        .Select(x => new ChartPointResponse
+                        {
+                            Label = new DateTime(x.Key.Year, x.Key.Month, 1)
+                            .ToString("yyyy-MM"),
+                            Value = x.Sum(x => x.Amount)
+                        }).ToDictionaryAsync(x => x.Label);
+
+                    studentChart = NormalizeByMonth(studentGrouped, start, end);
+                    enrollmentChart = NormalizeByMonth(enrollmentGrouped, start, end);
+                    revenueChart = NormalizeByMonth(revenueGrouped, start, end);
+                }
 
                 var charts = new AdminDashboardChartsResponse
                 {
@@ -238,21 +290,19 @@ namespace Courses.Services.AdminDashboardServices
                 var coursesRepo = _unitOfWork.CreateRepository<Course>();
                 var instructorRepo = _unitOfWork.CreateRepository<Instructor>();
                 // Draft Courses
-                var draftCoursesCountTask = coursesRepo.GetCountAsyncSpec(draftCoursesSpec);
+                var draftCoursesCount = await coursesRepo.GetCountAsyncSpec(draftCoursesSpec);
 
                 // Pending Courses
-                var pendingCoursesCountTask = coursesRepo.GetCountAsyncSpec(pendingCoursesSpec);
+                var pendingCoursesCount = await coursesRepo.GetCountAsyncSpec(pendingCoursesSpec);
 
                 // Pending Instructors
-                var pendingInstructorsCountTask = instructorRepo.GetCountAsyncSpec(pendingInstructorsSpec);
-
-                await Task.WhenAll(pendingCoursesCountTask, pendingCoursesCountTask, pendingCoursesCountTask);
+                var pendingInstructorsCount = await instructorRepo.GetCountAsyncSpec(pendingInstructorsSpec);
 
                 var data = new AdminDashboardQuickActionsResponse
                 {
-                    DraftCoursesCount = await draftCoursesCountTask,
-                    PendingInstructorsCount = await pendingInstructorsCountTask,
-                    PendingCoursesCount = await pendingCoursesCountTask,
+                    DraftCoursesCount = draftCoursesCount,
+                    PendingInstructorsCount = pendingInstructorsCount,
+                    PendingCoursesCount = pendingCoursesCount,
                 };
 
                 return ApplicationServiceResult<AdminDashboardQuickActionsResponse>.Success(data, SucceededMessage);
@@ -262,6 +312,52 @@ namespace Courses.Services.AdminDashboardServices
                 _logger.LogError(ex, "there is a problem when try to retrieve Quick Actions for Admin {userId}", userId);
                 return ApplicationServiceResult<AdminDashboardQuickActionsResponse>.Fail(LoggerMessage);
             }
+        }
+        #endregion
+
+        #region Helper Method
+        private List<ChartPointResponse> NormalizeByDay(Dictionary<string, ChartPointResponse> dict, DateTime fromDate, DateTime toDate)
+        {
+            // Normalize
+            var result = new List<ChartPointResponse>();
+            for (var date = fromDate.Date; date <= toDate.Date; date = date.AddDays(+1))
+            {
+                var label = date.ToString("yyyy-MM-dd");
+
+                if (dict.TryGetValue(label, out var item))
+                    result.Add(item);
+                else
+                    result.Add(new ChartPointResponse
+                    {
+                        Label = label,
+                        Value = 0
+                    });
+            }
+
+            return result;
+        }
+
+        private List<ChartPointResponse> NormalizeByMonth(Dictionary<string, ChartPointResponse> dict, DateTime fromDate, DateTime toDate)
+        {
+            // Normalize
+            var result = new List<ChartPointResponse>();
+            var currentMonth = new DateTime(fromDate.Year, fromDate.Month, 1);
+            var lastMonth = new DateTime(toDate.Year, toDate.Month, 1);
+            while (currentMonth <= lastMonth)
+            {
+                var label = currentMonth.ToString("yyyy-MM");
+                if (dict.TryGetValue(label, out var item))
+                    result.Add(item);
+                else
+                    result.Add(new ChartPointResponse
+                    {
+                        Label = label,
+                        Value = 0
+                    });
+                currentMonth = currentMonth.AddMonths(1);
+            }
+
+            return result;
         }
         #endregion
     }

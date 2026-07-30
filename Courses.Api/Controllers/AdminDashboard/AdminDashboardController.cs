@@ -35,9 +35,9 @@ namespace Courses.Api.Controllers.AdminDashboard
 
         #region Get Charts
         [HttpGet("Charts")] // GET: /api/AdminDashboard/Charts
-        public async Task<ActionResult<ApplicationServiceResult<AdminDashboardStatsResponse>>> GetCharts()
+        public async Task<ActionResult<ApplicationServiceResult<AdminDashboardStatsResponse>>> GetCharts([FromQuery]DateTime? fromDate, [FromQuery]DateTime? toDate)
         {
-            var res = await _adminDashboardService.GetChartsAsync();
+            var res = await _adminDashboardService.GetChartsAsync(fromDate, toDate);
             if (!res.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
 
@@ -57,6 +57,7 @@ namespace Courses.Api.Controllers.AdminDashboard
         }
         #endregion
 
+        #region Get Actions
         [HttpGet("Actions")] // GET: /api/AdminDashboard/Actions
         public async Task<ActionResult<ApplicationServiceResult<AdminDashboardQuickActionsResponse>>> GetActions()
         {
@@ -66,5 +67,6 @@ namespace Courses.Api.Controllers.AdminDashboard
 
             return Ok(res);
         }
+        #endregion
     }
 }
