@@ -43,8 +43,11 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
 
         }
 
-        public EnrollmentWithSpec(DateTime fromDate)
-            : base(x => x.CreatedAt >= fromDate)
+        public EnrollmentWithSpec(DateTime fromDate, DateTime toDate)
+            : base(x =>
+                (x.CreatedAt >= fromDate)&&
+                (x.CreatedAt <= toDate)
+            )
         {
             IsTracking = false;
         }
