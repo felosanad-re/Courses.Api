@@ -62,6 +62,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IAdminManagementCoursesServices, AdminManagementCoursesServices>();
             services.AddScoped<ICurrentAdminService, CurrentAdminService>();
             services.AddScoped<IAdminDashboardService, AdminDashboardService>();
             services.AddScoped<ICourseRatingService, CourseRatingService>();
