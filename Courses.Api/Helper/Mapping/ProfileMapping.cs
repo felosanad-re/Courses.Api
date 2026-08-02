@@ -80,6 +80,9 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Name));
             CreateMap<Course, CourseTypesResponse>();
             CreateMap<Course, CourseResponseForSubmit>();
+
+            CreateMap<Course, AdminCoursesResponse>()
+                .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name));
             #endregion
 
             CreateMap<CourseCategory, CourseCategoryToReturnDTO>();

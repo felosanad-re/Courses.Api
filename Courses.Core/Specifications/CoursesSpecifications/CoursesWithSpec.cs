@@ -19,6 +19,22 @@ namespace Courses.Core.Specifications.CoursesSpecifications
 
             AddSorting(@params);
         }
+
+        public CoursesWithSpec(CoursesParams @params, CourseType courseType)
+            :base(x =>
+                (string.IsNullOrEmpty(@params.Search) || x.Name.ToLower().Contains(@params.Search.Trim().ToLower())) &&
+                (!@params.Type.HasValue || x.CourseCategoryId == @params.Type)&&
+                (x.Type == courseType)&&
+                (x.Status == CourseStatus.Published)
+            )
+        {
+            Includes.Add(c => c.CourseCategory);
+
+            AddPagination(@params.PageSize * (@params.PageIndex - 1), @params.PageSize);
+
+            AddSorting(@params);
+        }
+
         public CoursesWithSpec(int courseId)
             : base(x => x.Id == courseId)
         {
@@ -26,6 +42,12 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             Includes.Add(c => c.Sections);
             IncludesString.Add("Sections.Lectures");
             Includes.Add(c => c.Instructor);
+        }
+
+        public CoursesWithSpec(int courseId, CourseType type)
+            : base(x => x.Id == courseId && x.Type == type)
+        {
+
         }
         #region Helper method
         private void AddSorting(CoursesParams @params)
