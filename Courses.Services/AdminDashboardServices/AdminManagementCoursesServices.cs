@@ -87,6 +87,9 @@ namespace Courses.Services.AdminDashboardServices
         #region Get Course Details Async
         public async Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId, CourseType type)
         {
+            if(!Enum.IsDefined(typeof(CourseType), type))
+                return ApplicationServiceResult<CourseDetailsToReturnDTO>.Fail("Course Type Is Required");
+
             const string SucceededMessage = "You get course details succeeded.";
             const string ErrorMessage = "There is no course with this Id.";
             const string LoggerMessage = "Failed to retrieve Course details.";
@@ -103,16 +106,17 @@ namespace Courses.Services.AdminDashboardServices
                 if(type == CourseType.RecorderCourse)
                 {
                     course = await GetRecordedCourseDetails(courseRepo, coureseSpec);
-                    course.Image = $"{_configuration["BasePictureUrl"]}/Files/Images/{course.Image}";
                 }
                 else
                 {
                     course = await GetOnlineCourseDetails(courseRepo, coureseSpec);
-                    course.Image = $"{_configuration["BasePictureUrl"]}/Files/Images/{course.Image}";
                 }
 
                 if(course is null)
                     return ApplicationServiceResult<CourseDetailsToReturnDTO>.Fail(ErrorMessage);
+
+                course.Image = $"{_configuration["BasePictureUrl"]}/Files/Images/{course.Image}";
+
                 return ApplicationServiceResult<CourseDetailsToReturnDTO>.Success(course, SucceededMessage);
             }
             catch (Exception ex)
