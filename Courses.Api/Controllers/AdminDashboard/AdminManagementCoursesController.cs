@@ -21,10 +21,11 @@ namespace Courses.Api.Controllers.AdminDashboard
         }
 
         #region Get Courses
-        [HttpGet("Courses")] // GET: /api/AdminManagementCourses/Courses
-        public async Task<ActionResult<ApplicationServiceResult<Pagination<AdminCoursesResponse>>>> GetCourses([FromQuery] CoursesParams param, [FromQuery] CourseType courseType)
+        // GET: /api/AdminManagementCourses/Courses?courseType={courseType}?courseStatus={courseStatus}
+        [HttpGet("Courses")]
+        public async Task<ActionResult<ApplicationServiceResult<Pagination<AdminCoursesResponse>>>> GetCourses([FromQuery] CoursesParams param, [FromQuery] CourseType? courseType, [FromQuery] CourseStatus? status)
         {
-            var res = await _adminManagementCoursesServices.GetAllCoursesAsync(param, courseType);
+            var res = await _adminManagementCoursesServices.GetAllCoursesAsync(param, courseType, status);
             if (!res.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
 
