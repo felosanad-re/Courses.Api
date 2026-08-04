@@ -8,7 +8,7 @@ namespace Courses.Core.Services.Contract.AdminDashboardServices
 {
     public interface IAdminManagementCoursesServices
     {
-        Task<ApplicationServiceResult<Pagination<AdminCoursesResponse>>> GetAllCoursesAsync(CoursesParams param, CourseType courseType);
+        Task<ApplicationServiceResult<Pagination<AdminCoursesResponse>>> GetAllCoursesAsync(CoursesParams param, CourseType? courseType, CourseStatus? status);
 
         Task<ApplicationServiceResult<CourseDetailsToReturnDTO>> GetCourseDetailsAsync(int courseId, CourseType type);
 

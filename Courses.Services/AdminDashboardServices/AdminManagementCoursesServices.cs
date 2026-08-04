@@ -39,7 +39,7 @@ namespace Courses.Services.AdminDashboardServices
         #endregion
 
         #region Get All Courses Async
-        public async Task<ApplicationServiceResult<Pagination<AdminCoursesResponse>>> GetAllCoursesAsync(CoursesParams param, CourseType courseType)
+        public async Task<ApplicationServiceResult<Pagination<AdminCoursesResponse>>> GetAllCoursesAsync(CoursesParams param, CourseType? courseType, CourseStatus? status)
         {
             const string SucceededMessage = "You get all courses succeeded.";
             const string WarningMessage = "There is no courses yet.";
@@ -49,8 +49,8 @@ namespace Courses.Services.AdminDashboardServices
             try
             {
                 // Get All Courses
-                var couresesSpec = new CoursesWithSpec(param, courseType);
-                var coursesCountSpec = new CoursesCountWithSpec(param);
+                var couresesSpec = new CoursesWithAdminSpec(param, courseType, status);
+                var coursesCountSpec = new CoursesWithAdminCountSpec(param, courseType, status);
                 var coursesRepo = _unitOfWork.CreateRepository<Course>();
 
                 var totalCoursesCount = await coursesRepo.GetCountAsyncSpec(coursesCountSpec);
