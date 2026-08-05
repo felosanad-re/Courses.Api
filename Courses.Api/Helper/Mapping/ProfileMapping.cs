@@ -83,6 +83,10 @@ namespace Courses.Api.Helper.Mapping
 
             CreateMap<Course, AdminCoursesResponse>()
                 .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name));
+
+            CreateMap<Course, AdminInstructorCoursesResponse>()
+                .ForMember(d => d.CourseCategoryName, o => o.MapFrom(s => s.CourseCategory.Name))
+                .ForMember(d => d.NumberOfSections, o => o.MapFrom(s => s.Sections.Count));
             #endregion
 
             CreateMap<CourseCategory, CourseCategoryToReturnDTO>();
@@ -186,8 +190,15 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Student, AdminWithStudentDetailsResponse>();
             #endregion
 
+            #region Instructors
             CreateMap<Instructor, InstructorWithApplicationUserResponse>();
+            CreateMap<Instructor, AdminInstructorResponse>()
+                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count));
+            CreateMap<Instructor, AdminInstructorDetailsResponse>()
+                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count));
+            #endregion
 
+            #region Course Rating
             CreateMap<CourseRating, DashboardInstructorReviewsDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
@@ -195,6 +206,7 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<CourseRating, AdminDashboardReviewsResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+            #endregion
         }
     }
 }
