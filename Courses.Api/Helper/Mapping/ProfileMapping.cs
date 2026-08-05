@@ -113,6 +113,8 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.CourseId, o => o.MapFrom(s => s.CourseId))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name))
                 .ForMember(d => d.CourseTitle, o => o.MapFrom(s => s.Course.Name));
+
+            CreateMap<Enrollment, AdminEnrollmentsWithStudentResponse>();
             #endregion
 
             #region Lecture
@@ -175,7 +177,14 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.Url, o => o.MapFrom(s => s.StudentJoinUrl));
             #endregion
 
+            #region Students
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
+
+            CreateMap<Student, AdminWithStudentResponse>()
+                .ForMember(d => d.NumberOfEnrollments, o => o.MapFrom(s => s.Enrollments.Count));
+
+            CreateMap<Student, AdminWithStudentDetailsResponse>();
+            #endregion
 
             CreateMap<Instructor, InstructorWithApplicationUserResponse>();
 
