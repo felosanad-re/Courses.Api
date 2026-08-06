@@ -62,6 +62,9 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IAdminManagementAccountService, AdminManagementAccountService>();
+            services.AddScoped<IAdminManagementInstructors, AdminManagementInstructors>();
+            services.AddScoped<IAdminManagementStudents, AdminManagementStudents>();
             services.AddScoped<IAdminManagementCoursesServices, AdminManagementCoursesServices>();
             services.AddScoped<ICurrentAdminService, CurrentAdminService>();
             services.AddScoped<IAdminDashboardService, AdminDashboardService>();

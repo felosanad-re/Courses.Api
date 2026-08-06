@@ -1,4 +1,5 @@
 ﻿using Courses.Core.Models.Students;
+using Courses.Core.ModelsDTO.RequestDTO.Students;
 
 namespace Courses.Core.Specifications.StudentSpecifications
 {
