@@ -16,5 +16,17 @@ namespace Courses.Core.Models.ApplicationUsers
 
         // Soft delete flag — separate from Identity's LockoutEnd
         public bool IsDeleted { get; set; }
+
+        public AccountStatus Status { get; set; } = AccountStatus.Active;
+
+        public DateTime? SuspendedAt { get; set; }
+
+        public string? SuspendedBy { get; set; } // Admin Id
+
+        public string? SuspensionReason { get; set; }
+
+        public DateTime? DeletedAt { get; set; }
+
+        public string? DeletedBy { get; set; } // Admin Id
     }
 }

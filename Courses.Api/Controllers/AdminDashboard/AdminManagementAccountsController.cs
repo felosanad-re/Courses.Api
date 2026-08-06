@@ -1,6 +1,7 @@
 ﻿using Courses.Api.ErrorHandler;
 using Courses.Core;
 using Courses.Core.ModelsDTO;
+using Courses.Core.ModelsDTO.RequestDTO.Account.AdminManagementAccounts;
 using Courses.Core.ModelsDTO.RequestDTO.Instructors;
 using Courses.Core.ModelsDTO.RequestDTO.Students;
 using Courses.Core.ModelsDTO.ResponseDTO.AdminDashboard;
@@ -16,11 +17,13 @@ namespace Courses.Api.Controllers.AdminDashboard
         #region Services
         protected readonly IAdminManagementStudents _adminManagementStudents;
         protected readonly IAdminManagementInstructors _adminManagementInstructors;
+        protected readonly IAdminManagementAccountService _adminManagementAccountService;
 
-        public AdminManagementAccountsController(IAdminManagementStudents adminManagementStudents, IAdminManagementInstructors adminManagementInstructors)
+        public AdminManagementAccountsController(IAdminManagementStudents adminManagementStudents, IAdminManagementInstructors adminManagementInstructors, IAdminManagementAccountService adminManagementAccountService)
         {
             _adminManagementStudents = adminManagementStudents;
             _adminManagementInstructors = adminManagementInstructors;
+            _adminManagementAccountService = adminManagementAccountService;
         }
         #endregion
 
@@ -65,6 +68,54 @@ namespace Courses.Api.Controllers.AdminDashboard
         public async Task<ActionResult<ApplicationServiceResult<AdminInstructorDetailsResponse>>> GetInstructor(int instructorId)
         {
             var res = await _adminManagementInstructors.GetInstructorDetailsAsync(instructorId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
+        #region Suspend Account
+        [HttpPatch("{userId}/Suspend")] // PATCH: /api/AdminManagementAccounts/{userId}/Suspend
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> SuspendAccount(AccountActionRequest req, string userId)
+        {
+            var res = await _adminManagementAccountService.SuspendAccountAsync(req, userId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
+        #region Activate Account
+        [HttpPatch("{userId}/Activate")] // PATCH: /api/AdminManagementAccounts/{userId}/Activate
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> ActivateAccount(string userId)
+        {
+            var res = await _adminManagementAccountService.ActivateAccountAsync(userId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
+        #region Delete Account
+        [HttpPatch("{userId}/Delete")] // PATCH: /api/AdminManagementAccounts/{userId}/Delete
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> DeleteAccount(AccountActionRequest req, string userId)
+        {
+            var res = await _adminManagementAccountService.DeleteAccountAsync(req, userId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
+        #region Restore Account
+        [HttpPatch("{userId}/Restore")] // PATCH: /api/AdminManagementAccounts/{userId}/Restore
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> RestoreAccount(string userId)
+        {
+            var res = await _adminManagementAccountService.RestoreAccountAsync(userId);
             if (!res.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
 
