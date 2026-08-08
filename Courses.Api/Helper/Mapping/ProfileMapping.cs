@@ -187,7 +187,12 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Student, AdminWithStudentResponse>()
                 .ForMember(d => d.NumberOfEnrollments, o => o.MapFrom(s => s.Enrollments.Count));
 
-            CreateMap<Student, AdminWithStudentDetailsResponse>();
+            CreateMap<Student, AdminWithStudentDetailsResponse>()
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.ApplicationUser.Email))
+                .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.ApplicationUser.PhoneNumber))
+                .ForMember(d => d.Address, o => o.MapFrom(s => s.ApplicationUser.Address))
+                .ForMember(d => d.UserName, o => o.MapFrom(s => s.ApplicationUser.UserName))
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.ApplicationUser.Status));
             #endregion
 
             #region Instructors

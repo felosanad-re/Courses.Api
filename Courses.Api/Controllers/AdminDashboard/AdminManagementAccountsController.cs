@@ -41,7 +41,7 @@ namespace Courses.Api.Controllers.AdminDashboard
 
         #region Get Student
         [HttpGet("Student/{studentId}")] // GET: /api/AdminManagementAccounts/Student/1
-        public async Task<ActionResult<ApplicationServiceResult<Pagination<AdminWithStudentResponse>>>> GetStudent(int studentId)
+        public async Task<ActionResult<ApplicationServiceResult<AdminWithStudentDetailsResponse>>> GetStudent(int studentId)
         {
             var res = await _adminManagementStudents.GetStudentDetailsAsync(studentId);
             if(!res.Succeed)
