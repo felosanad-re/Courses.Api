@@ -20,6 +20,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
         {
             IsTracking = false;
             Includes.Add(x => x.Enrollments);
+            Includes.Add(x => x.ApplicationUser);
             IncludesString.Add("Enrollments.Course");
         }
     }

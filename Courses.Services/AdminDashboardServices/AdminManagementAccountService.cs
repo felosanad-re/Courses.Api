@@ -164,11 +164,13 @@ namespace Courses.Services.AdminDashboardServices
             {
                 user.DeletedAt = DateTime.UtcNow;
                 user.DeletedBy = adminName;
+                user.Status = AccountStatus.Suspended;
             }
             else
             {
                 user.DeletedAt = null;
                 user.DeletedBy = null;
+                user.Status = AccountStatus.Active;
             }
 
             var res = await _userManager.UpdateAsync(user);
