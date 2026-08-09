@@ -8,6 +8,19 @@
         public int NumberOfCourses { get; set; }
         public int Age { get; set; }
 
+        public string UserId { get; set; }
+        public string Status { get; set; }
+
+        public bool IsDeleted { get; set; }
+
+        public string Address { get; set; }
+
+        public string UserName { get; set; }
+
+        public string Email { get; set; }
+
+        public int PhoneNumber { get; set; }
+
 
         // NOTE:
         // For portfolio simplicity, instructor courses are returned with the details response.

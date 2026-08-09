@@ -8,6 +8,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
         public AdminWithInstructorSpec(InstructorParams param)
             : base()
         {
+            Includes.Add(i => i.Courses);
             AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
         }
 
@@ -15,6 +16,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
             : base(x => x.Id == instructorId)
         {
             Includes.Add(x => x.Courses);
+            Includes.Add(x => x.ApplicationUser);
             IncludesString.Add("Courses.CourseCategory");
             IncludesString.Add("Courses.Sections");
         }
