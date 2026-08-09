@@ -200,7 +200,12 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Instructor, AdminInstructorResponse>()
                 .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count));
             CreateMap<Instructor, AdminInstructorDetailsResponse>()
-                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count));
+                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count))
+                 .ForMember(d => d.Email, o => o.MapFrom(s => s.ApplicationUser.Email))
+                .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.ApplicationUser.PhoneNumber))
+                .ForMember(d => d.Address, o => o.MapFrom(s => s.ApplicationUser.Address))
+                .ForMember(d => d.UserName, o => o.MapFrom(s => s.ApplicationUser.UserName))
+                .ForMember(d => d.IsDeleted, o => o.MapFrom(s => s.ApplicationUser.IsDeleted));
             #endregion
 
             #region Course Rating

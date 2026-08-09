@@ -7,6 +7,9 @@
         public string CreatedAt { get; set; }
         public int NumberOfCourses { get; set; }
         public int Age { get; set; }
+        public string Specialization { get; set; }
+
+        public DateTime? ApprovedAt { get; set; }
 
         public string UserId { get; set; }
     }
