@@ -216,6 +216,15 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<CourseRating, AdminDashboardReviewsResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
                 .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+
+            CreateMap<CourseRating, AdminCoursesReviewsResponse>()
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<CourseRating, AdminCoursesReviewsResponse>,string>(s => s.Course.Image))
+                .ForMember(d => d.RatingCount, o => o.MapFrom(s => s.Course.RatingCount))
+                .ForMember(d => d.AverageRating, o => o.MapFrom(s => s.Course.AverageRating));
+
+            CreateMap<CourseRating, AdminReviewDetailsResponse>()
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<CourseRating, AdminReviewDetailsResponse>,string>(s => s.Course.Image));
+
             #endregion
         }
     }
