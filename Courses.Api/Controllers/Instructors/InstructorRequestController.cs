@@ -4,6 +4,7 @@ using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.Services.Contract.InstructorServices;
+using Courses.Core.Specifications.InstructorRequestSpecifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,14 +26,14 @@ namespace Courses.Api.Controllers.Instructors
         /// <summary>
         /// Apply to become an instructor (Student only)
         /// </summary>
-        [HttpPost("Apply")]
+        [HttpPost("Apply/{instructorId}")] // POST: /api/InstructorRequest/Apply
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [Authorize(Roles = "Student")]
-        public async Task<ActionResult<ApplicationServiceResult<ApplyInstructorResponse>>> Apply([FromBody] ApplyInstructorRequest req)
+        public async Task<ActionResult<ApplicationServiceResult<ApplyInstructorResponse>>> Apply([FromBody] ApplyInstructorRequest req, string instructorId)
         {
-            var result = await _instructorRequestService.ApplyInstructorRequest(req);
+            var result = await _instructorRequestService.ApplyInstructorRequest(req, instructorId);
             if (!result.Succeed)
             {
                 return BadRequest(new ErrorResponse(400)
@@ -53,9 +54,9 @@ namespace Courses.Api.Controllers.Instructors
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<ApplyInstructorResponse>>>> GetAll()
+        public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<ApplyInstructorResponse>>>> GetAll([FromQuery] InstructorRequestParams param)
         {
-            var result = await _instructorRequestService.GetAllRequests();
+            var result = await _instructorRequestService.GetAllRequests(param);
             if (!result.Succeed)
             {
                 return BadRequest(new { message = result.Message });

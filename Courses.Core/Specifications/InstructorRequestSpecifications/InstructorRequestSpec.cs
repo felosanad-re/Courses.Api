@@ -5,10 +5,13 @@ namespace Courses.Core.Specifications.InstructorRequestSpecifications
     public class InstructorRequestSpec : BaseSpecifications<InstructorRequest>
     {
 
-        public InstructorRequestSpec()
-            :base()
+        public InstructorRequestSpec(InstructorRequestParams param)
+            :base(x => string.IsNullOrEmpty(param.Search) || x.Instructor.Name.Contains(param.Search))
         {
             Includes.Add(x => x.User);
+
+            AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
+            AddOrderByDesc(x => x.CreatedAt);
         }
 
         public InstructorRequestSpec(string? userId)

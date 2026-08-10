@@ -1,3 +1,4 @@
+using AutoMapper;
 using Courses.Core;
 using Courses.Core.Models.ApplicationUsers;
 using Courses.Core.Models.Instructors;
@@ -15,40 +16,46 @@ namespace Courses.Services.InstructorServices
 {
     public class InstructorRequestService : IInstructorRequestService
     {
+        private const string ErrorMessage = "User not found";
         #region Inject Services
 
         protected readonly IUnitOfWork _unitOfWork;
         protected readonly UserManager<ApplicationUser> _userManager;
         protected readonly ICurrentUserService _currentUserService;
         protected readonly ILogger<InstructorRequestService> _logger;
+        protected readonly IMapper _mapper;
 
         public InstructorRequestService(
             IUnitOfWork unitOfWork,
             UserManager<ApplicationUser> userManager,
             ICurrentUserService currentUserService,
-            ILogger<InstructorRequestService> logger)
+            ILogger<InstructorRequestService> logger,
+            IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
             _currentUserService = currentUserService;
             _logger = logger;
+            _mapper = mapper;
         }
 
         #endregion
 
         #region ApplyInstructorRequest
 
-        public async Task<ApplicationServiceResult<ApplyInstructorResponse>> ApplyInstructorRequest(ApplyInstructorRequest req)
+        public async Task<ApplicationServiceResult<ApplyInstructorResponse>> ApplyInstructorRequest(ApplyInstructorRequest req, string instructorId)
         {
+
+            string? adminId = null;
+            string? adminName = null;
             try
             {
-                var userId = _currentUserService.UserId;
-                if (string.IsNullOrEmpty(userId))
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("User not authenticated");
+                adminId = _currentUserService.UserId;
+                adminName = _currentUserService.UserName;
 
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(instructorId);
                 if (user == null)
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("User not found");
+                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail(ErrorMessage);
 
                 // Check if user is already an instructor
                 var userRoles = await _userManager.GetRolesAsync(user);
@@ -58,19 +65,19 @@ namespace Courses.Services.InstructorServices
                 // Check if there's already a pending request
                 var instructorRequestRepo = _unitOfWork.CreateRepository<InstructorRequest>();
                 // x => x.UserId == userId && x.Status == InstructorRequestStatus.Pending
-                var existingRequest = await instructorRequestRepo.GetAsyncSpec(new InstructorRequestSpec(userId));
+                var existingRequest = await instructorRequestRepo.GetAsyncSpec(new InstructorRequestSpec(instructorId));
                 if (existingRequest != null)
                     return ApplicationServiceResult<ApplyInstructorResponse>.Fail("You already have a pending request");
 
                 // Create new request
                 var instructorRequest = new InstructorRequest
                 {
-                    UserId = userId,
+                    UserId = instructorId,
                     Bio = req.Bio,
                     Specialty = req.Specialty,
                     ExperienceYears = req.ExperienceYears,
                     Status = InstructorRequestStatus.Pending,
-                    CreatedBy = userId
+                    CreatedBy = adminName
                 };
 
                 await instructorRequestRepo.AddAsync(instructorRequest);
@@ -81,7 +88,7 @@ namespace Courses.Services.InstructorServices
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, "there is a problem when try to apply request for instructor {instructorId}, by admin {adminId}", instructorId, adminId);
                 return ApplicationServiceResult<ApplyInstructorResponse>.Fail("There is an error in the database");
             }
         }
@@ -114,9 +121,7 @@ namespace Courses.Services.InstructorServices
                 // Add Instructor role to user
                 var user = await _userManager.FindByIdAsync(request.UserId);
                 if (user != null)
-                {
                     await _userManager.AddToRoleAsync(user, Roles.Instructor);
-                }
 
                 await _unitOfWork.CompleteAsync();
 
@@ -172,26 +177,34 @@ namespace Courses.Services.InstructorServices
 
         #region GetAllRequests
 
-        public async Task<ApplicationServiceResult<IReadOnlyList<ApplyInstructorResponse>>> GetAllRequests()
+        public async Task<ApplicationServiceResult<Pagination<ApplyInstructorResponse>>> GetAllRequests(InstructorRequestParams param)
         {
             try
             {
+                param.Search = param.Search?.ToLower().Trim();
                 var instructorRequestRepo = _unitOfWork.CreateRepository<InstructorRequest>();
-                var requests = await instructorRequestRepo.GetAllAsyncSpec(new InstructorRequestSpec());
+                var instructorSpec = new InstructorRequestSpec(param);
+                var instructorCountSpec = new InstructorCountRequest(param);
 
-                var responses = new List<ApplyInstructorResponse>();
-                foreach (var request in requests)
-                {
-                    var user = await _userManager.FindByIdAsync(request.UserId);
-                    responses.Add(MapToResponse(request, user!));
-                }
+                var totalCountRequests = await instructorRequestRepo.GetCountAsyncSpec(instructorCountSpec);
 
-                return ApplicationServiceResult<IReadOnlyList<ApplyInstructorResponse>>.Success(responses, "This all instructors requests");
+                if (totalCountRequests == 0)
+                    return ApplicationServiceResult<Pagination<ApplyInstructorResponse>>.Success(new Pagination<ApplyInstructorResponse>(param.PageIndex, param.PageSize, 0, []), "This all instructors requests");
+                var requests = await instructorRequestRepo.GetAllAsyncSpec(instructorSpec);
+
+                var data = _mapper.Map<IReadOnlyList<ApplyInstructorResponse>>(requests);
+                var pagnator = new Pagination<ApplyInstructorResponse>(
+                        param.PageIndex,
+                        param.PageSize,
+                        totalCountRequests,
+                        data
+                    );
+                return ApplicationServiceResult<Pagination<ApplyInstructorResponse>>.Success(pagnator, "This all instructors requests");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return ApplicationServiceResult<IReadOnlyList<ApplyInstructorResponse>>.Fail("There is an error in the database");
+                return ApplicationServiceResult<Pagination<ApplyInstructorResponse>>.Fail("There is an error in the database");
             }
         }
 
