@@ -11,6 +11,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
         {
             Includes.Add(x => x.Course);
             Includes.Add(x => x.Student);
+            IncludesString.Add("Student.ApplicationUser");
 
             AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
 
@@ -23,6 +24,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
         {
             Includes.Add(x => x.Course);
             Includes.Add(x => x.Student);
+            IncludesString.Add("Student.ApplicationUser");
 
             IsTracking = true;
         }

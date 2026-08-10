@@ -77,10 +77,8 @@ namespace Courses.Services.AccountServices
                 var studentRepo = _unitOfWork.CreateRepository<Student>();
                 var student = new Student
                 {
-                    Name = $"{req.FirstName} {req.LastName}",
                     UserId = user.Id,
                     CreatedBy = user.Id,
-                    Birthday = new DateTime(1800, 1, 1) //user will update later in profile
                 };
                 await studentRepo.AddAsync(student);
                 await _unitOfWork.CompleteAsync();

@@ -169,10 +169,10 @@ namespace Courses.Services.InstructorServices
 
                 // Group by student to get distinct student IDs with sort key values
                 var studentGroups = searchEnrollments
-                    .GroupBy(x => new { x.StudentId, x.Student.Name })
+                    .GroupBy(x => new { x.StudentId, x.Student.ApplicationUser.FullName })
                     .Select(group => new StudentSearchInfo(
                         group.Key.StudentId,
-                        group.Key.Name,
+                        group.Key.FullName,
                         group.Min(x => x.CreatedAt)
                     )).ToList();
 
@@ -205,11 +205,11 @@ namespace Courses.Services.InstructorServices
 
                 // Group by student and map to response DTOs
                 var students = dataEnrollments
-                    .GroupBy(x => new { x.StudentId, x.Student.Name })
+                    .GroupBy(x => new { x.StudentId, x.Student.ApplicationUser.FullName })
                     .Select(group => new StudentWithInstructorResponse
                     {
                         Id = group.Key.StudentId,
-                        Name = group.Key.Name,
+                        Name = group.Key.FullName,
                         CourseCount = group.Select(x => x.CourseId).Distinct().Count(),
                         FirstEnrollment = group.Min(x => x.CreatedAt),
                         Courses = group.Select(x => new StudentCourseWithInstructor
@@ -270,7 +270,7 @@ namespace Courses.Services.InstructorServices
                 var student = new StudentWithInstructorResponse
                 {
                     Id = firstEnrollment.Student.Id,
-                    Name = firstEnrollment.Student.Name,
+                    Name = firstEnrollment.Student.ApplicationUser.FullName,
                     CourseCount = enrollments.Select(x => x.CourseId).Distinct().Count(),
                     FirstEnrollment = enrollments.Min(x => x.CreatedAt),
                     Courses = enrollments

@@ -7,7 +7,7 @@ namespace Courses.Core.Models.Instructors
     /// Represents an instructor who creates and teaches courses.
     /// Inherits personal info (Name, Birthday, Age) from PersonalBase.
     /// </summary>
-    public class Instructor : PersonalBase
+    public class Instructor : BaseModel
     {
 
         // The instructor's area of expertise (e.g., "Web Development", "Data Science")
