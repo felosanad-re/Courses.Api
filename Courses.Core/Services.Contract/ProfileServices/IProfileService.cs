@@ -8,6 +8,6 @@ namespace Courses.Core.Services.Contract.ProfileServices
     public interface IProfileService
     {
         Task<ApplicationServiceResult<UserProfileResponse>> GetUserProfileAsync();
-        Task<ApplicationServiceResult<ApplicationUser>> EditProfileAsync(EditProfileRequest req);
+        Task<ApplicationServiceResult<UserProfileResponse>> EditProfileAsync(EditProfileRequest req, string userId);
     }
 }

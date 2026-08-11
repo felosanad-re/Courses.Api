@@ -67,69 +67,32 @@ namespace Courses.Services.ProfileServices
         }
 
         #region Edit Profile
-        public async Task<ApplicationServiceResult<ApplicationUser>> EditProfileAsync(EditProfileRequest req)
+        public async Task<ApplicationServiceResult<UserProfileResponse>> EditProfileAsync(EditProfileRequest req, string userId)
         {
-            const string ErrorMessage = "User Not Updated";
             const string SucceddedMessage = "User Edit Profile Succeeded";
 
             try
             {
-                var user = await _userManager.FindByIdAsync(req.Id);
-                if (user is null) return ApplicationServiceResult<ApplicationUser>.Fail(NotFoundMessage);
-
-                var roles = await _userManager.GetRolesAsync(user);
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null) return ApplicationServiceResult<UserProfileResponse>.Fail(NotFoundMessage);
 
                 _mapper.Map(req, user);
                 var result = await _userManager.UpdateAsync(user); // Update Profile In Application User
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return ApplicationServiceResult<UserProfileResponse>.Fail(errors);
+                }
 
-                if(!result.Succeeded) return ApplicationServiceResult<ApplicationUser>.Fail(ErrorMessage);
+                var data = _mapper.Map<UserProfileResponse>(user);
 
-                bool isUpdated = false;
-
-                // Update Student
-                if(roles.Contains(Roles.Student))
-                    isUpdated |= await UpdateStudent(req);
-
-                // Update Instructor
-                if (roles.Contains(Roles.Instructor))
-                    isUpdated |= await UpdateInstructor(req);
-
-                // Save Changes
-                if (isUpdated)
-                    await _unitOfWork.CompleteAsync();
-
-                return ApplicationServiceResult<ApplicationUser>.Success(user, SucceddedMessage);
+                return ApplicationServiceResult<UserProfileResponse>.Success(data, SucceddedMessage);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, ex.Message);
-                return ApplicationServiceResult<ApplicationUser>.Fail(LogError);
+                _logger.LogError(ex, "there is problem when try to update profile for userId {userId}", userId);
+                return ApplicationServiceResult<UserProfileResponse>.Fail(LogError);
             }
-        }
-        #endregion
-
-        #region Helper Method
-        private async Task<bool> UpdateInstructor(EditProfileRequest req)
-        {
-            var spec = new InstructorSpec(req.Id);
-            var instructorRepo = _unitOfWork.CreateRepository<Instructor>();
-            var instructor = await instructorRepo.GetAsyncSpec(spec);
-            if (instructor == null)
-                return false;
-
-            return true;
-        }
-
-        private async Task<bool> UpdateStudent(EditProfileRequest req)
-        {
-            var spec = new StudentSpec(req.Id);
-            var studentRepo = _unitOfWork.CreateRepository<Student>();
-            var student = await studentRepo.GetAsyncSpec(spec);
-            if (student == null)
-                return false;
-
-            _mapper.Map(req, student);
-            return true;
         }
         #endregion
     }

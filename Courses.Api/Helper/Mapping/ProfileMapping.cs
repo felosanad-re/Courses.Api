@@ -45,7 +45,6 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<EditProfileRequest, Student>();
 
             CreateMap<ApplicationUser, UserProfileResponse>()
-                .ForMember(d => d.FullName, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"))
                 .ForMember(d => d.UserRoles, o => o.Ignore());
             #endregion
 
