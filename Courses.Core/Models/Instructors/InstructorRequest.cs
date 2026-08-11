@@ -16,8 +16,5 @@ namespace Courses.Core.Models.Instructors
         public InstructorRequestStatus Status { get; set; }
 
         public string? RejectionReason { get; set; }
-
-        public int InstructorId { get; set; }
-        public Instructor Instructor { get; set; }
     }
 }

@@ -216,7 +216,8 @@ namespace Courses.Api.Helper.Mapping
                 .ForMember(d => d.IsDeleted, o => o.MapFrom(s => s.ApplicationUser.IsDeleted))
                 .ForMember(d => d.Name, o => o.MapFrom(s => s.ApplicationUser.FullName));
 
-            CreateMap<InstructorRequest, ApplyInstructorResponse>();
+            CreateMap<InstructorRequest, ApplyInstructorResponse>()
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.User.FullName));
             #endregion
 
             #region Course Rating

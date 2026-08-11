@@ -9,11 +9,6 @@ namespace Courses.Core.Services.Contract.InstructorServices
     // the request send to admin to approve or reject this request
     public interface IInstructorRequestService
     {
-        Task<ApplicationServiceResult<ApplyInstructorResponse>> ApplyInstructorRequest(ApplyInstructorRequest req, string instructorId);
-
-        Task<ApplicationServiceResult<ApplyInstructorResponse>> GetApproveRequest(int reqId);
-        Task<ApplicationServiceResult<ApplyInstructorResponse>> GetRejectRequest(int reqId);
-
-        Task<ApplicationServiceResult<Pagination<ApplyInstructorResponse>>> GetAllRequests(InstructorRequestParams param);
+        Task<ApplicationServiceResult<ApplyInstructorResponse>> ApplyInstructorRequest(ApplyInstructorRequest req);
     }
 }
