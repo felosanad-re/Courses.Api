@@ -7,7 +7,7 @@ namespace Courses.Core.Models.Students
     /// Represents a student on the platform. Inherits personal info (Name, Birthday, Age)
     /// from PersonalBase. Links to an Identity user account via UserId.
     /// </summary>
-    public class Student : PersonalBase
+    public class Student : BaseModel
     {
         // Navigation to the Identity user account (one-to-one with ApplicationUser)
         public ApplicationUser ApplicationUser { get; set; }

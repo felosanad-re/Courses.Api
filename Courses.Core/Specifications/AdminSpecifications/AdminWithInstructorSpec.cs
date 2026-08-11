@@ -9,6 +9,7 @@ namespace Courses.Core.Specifications.AdminSpecifications
             : base()
         {
             Includes.Add(i => i.Courses);
+            Includes.Add(i => i.ApplicationUser);
             AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
         }
 

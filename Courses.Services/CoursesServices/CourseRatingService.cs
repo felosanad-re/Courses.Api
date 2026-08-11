@@ -103,7 +103,7 @@ namespace Courses.Services.CoursesServices
                     Rating = req.RatingValue,
                     Comment = req.Comment,
                     CourseName = course.Name,
-                    StudentName = enrollment.Student.Name
+                    StudentName = $"{enrollment.Student.ApplicationUser.FirstName} {enrollment.Student.ApplicationUser.LastName}"
                 };
 
                 return ApplicationServiceResult<CourseRatingResponse>.Success(response, SucceededMassage);

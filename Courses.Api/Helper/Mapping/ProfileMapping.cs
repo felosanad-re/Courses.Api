@@ -21,6 +21,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
 using Courses.Core.ModelsDTO.ResponseDTO.LiveSessions;
 using Courses.Core.ModelsDTO.ResponseDTO.Payments;
+using Courses.Core.ModelsDTO.ResponseDTO.Profiles;
 using Courses.Core.ModelsDTO.ResponseDTO.Progress;
 using Courses.Core.ModelsDTO.ResponseDTO.Refunds;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
@@ -38,10 +39,13 @@ namespace Courses.Api.Helper.Mapping
 
             #region Edit Profile Request
             CreateMap<EditProfileRequest, ApplicationUser>();
-            CreateMap<EditProfileRequest, Instructor>()
-                .ForMember(d => d.Name, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"));
-            CreateMap<EditProfileRequest, Student>()
-                .ForMember(d => d.Name, o => o.MapFrom(s => $"{s.FirstName} {s.LastName}"));
+
+            CreateMap<EditProfileRequest, Instructor>();
+
+            CreateMap<EditProfileRequest, Student>();
+
+            CreateMap<ApplicationUser, UserProfileResponse>()
+                .ForMember(d => d.UserRoles, o => o.Ignore());
             #endregion
 
             #region Courses With Instructors
@@ -64,7 +68,7 @@ namespace Courses.Api.Helper.Mapping
             #region Courses
             CreateMap<Course, CourseResponse>()
                 .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name))
-                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
+                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.ApplicationUser.FullName))
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseResponse>, string>(s => s.Image));
 
             CreateMap<Course, CoursesToReturnDTO>()
@@ -73,7 +77,7 @@ namespace Courses.Api.Helper.Mapping
 
             CreateMap<Course, CourseDetailsToReturnDTO>()
                 .ForMember(d => d.CourseCategory, o => o.MapFrom(s => s.CourseCategory.Name))
-                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.Name))
+                .ForMember(d => d.InstructorName, o => o.MapFrom(s => s.Instructor.ApplicationUser.FullName))
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<Course, CourseDetailsToReturnDTO>, string>(s => s.Image));
 
             CreateMap<Course, CourseProgressResponse>()
@@ -94,7 +98,7 @@ namespace Courses.Api.Helper.Mapping
             #region Enrollment
             CreateMap<Enrollment, EnrollmentResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
-                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName));
 
             CreateMap<Enrollment, EnrollmentWithCoursesResponse>()
                 .ForMember(d => d.CourseId, o => o.MapFrom(s => s.CourseId))
@@ -115,7 +119,7 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Enrollment, InstructorWithEnrollmentsDetails>()
                 .ForMember(d => d.EnrollmentId, o => o.MapFrom(s => s.Id))
                 .ForMember(d => d.CourseId, o => o.MapFrom(s => s.CourseId))
-                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name))
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName))
                 .ForMember(d => d.CourseTitle, o => o.MapFrom(s => s.Course.Name));
 
             CreateMap<Enrollment, AdminEnrollmentsWithStudentResponse>();
@@ -185,45 +189,54 @@ namespace Courses.Api.Helper.Mapping
             CreateMap<Student, StudentWithApplicationUserToReturnDTO>();
 
             CreateMap<Student, AdminWithStudentResponse>()
-                .ForMember(d => d.NumberOfEnrollments, o => o.MapFrom(s => s.Enrollments.Count));
+                .ForMember(d => d.NumberOfEnrollments, o => o.MapFrom(s => s.Enrollments.Count))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.ApplicationUser.FullName));
 
             CreateMap<Student, AdminWithStudentDetailsResponse>()
                 .ForMember(d => d.Email, o => o.MapFrom(s => s.ApplicationUser.Email))
                 .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.ApplicationUser.PhoneNumber))
                 .ForMember(d => d.Address, o => o.MapFrom(s => s.ApplicationUser.Address))
                 .ForMember(d => d.UserName, o => o.MapFrom(s => s.ApplicationUser.UserName))
-                .ForMember(d => d.Status, o => o.MapFrom(s => s.ApplicationUser.Status));
+                .ForMember(d => d.Status, o => o.MapFrom(s => s.ApplicationUser.Status))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.ApplicationUser.FullName));
             #endregion
 
             #region Instructors
             CreateMap<Instructor, InstructorWithApplicationUserResponse>();
             CreateMap<Instructor, AdminInstructorResponse>()
-                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count));
+                .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.ApplicationUser.FullName));
+
             CreateMap<Instructor, AdminInstructorDetailsResponse>()
                 .ForMember(d => d.NumberOfCourses, o => o.MapFrom(s => s.Courses.Count))
                  .ForMember(d => d.Email, o => o.MapFrom(s => s.ApplicationUser.Email))
                 .ForMember(d => d.PhoneNumber, o => o.MapFrom(s => s.ApplicationUser.PhoneNumber))
                 .ForMember(d => d.Address, o => o.MapFrom(s => s.ApplicationUser.Address))
                 .ForMember(d => d.UserName, o => o.MapFrom(s => s.ApplicationUser.UserName))
-                .ForMember(d => d.IsDeleted, o => o.MapFrom(s => s.ApplicationUser.IsDeleted));
+                .ForMember(d => d.IsDeleted, o => o.MapFrom(s => s.ApplicationUser.IsDeleted))
+                .ForMember(d => d.Name, o => o.MapFrom(s => s.ApplicationUser.FullName));
+
+            CreateMap<InstructorRequest, ApplyInstructorResponse>();
             #endregion
 
             #region Course Rating
             CreateMap<CourseRating, DashboardInstructorReviewsDTO>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
-                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName));
 
             CreateMap<CourseRating, AdminDashboardReviewsResponse>()
                 .ForMember(d => d.CourseName, o => o.MapFrom(s => s.Course.Name))
-                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.Name));
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName));
 
             CreateMap<CourseRating, AdminCoursesReviewsResponse>()
                 .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<CourseRating, AdminCoursesReviewsResponse>,string>(s => s.Course.Image))
                 .ForMember(d => d.RatingCount, o => o.MapFrom(s => s.Course.RatingCount))
-                .ForMember(d => d.AverageRating, o => o.MapFrom(s => s.Course.AverageRating));
+                .ForMember(d => d.AverageRating, o => o.MapFrom(s => s.Course.AverageRating))
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName));
 
             CreateMap<CourseRating, AdminReviewDetailsResponse>()
-                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<CourseRating, AdminReviewDetailsResponse>,string>(s => s.Course.Image));
+                .ForMember(d => d.Image, o => o.MapFrom<ImageResolver<CourseRating, AdminReviewDetailsResponse>,string>(s => s.Course.Image))
+                .ForMember(d => d.StudentName, o => o.MapFrom(s => s.Student.ApplicationUser.FullName));
 
             #endregion
         }

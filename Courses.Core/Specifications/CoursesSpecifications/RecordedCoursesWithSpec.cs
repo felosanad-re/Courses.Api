@@ -12,6 +12,7 @@ namespace Courses.Core.Specifications.CoursesSpecifications
             IncludesString.Add("Sections.Lectures");
             IncludesString.Add("Sections.Sessions");
             Includes.Add(c => c.Instructor);
+            IncludesString.Add("Instructor.ApplicationUser");
         }
     }
 }

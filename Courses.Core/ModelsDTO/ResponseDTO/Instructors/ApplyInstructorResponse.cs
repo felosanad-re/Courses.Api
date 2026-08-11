@@ -14,5 +14,8 @@ namespace Courses.Core.ModelsDTO.ResponseDTO.Instructors
         public InstructorRequestStatus Status { get; set; }
         public string? RejectionReason { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public int InstructorId { get; set; }
+        public string InstructorName { get; set; }
     }
 }

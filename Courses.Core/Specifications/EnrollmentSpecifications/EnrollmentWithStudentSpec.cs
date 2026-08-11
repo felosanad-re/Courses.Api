@@ -15,8 +15,8 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
         public EnrollmentWithStudentSpec(int? instructorId, StudentParams @params, bool forCount = false, bool applyPagination = true, bool includeCourse = true)
             :base(x =>
                 (string.IsNullOrEmpty(@params.Search) ||
-                 x.Course.Name.ToLower().Contains(@params.Search.Trim().ToLower()) ||
-                 x.Student.Name.ToLower().Contains(@params.Search.Trim().ToLower())) &&
+                 x.Course.Name.Contains(@params.Search.Trim().ToLower()) ||
+                 x.Student.ApplicationUser.FullName.Contains(@params.Search.Trim().ToLower())) &&
                 (x.Course.InstructorId == instructorId)&&
                 (x.Status == EnrollStatus.Active)
             )
@@ -26,6 +26,7 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
             if(!forCount)
             {
                 Includes.Add(x => x.Student);
+                IncludesString.Add("Student.ApplicationUser");
                 if(includeCourse)
                     Includes.Add(x => x.Course);
 
@@ -64,6 +65,7 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
             )
         {
             Includes.Add(x => x.Student);
+            IncludesString.Add("Student.ApplicationUser");
             Includes.Add(x => x.Course);
             IsTracking = false;
         }
@@ -79,7 +81,7 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
             switch (@params.Sort)
             {
                 case "nameDesc":
-                    AddOrderByDesc(x => x.Student.Name);
+                    AddOrderByDesc(x => x.Student.ApplicationUser.FirstName);
                     break;
 
                 case "firstEnrollment":
@@ -99,7 +101,7 @@ namespace Courses.Core.Specifications.EnrollmentSpecifications
                     break;
 
                 default:
-                    AddOrderBy(x => x.Student.Name);
+                    AddOrderBy(x => x.Student.ApplicationUser.FirstName);
                     break;
             }
         }

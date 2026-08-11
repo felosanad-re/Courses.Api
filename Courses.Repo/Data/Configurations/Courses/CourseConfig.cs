@@ -27,8 +27,7 @@ namespace Courses.Repo.Data.Configurations.Courses
                 .HasMaxLength(500);
 
             builder.Property(c => c.Type)
-                .HasConversion<string>()
-                .HasDefaultValue(CourseType.RecorderCourse);
+                .HasConversion<string>();
 
             builder.Property(c => c.Status)
                 .HasConversion<string>();

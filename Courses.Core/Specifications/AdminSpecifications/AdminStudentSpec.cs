@@ -7,11 +7,13 @@ namespace Courses.Core.Specifications.AdminSpecifications
     {
         public AdminStudentSpec(StudentParams param)
             :base(x =>
-                (string.IsNullOrEmpty(param.Search) || x.Name.Contains(param.Search))
+                (string.IsNullOrWhiteSpace(param.Search) ||
+                x.ApplicationUser.FullName.Contains(param.Search))
             )
         {
             IsTracking = false;
             Includes.Add(x => x.Enrollments);
+            Includes.Add(x => x.ApplicationUser);
             AddPagination(param.PageSize * (param.PageIndex - 1), param.PageSize);
         }
 

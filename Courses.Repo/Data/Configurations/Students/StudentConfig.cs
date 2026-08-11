@@ -14,17 +14,6 @@ namespace Courses.Repo.Data.Configurations.Students
             // Primary key (inherited from BaseModel via PersonalBase)
             builder.HasKey(s => s.Id);
 
-            // Properties
-            builder.Property(s => s.Name)
-                .IsRequired()
-                .HasMaxLength(200);
-
-            builder.Property(s => s.Birthday)
-                .IsRequired();
-
-            // Age is computed at runtime — don't map to database
-            builder.Ignore(s => s.Age);
-
             builder.Property(s => s.UserId)
                 .IsRequired();
 
