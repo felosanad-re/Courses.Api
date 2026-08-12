@@ -6,9 +6,11 @@ namespace Courses.Core.Services.Contract.AdminDashboardServices
 {
     public interface IAdminInstructorRequest
     {
-        Task<ApplicationServiceResult<ApplyInstructorResponse>> GetApproveRequest(int reqId);
-        Task<ApplicationServiceResult<ApplyInstructorResponse>> GetRejectRequest(int reqId);
+        Task<ApplicationServiceResult<bool>> ApproveRequest(int reqId);
+        Task<ApplicationServiceResult<bool>> RejectRequest(int reqId);
 
         Task<ApplicationServiceResult<Pagination<ApplyInstructorResponse>>> GetAllRequests(InstructorRequestParams param);
+
+        Task<ApplicationServiceResult<ApplyInstructorDetailsResponse>> GetRequestDetails(int reqId);
     }
 }

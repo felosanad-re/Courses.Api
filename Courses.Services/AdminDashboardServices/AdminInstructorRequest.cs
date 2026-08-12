@@ -6,10 +6,12 @@ using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.Services.Contract.AdminDashboardServices;
 using Courses.Core.Services.Contract.UserServices;
+using Courses.Core.Specifications;
 using Courses.Core.Specifications.InstructorRequestSpecifications;
 using Courses.Core.UnitOfWork;
 using Courses.Services.InstructorServices;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Courses.Services.AdminDashboardServices
@@ -36,7 +38,7 @@ namespace Courses.Services.AdminDashboardServices
 
         #region GetAllRequests
 
-        public async Task<ApplicationServiceResult<Pagination<ApplyInstructorResponse>>> GetAllRequests(InstructorRequestParams param)
+        public async Task<ApplicationServiceResult<Pagination<ApplyInstructorResponse>>> GetAllRequests([FromQuery]InstructorRequestParams param)
         {
             try
             {
@@ -69,27 +71,58 @@ namespace Courses.Services.AdminDashboardServices
 
         #endregion
 
+        #region Get Request Details
+        public async Task<ApplicationServiceResult<ApplyInstructorDetailsResponse>> GetRequestDetails(int reqId)
+        {
+            string? userId = null;
+            string? adminName = null;
+
+            try
+            {
+                userId = _currentUserService.UserId;
+                adminName = _currentUserService.UserName;
+                var instructorRequestSpec = new BaseSpecifications<InstructorRequest>(x => x.Id == reqId);
+                instructorRequestSpec.Includes.Add(x => x.User);
+                var instructorRequestRepo = _unitOfWork.CreateRepository<InstructorRequest>();
+
+                var instructorRequest = await instructorRequestRepo.GetAsyncSpec(instructorRequestSpec);
+                if (instructorRequest is null)
+                    return ApplicationServiceResult<ApplyInstructorDetailsResponse>.Fail("There is No Instructor request with this id");
+
+                var data = _mapper.Map<ApplyInstructorDetailsResponse>(instructorRequest);
+
+                return ApplicationServiceResult<ApplyInstructorDetailsResponse>.Success(data, "you retrieve instructor request successfully");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "there is a problem when try to retrieve data for request {reqId}, for admin name {adminName}", reqId, adminName);
+                return ApplicationServiceResult<ApplyInstructorDetailsResponse>.Fail("There is an error in the database");
+            }
+        }
+        #endregion
+
         #region ApproveRequest
 
-        public async Task<ApplicationServiceResult<ApplyInstructorResponse>> GetApproveRequest(int reqId)
+        public async Task<ApplicationServiceResult<bool>> ApproveRequest(int reqId)
         {
             try
             {
                 var currentUserId = _currentUserService.UserId;
+                var userName = _currentUserService.UserName;
                 if (string.IsNullOrEmpty(currentUserId))
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("User not authenticated");
+                    return ApplicationServiceResult<bool>.Fail("User not authenticated");
 
                 var instructorRequestRepo = _unitOfWork.CreateRepository<InstructorRequest>();
                 var request = await instructorRequestRepo.GetAsync(reqId);
                 if (request == null)
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("Request not found");
+                    return ApplicationServiceResult<bool>.Fail("Request not found");
 
                 if (request.Status != InstructorRequestStatus.Pending)
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("Request is not pending");
+                    return ApplicationServiceResult<bool>.Fail("Request is not pending");
 
                 // Update request status
                 request.Status = InstructorRequestStatus.Approved;
-                request.CreatedBy = currentUserId;
+                request.CreatedBy = userName;
                 request.CreatedAt = DateTime.UtcNow;
 
                 // Add Instructor role to user
@@ -99,13 +132,12 @@ namespace Courses.Services.AdminDashboardServices
 
                 await _unitOfWork.CompleteAsync();
 
-                var response = MapToResponse(request, user!);
-                return ApplicationServiceResult<ApplyInstructorResponse>.Success(response, "Request approved successfully");
+                return ApplicationServiceResult<bool>.Success(true, "Request approved successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return ApplicationServiceResult<ApplyInstructorResponse>.Fail("There is an error in the database");
+                return ApplicationServiceResult<bool>.Fail("There is an error in the database");
             }
         }
 
@@ -113,59 +145,38 @@ namespace Courses.Services.AdminDashboardServices
 
         #region RejectRequest
 
-        public async Task<ApplicationServiceResult<ApplyInstructorResponse>> GetRejectRequest(int reqId)
+        public async Task<ApplicationServiceResult<bool>> RejectRequest(int reqId)
         {
             try
             {
                 var currentUserId = _currentUserService.UserId;
+                var userName = _currentUserService.UserName;
                 if (string.IsNullOrEmpty(currentUserId))
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("User not authenticated");
+                    return ApplicationServiceResult<bool>.Fail("User not authenticated");
 
                 var instructorRequestRepo = _unitOfWork.CreateRepository<InstructorRequest>();
                 var request = await instructorRequestRepo.GetAsync(reqId);
                 if (request == null)
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("Request not found");
+                    return ApplicationServiceResult<bool>.Fail("Request not found");
 
                 if (request.Status != InstructorRequestStatus.Pending)
-                    return ApplicationServiceResult<ApplyInstructorResponse>.Fail("Request is not pending");
+                    return ApplicationServiceResult<bool>.Fail("Request is not pending");
 
                 // Update request status
                 request.Status = InstructorRequestStatus.Rejected;
-                request.CreatedBy = currentUserId;
+                request.CreatedBy = userName;
                 request.CreatedAt = DateTime.UtcNow;
 
                 await _unitOfWork.CompleteAsync();
 
                 var user = await _userManager.FindByIdAsync(request.UserId);
-                var response = MapToResponse(request, user!);
-                return ApplicationServiceResult<ApplyInstructorResponse>.Success(response, "Request rejected successfully");
+                return ApplicationServiceResult<bool>.Success(true, "Request rejected successfully");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return ApplicationServiceResult<ApplyInstructorResponse>.Fail("There is an error in the database");
+                return ApplicationServiceResult<bool>.Fail("There is an error in the database");
             }
-        }
-
-        #endregion
-
-        #region Private Helper Methods
-
-        private static ApplyInstructorResponse MapToResponse(InstructorRequest request, ApplicationUser? user)
-        {
-            return new ApplyInstructorResponse
-            {
-                Id = request.Id,
-                UserId = request.UserId,
-                FullName = user?.FullName ?? string.Empty,
-                Email = user?.Email ?? string.Empty,
-                Bio = request.Bio,
-                Specialty = request.Specialty,
-                ExperienceYears = request.ExperienceYears,
-                Status = request.Status,
-                RejectionReason = request.RejectionReason,
-                CreatedAt = request.CreatedAt
-            };
         }
 
         #endregion

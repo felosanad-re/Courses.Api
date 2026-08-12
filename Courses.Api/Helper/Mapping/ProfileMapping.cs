@@ -218,6 +218,10 @@ namespace Courses.Api.Helper.Mapping
 
             CreateMap<InstructorRequest, ApplyInstructorResponse>()
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.User.FullName));
+
+            CreateMap<InstructorRequest, ApplyInstructorDetailsResponse>()
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.User.FullName))
+                .ForMember(d => d.Email, o => o.MapFrom(s => s.User.Email));
             #endregion
 
             #region Course Rating
