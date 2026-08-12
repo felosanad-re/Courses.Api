@@ -7,7 +7,7 @@ namespace Courses.Core.Specifications.InstructorRequestSpecifications
 
         public InstructorRequestSpec(InstructorRequestParams param)
             :base(x => string.IsNullOrEmpty(param.Search) ||
-                    x.Instructor.ApplicationUser.FullName.Contains(param.Search)
+                    x.User.FullName.Contains(param.Search)
             )
         {
             Includes.Add(x => x.User);
