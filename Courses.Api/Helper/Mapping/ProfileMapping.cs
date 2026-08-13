@@ -7,6 +7,7 @@ using Courses.Core.Models.Instructors;
 using Courses.Core.Models.LiveSessions;
 using Courses.Core.Models.Students;
 using Courses.Core.ModelsDTO.RequestDTO.Account;
+using Courses.Core.ModelsDTO.RequestDTO.Account.AdminManagementAccounts;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
 using Courses.Core.ModelsDTO.RequestDTO.Lectures;
 using Courses.Core.ModelsDTO.RequestDTO.Profile;
@@ -27,6 +28,7 @@ using Courses.Core.ModelsDTO.ResponseDTO.Refunds;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.ModelsDTO.ResponseDTO.StudentLectureProgress;
 using Courses.Core.ModelsDTO.ResponseDTO.Students;
+using Courses.Services.AdminDashboardServices;
 
 namespace Courses.Api.Helper.Mapping
 {
@@ -36,6 +38,7 @@ namespace Courses.Api.Helper.Mapping
         {
             CreateMap<CreateAccountRequest, ApplicationUser>();
             CreateMap<ApplicationUser, CreateAccountResponse>();
+            CreateMap<AdminCreateUserReq, ApplicationUser>();
 
             #region Edit Profile Request
             CreateMap<EditProfileRequest, ApplicationUser>();
