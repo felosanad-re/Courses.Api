@@ -18,12 +18,14 @@ namespace Courses.Api.Controllers.AdminDashboard
         protected readonly IAdminManagementStudents _adminManagementStudents;
         protected readonly IAdminManagementInstructors _adminManagementInstructors;
         protected readonly IAdminManagementAccountService _adminManagementAccountService;
+        protected readonly IAdminCreateUser _adminCreateUser;
 
-        public AdminManagementAccountsController(IAdminManagementStudents adminManagementStudents, IAdminManagementInstructors adminManagementInstructors, IAdminManagementAccountService adminManagementAccountService)
+        public AdminManagementAccountsController(IAdminManagementStudents adminManagementStudents, IAdminManagementInstructors adminManagementInstructors, IAdminManagementAccountService adminManagementAccountService, IAdminCreateUser adminCreateUser)
         {
             _adminManagementStudents = adminManagementStudents;
             _adminManagementInstructors = adminManagementInstructors;
             _adminManagementAccountService = adminManagementAccountService;
+            _adminCreateUser = adminCreateUser;
         }
         #endregion
 
@@ -116,6 +118,18 @@ namespace Courses.Api.Controllers.AdminDashboard
         public async Task<ActionResult<ApplicationServiceResult<bool>>> RestoreAccount(string userId)
         {
             var res = await _adminManagementAccountService.RestoreAccountAsync(userId);
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
+        }
+        #endregion
+
+        #region Create Account
+        [HttpPost("CreateUser")] // POST: /api/AdminManagementAccounts/CreateUser
+        public async Task<ActionResult<ApplicationServiceResult<bool>>> CreateAccount(AdminCreateUserReq req)
+        {
+            var res = await _adminCreateUser.CreateUserAsync(req);
             if (!res.Succeed)
                 return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
 
