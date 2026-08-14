@@ -33,5 +33,11 @@ namespace Courses.Core.Specifications.RatingSpecifications
             Skip = 0;
             IsTracking = false;
         }
+
+        public RatingWithSpec(int? instructorId)
+            :base(x => x.Course.InstructorId == instructorId)
+        {
+            
+        }
     }
 }

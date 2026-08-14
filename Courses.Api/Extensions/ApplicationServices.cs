@@ -4,6 +4,7 @@ using Courses.Core.Options;
 using Courses.Core.RedisRepository;
 using Courses.Core.Services.Contract;
 using Courses.Core.Services.Contract.AccountServices;
+using Courses.Core.Services.Contract.ActivitiesServices;
 using Courses.Core.Services.Contract.AdminDashboardServices;
 using Courses.Core.Services.Contract.AdminServices;
 using Courses.Core.Services.Contract.AnalyticsServices;
@@ -40,6 +41,7 @@ using Courses.Services.DashboardInstructorServices;
 using Courses.Services.EarningServices;
 using Courses.Services.EnrollmentServices;
 using Courses.Services.InstructorServices;
+using Courses.Services.InstructorServices.ActivitiesServices;
 using Courses.Services.LiveSessionServices;
 using Courses.Services.ManagementCourses;
 using Courses.Services.PaymentsServices;
@@ -62,6 +64,7 @@ namespace Courses.Api.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddScoped<IActivitiesService, ActivitiesService>();
             services.AddScoped<IAdminCreateUser, AdminCreateUser>();
             services.AddScoped<IAdminInstructorRequest, AdminInstructorRequest>();
             services.AddScoped<IAdminReviewsService, AdminReviewsService>();
