@@ -6,6 +6,7 @@ using Courses.Core.ModelsDTO.RequestDTO.Students;
 using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Instructors;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
+using Courses.Core.Services.Contract.ActivitiesServices;
 using Courses.Core.Services.Contract.InstructorServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,10 +18,12 @@ namespace Courses.Api.Controllers.Instructors
     public class InstructorController : BaseController
     {
         protected readonly IInstructorService _instructorService;
+        protected readonly IActivitiesService _activitiesService;
 
-        public InstructorController(IInstructorService instructorService)
+        public InstructorController(IInstructorService instructorService, IActivitiesService activitiesService)
         {
             _instructorService = instructorService;
+            _activitiesService = activitiesService;
         }
 
         #region GetAllInstructors
@@ -119,6 +122,18 @@ namespace Courses.Api.Controllers.Instructors
                 return BadRequest(new ErrorResponse(400) { Message = [result.Message] });
 
             return Ok(result);
+        }
+        #endregion
+
+        #region
+        [HttpGet("Activities")] // GET: /api/Instructor/Activities
+        public async Task<ActionResult<IReadOnlyList<InstructorActivitiesResponse>>> GetActivities()
+        {
+            var res = await _activitiesService.GetActivitiesAsync();
+            if (!res.Succeed)
+                return BadRequest(new ErrorResponse(400) { Message = [res.Message] });
+
+            return Ok(res);
         }
         #endregion
     }
