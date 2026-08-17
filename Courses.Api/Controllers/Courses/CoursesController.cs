@@ -1,4 +1,5 @@
 ﻿using Courses.Api.ErrorHandler;
+using Courses.Core;
 using Courses.Core.Models.Courses;
 using Courses.Core.ModelsDTO;
 using Courses.Core.ModelsDTO.RequestDTO.Courses;
@@ -6,10 +7,12 @@ using Courses.Core.ModelsDTO.ResponseDTO.Courses;
 using Courses.Core.ModelsDTO.ResponseDTO.Lectures;
 using Courses.Core.ModelsDTO.ResponseDTO.Sections;
 using Courses.Core.Services.Contract.CoursesServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Courses.Api.Controllers.Courses
 {
+    [Authorize(Roles = $"{Roles.Student} {Roles.Instructor} {Roles.Admin}")]
     public class CoursesController : BaseController
     {
         #region
@@ -29,6 +32,7 @@ namespace Courses.Api.Controllers.Courses
         #endregion
 
         #region Get All Courses Async
+        [AllowAnonymous]
         [HttpGet("Courses")] // GET: /api/Courses/Courses
         public async Task<ActionResult<ApplicationServiceResult<Pagination<CoursesToReturnDTO>>>> GetAllCoursesAsync([FromQuery]CoursesParams @params)
         {
@@ -40,6 +44,7 @@ namespace Courses.Api.Controllers.Courses
         #endregion
 
         #region Get Course Details
+        [AllowAnonymous]
         [HttpGet("Course/{courseId}")] // GET: /api/Courses/Course/courseId?type=recorded
         public async Task<ActionResult<CourseDetailsToReturnDTO>> GetCourseDetails(int courseId, [FromQuery]CourseType type)
         {
@@ -50,6 +55,7 @@ namespace Courses.Api.Controllers.Courses
         #endregion
 
         #region Get Course Sections
+        [AllowAnonymous]
         [HttpGet("Sections/{courseId}")] // GET: /api/Courses/Sections
         public async Task<ActionResult<ApplicationServiceResult<IReadOnlyList<SectionWithCourseResponse>>>> GetSections(int courseId)
         {

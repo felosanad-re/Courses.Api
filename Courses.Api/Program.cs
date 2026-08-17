@@ -5,6 +5,8 @@ using Courses.Repo.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using StackExchange.Redis;
 
 namespace Courses.Api
@@ -16,6 +18,14 @@ namespace Courses.Api
             try
             {
                 var builder = WebApplication.CreateBuilder(args);
+
+                // Use Serilog 
+                Log.Logger = new LoggerConfiguration()
+                    .WriteTo.Console()
+                    .ReadFrom.Configuration(builder.Configuration)
+                    .CreateLogger();
+
+                builder.Host.UseSerilog();
 
                 #region Add services to the container.
 
@@ -42,8 +52,15 @@ namespace Courses.Api
                 });
 
                 // Add Redis
-                var redisConncetion = builder.Configuration.GetSection("RedisSettings:ConnectionString").Value;
-                builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConncetion));
+                builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+                {
+                    var redisConnectionString = builder.Configuration
+                    .GetSection("RedisSettings").GetValue<string>("ConnectionString")
+                        ?? throw new InvalidOperationException("Redis connection string is missing.");
+
+                    var configuration = CreateRedisConfiguration(redisConnectionString);
+                    return ConnectionMultiplexer.Connect(configuration);
+                });
 
                 // Add Application Services (JWT auth configured here overrides Identity cookies)
                 builder.Services.AddApplicationServices(builder.Configuration);
@@ -209,6 +226,36 @@ namespace Courses.Api
             {
                 return null;
             }
+        }
+
+        private static ConfigurationOptions CreateRedisConfiguration(string redisConnectionString)
+        {
+            var configuration = new ConfigurationOptions
+            {
+                AbortOnConnectFail = false,
+                ConnectRetry = 3,
+                ConnectTimeout = 10000,
+                SyncTimeout = 10000,
+                AsyncTimeout = 10000,
+                KeepAlive = 60
+            };
+
+            if (Uri.TryCreate(redisConnectionString, UriKind.Absolute, out var redisUri)
+                && !string.IsNullOrWhiteSpace(redisUri.Host))
+            {
+                configuration.Ssl = redisUri.Scheme.Equals("rediss", StringComparison.OrdinalIgnoreCase);
+                configuration.SslHost = configuration.Ssl ? redisUri.Host : null;
+
+                var userInfoParts = redisUri.UserInfo.Split(':', 2);
+                configuration.User = string.IsNullOrWhiteSpace(userInfoParts[0]) ? null : userInfoParts[0];
+                configuration.Password = userInfoParts.Length > 1 ? userInfoParts[1] : null;
+                configuration.EndPoints.Add(redisUri.Host, redisUri.Port);
+
+                return configuration;
+            }
+
+            configuration.EndPoints.Add(redisConnectionString);
+            return configuration;
         }
         #endregion
 
